@@ -1,0 +1,70 @@
+This Software Development Kit (SDK) License Agreement ("Agreement") is a legal agreement
+between you ("Licensee") and Madrigal Ltd. ("Madrigal") for the use of the Basis
+modding SDK package ("SDK Package").
+
+The SDK Package is a separate product provided by Madrigal and is not part of the full
+version of any game or software application.
+
+PLEASE READ CAREFULLY THE AGREEMENT BEFORE DOWNLOADING, INSTALLING OR USING THIS SOFTWARE
+DEVELOPMENT KIT. DOWNLOADING, INSTALLING OR USING THE SDK SHALL BE DEEMED YOUR LAWFUL
+ACCEPTANCE OF THE TERMS AND CONDITIONS BELOW. IF YOU DO NOT AGREE TO THEM, YOU MAY NOT
+ACCESS OR USE THE SDK PACKAGE.
+
+1. Grant of License
+
+Madrigal grants Licensee a limited, non-exclusive, non-transferable license to use the
+SDK Package in the form provided, solely to create modifications ("mods") for certain
+Madrigal’s products.
+
+Licensee does not acquire any ownership rights to the SDK Package under this Agreement.
+Madrigal reserves all the rights not expressly granted to Licensee under this Agreement.
+
+2. Non-Commercial Use
+
+Licensee may use the SDK Package solely for non-commercial purposes. Licensee may not
+use the SDK Package to develop or distribute any commercial product, or use it in any
+way that generates revenue, unless explicit written permission is obtained from Madrigal.
+
+3. Disclaimer of Warranties
+
+The SDK Package is provided "AS IS" without any warranties whatsoever. Madrigal disclaims
+all warranties with regards to the SDK Package, express or implied, without limitation,
+implied warranties of merchantability, fitness for particular purpose and non-infringement
+of third-party rights. Madrigal is under no obligation to provide support, updates, or
+bug fixes for the SDK Package.
+
+4. Limitation of Liability
+
+To the maximum extent permitted by applicable law, in no event shall Madrigal be liable
+for any indirect, incidental, special, exemplary, or consequential damages arising out of
+or in connection with the use or performance of the SDK Package, including, without
+limitation, damages for loss of profits, data, or use.
+
+5. Intellectual Property Rights
+
+This is a License Agreement and not an Agreement for sale. Nothing in this Agreement
+gives Licensee a right to use any of Madrigal’s trade names, trademarks, logos, domain
+names or other distinct company features. Madrigal owns copyrights and other intellectual
+property rights of the SDK Package. Any copy made from it is similarly retained by
+Madrigal.
+
+6. Termination
+
+Licensee may terminate this Agreement at any time by destroying the SDK Package together
+with all copies thereof. This Agreement shall also terminate if Licensee fails to comply
+with any term or condition of this Agreement. Licensee agrees, upon termination, to
+immediately destroy all copies of the Software within Licensee’s possession or control.
+Madrigal may terminate the License at any time at its sole discretion. The Limitations of
+Warranties and Liability set out in this Agreement shall survive any termination or
+expiration of this Agreement.
+
+7. Governing Law
+
+This Agreement shall be governed by the laws of Finland without reference to any conflict
+of laws principles.
+
+8. Entire Agreement
+
+This Agreement constitutes the entire agreement between Licensee and Madrigal with
+respect to the subject matter thereof and supersedes all prior and contemporaneous
+agreements and understandings, whether written or oral with respect to the SDK Package.
