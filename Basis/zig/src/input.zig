@@ -1,5 +1,5 @@
 // ----------------------------------------------------
-// Copyright (c) 2018-2025 Madrigal Ltd.
+// Copyright (c) 2018-2026 Madrigal Ltd.
 // This file is part of the Basis modding SDK, and is subject to the
 // terms and conditions of the Basis modding SDK License Agreement.
 // https://www.madrigalgames.com
@@ -304,6 +304,39 @@ pub fn isKeyPressed(keyCode: KeyCode) bool {
 
 pub fn isMouseButtonPressed(id: MouseButtonID) bool {
     return basis.bindings.api.InputManager_isMouseButtonPressed(@intCast(@intFromEnum(id)));
+}
+
+// True if the given gamepad button is currently held on any connected gamepad. Useful for raw polling.
+pub fn isGamepadButtonDown(button: GamepadButton) bool {
+    return basis.bindings.api.InputManager_isGamepadButtonDown(@intFromEnum(button));
+}
+
+// Drives the gamepad's two rumble motors. low = left motor (low frequency), high = right motor
+// (high frequency), each 0..1. No-op when the index is not a connected gamepad.
+pub fn setGamepadVibration(index: i32, lowFrequency: f32, highFrequency: f32) void {
+    basis.bindings.api.InputManager_setGamepadVibration(index, lowFrequency, highFrequency);
+}
+
+// Returns the first keyboard key currently down, or null. Intended for rebind capture.
+pub fn getFirstPressedKey() ?KeyCode {
+    const value = basis.bindings.api.InputManager_getFirstPressedKey();
+    if (value < 0) return null;
+    return @as(KeyCode, @enumFromInt(value));
+}
+
+// Returns the first mouse button currently down, or null. Same usage as getFirstPressedKey.
+pub fn getFirstPressedMouseButton() ?MouseButtonID {
+    const value = basis.bindings.api.InputManager_getFirstPressedMouseButton();
+    if (value < 0) return null;
+    return @as(MouseButtonID, @enumFromInt(value));
+}
+
+// Writes the OS-localized name of a key into `buffer` (UTF-8) and returns the written slice.
+// Names follow the player's physical keyboard layout (e.g. AZERTY, Finnish). Empty on
+// non-Windows or if the OS has no name for the key.
+pub fn getKeyName(keyCode: KeyCode, buffer: []u8) []const u8 {
+    const written = basis.bindings.api.InputManager_getKeyName(@intCast(@intFromEnum(keyCode)), buffer.ptr, @intCast(buffer.len));
+    return buffer[0..written];
 }
 
 pub fn getMappedKeyCode(inputID: anytype, context: anytype, flags: i32) ?KeyCode {

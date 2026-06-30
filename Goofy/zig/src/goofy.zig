@@ -1,5 +1,5 @@
 // ----------------------------------------------------
-// Copyright (c) 2018-2025 Madrigal Ltd.
+// Copyright (c) 2018-2026 Madrigal Ltd.
 // This file is part of the Basis SDK, and is subject to the
 // terms and conditions of the Basis SDK License Agreement.
 // https://www.madrigalgames.com
@@ -7,6 +7,8 @@
 
 const std = @import("std");
 
+pub const global_data = @import("global_data.zig");
+pub const hot_reload = @import("hot_reload.zig");
 pub const library_api = @import("library_api.zig");
 pub const bindings = @import("bindings.zig");
 pub const manager = @import("manager.zig");
@@ -26,6 +28,9 @@ pub const label = @import("label.zig");
 pub const spin_box = @import("spin_box.zig");
 pub const user_widget = @import("user_widget.zig");
 pub const paint = @import("paint.zig");
+
+// Global data ptr:
+pub var g: *global_data.LibraryGlobalData = undefined;
 
 // Enums:
 
@@ -91,6 +96,10 @@ pub const UIEvent = enum(u32) {
     MouseReleased, // button = event args int0, x = event args float0, y = event args float1
     MouseWheelMoved, // amount = event args float0
 
+    // Raised by spin box widgets when the user changes the selected value via input
+    // (mouse, keyboard, gamepad). Not raised on programmatic setSelectedValue calls.
+    SpinBoxValueChanged,
+
     // More...
 
     Count,
@@ -147,20 +156,6 @@ pub const Paint = paint.Paint;
 
 pub const FontHandle = i32;
 
-// Initialization and deinitialization:
-
-pub fn init(allocator: std.mem.Allocator) void {
-    canvas.initCallbackMap(allocator);
-    view.initCallbackMap(allocator);
-    user_widget.initCallbackMap(allocator);
-}
-
-pub fn deinit() void {
-    canvas.deinitCallbackMap();
-    view.deinitCallbackMap();
-    user_widget.deinitCallbackMap();
-}
-
 // Misc:
 
 // This forces the namespaces/modules to be loaded and the exports to be processed.
@@ -192,6 +187,6 @@ pub fn forceAnalysis() void {
     };
 
     inline for (modules) |module| {
-        std.testing.refAllDeclsRecursive(module);
+        std.testing.refAllDecls(module);
     }
 }

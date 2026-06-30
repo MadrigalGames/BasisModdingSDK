@@ -1,5 +1,5 @@
 // ----------------------------------------------------
-// Copyright (c) 2018-2025 Madrigal Ltd.
+// Copyright (c) 2018-2026 Madrigal Ltd.
 // This file is part of the Basis modding SDK, and is subject to the
 // terms and conditions of the Basis modding SDK License Agreement.
 // https://www.madrigalgames.com
@@ -41,7 +41,7 @@ pub const TimelineComponentBase = struct {
 
     enableCinematicInput: bool = false,
 
-    onTimelineFinishedScriptFunction: AngelScriptFunctionPtr = AngelScriptFunctionPtr.Null,
+    onTimelineFinishedScriptFunction: AngelScriptFunctionPtr = .Null,
 
     // Managed sounds are "owned" by the timeline component. The idea is that these sounds can exist outside
     // the events that create them, and even keep playing after the TL has ended. If the sounds are to continue
@@ -69,6 +69,8 @@ pub const TimelineComponentBase = struct {
     }
 
     pub fn deinit(self: *Self) void {
+        self.tearDownCallbacks();
+
         self.releaseManagedSounds();
         self.managedSounds.deinit();
 
@@ -84,13 +86,6 @@ pub const TimelineComponentBase = struct {
     pub fn finalizeTimelineSetup(self: *Self, enableCinematicInput: bool) void {
         self.enableCinematicInput = enableCinematicInput;
 
-        self.eventEnteredValue.setValueChangedCallback(.initMethod(self, Self, onEventEnteredValue));
-        self.eventExitedValue.setValueChangedCallback(.initMethod(self, Self, onEventExitedValue));
-
-        self.playAction.setActionFiredCallback(.initMethod(self, Self, onPlayActionFired));
-        self.stopAction.setActionFiredCallback(.initMethod(self, Self, onStopActionFired));
-        self.timelineFinishedAction.setActionFiredCallback(.initMethod(self, Self, onTimelineFinishedActionFired));
-
         if (!self.context.inEditor()) {
             self.timeline.finalizeSetup();
 
@@ -99,16 +94,9 @@ pub const TimelineComponentBase = struct {
             //     asIScriptModule* scriptModule = mModule.getScriptModule();
             //     mOnTimelineFinishedFunction.init(scriptModule, ON_TIMELINE_FINISHED_DECL);
             // }
-
-            if (self.context.onServer()) {
-                self.timeline.playbackFinishedCallback = .initMethod(self, Self, onTimelinePlaybackFinished);
-
-                // On the server we hook up the network interface CBs, so that entering/exiting
-                // events etc. get picked up and sent to all the clients.
-                self.timeline.networkHelper.enterEventCB = .initMethod(self, Self, onEventEnteredOnServer);
-                self.timeline.networkHelper.exitEventCB = .initMethod(self, Self, onEventExitedOnServer);
-            }
         }
+
+        self.setupCallbacks();
     }
 
     //----------------------------------------------------
@@ -143,6 +131,50 @@ pub const TimelineComponentBase = struct {
     }
 
     //----------------------------------------------------
+
+    pub fn beforeHotReload(self: *Self) void {
+        self.tearDownCallbacks();
+    }
+
+    pub fn afterHotReload(self: *Self, comptime SupportedEventTypes: []const type) void {
+        self.timeline.afterHotReload(SupportedEventTypes);
+        self.setupCallbacks();
+    }
+
+    //----------------------------------------------------
+
+    fn setupCallbacks(self: *Self) void {
+        self.eventEnteredValue.setValueChangedCallback(.initMethod(self, Self, onEventEnteredValue));
+        self.eventExitedValue.setValueChangedCallback(.initMethod(self, Self, onEventExitedValue));
+
+        self.playAction.setActionFiredCallback(.initMethod(self, Self, onPlayActionFired));
+        self.stopAction.setActionFiredCallback(.initMethod(self, Self, onStopActionFired));
+        self.timelineFinishedAction.setActionFiredCallback(.initMethod(self, Self, onTimelineFinishedActionFired));
+
+        if (self.context.onServer()) {
+            self.timeline.playbackFinishedCallback = .initMethod(self, Self, onTimelinePlaybackFinished);
+
+            // On the server we hook up the network interface CBs, so that entering/exiting
+            // events etc. get picked up and sent to all the clients.
+            self.timeline.networkHelper.enterEventCB = .initMethod(self, Self, onEventEnteredOnServer);
+            self.timeline.networkHelper.exitEventCB = .initMethod(self, Self, onEventExitedOnServer);
+        }
+    }
+
+    fn tearDownCallbacks(self: *Self) void {
+        self.eventEnteredValue.clearValueChangedCallback();
+        self.eventExitedValue.clearValueChangedCallback();
+
+        self.playAction.clearActionFiredCallback();
+        self.stopAction.clearActionFiredCallback();
+        self.timelineFinishedAction.clearActionFiredCallback();
+
+        if (self.context.onServer()) {
+            self.timeline.playbackFinishedCallback = null;
+            self.timeline.networkHelper.enterEventCB = null;
+            self.timeline.networkHelper.exitEventCB = null;
+        }
+    }
 
     fn onTimelinePlaybackFinished(self: *Self, skippedToEnd: bool) void {
         basis.assert(@src(), self.context.onServer());

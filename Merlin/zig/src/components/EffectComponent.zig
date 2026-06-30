@@ -1,5 +1,5 @@
 // ----------------------------------------------------
-// Copyright (c) 2018-2025 Madrigal Ltd.
+// Copyright (c) 2018-2026 Madrigal Ltd.
 // This file is part of the Basis SDK, and is subject to the
 // terms and conditions of the Basis SDK License Agreement.
 // https://www.madrigalgames.com
@@ -21,18 +21,20 @@ pub const EffectComponent = struct {
 
     context: GameObjectComponent,
 
-    effectDesc: merlin.EffectDescriptionPtr = merlin.EffectDescriptionPtr.Null,
-    effectInstance: merlin.EffectInstancePtr = merlin.EffectInstancePtr.Null,
+    effectDesc: merlin.EffectDescriptionPtr = .Null,
+    effectInstance: merlin.EffectInstancePtr = .Null,
 
     // Exposed properties:
     effectPath: basis.String,
     autoStart: bool = true,
     letFinishOnParentDeath: bool = false,
+    tickInPartialSimulation: bool = false,
 
     pub const ExposedPropertyMap = .{
-        basis.exposed_properties.ResourceRefProperty(Self, "effectPath", basis.typeinfo.ResourceTypeID.RawDataFile, "", 1, ""),
+        basis.exposed_properties.ResourceRefProperty(Self, "effectPath", .RawDataFile, "", 1, ""),
         basis.exposed_properties.Property(Self, bool, "autoStart", true, 1, ""),
         basis.exposed_properties.Property(Self, bool, "letFinishOnParentDeath", false, 1, ""),
+        basis.exposed_properties.Property(Self, bool, "tickInPartialSimulation", false, 1, ""),
         basis.exposed_properties.Button("start", "Start", "Start", ""),
         basis.exposed_properties.Button("stop", "Stop", "Stop", ""),
         basis.exposed_properties.Button("stopAndLetFinish", "Stop and let finish", "Stop", ""),
@@ -108,6 +110,8 @@ pub const EffectComponent = struct {
 
         const worldMatrix = self.context.transform.getWorldMatrix();
         self.effectInstance = self.effectDesc.createInstance(worldMatrix, true);
+
+        self.effectInstance.setTickInPartialSimulation(self.tickInPartialSimulation);
     }
 
     pub fn stop(self: *Self) void {

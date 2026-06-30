@@ -1,5 +1,5 @@
 // ----------------------------------------------------
-// Copyright (c) 2018-2025 Madrigal Ltd.
+// Copyright (c) 2018-2026 Madrigal Ltd.
 // This file is part of the Basis modding SDK, and is subject to the
 // terms and conditions of the Basis modding SDK License Agreement.
 // https://www.madrigalgames.com
@@ -18,11 +18,26 @@ const MessageNode = basis.messaging.MessageNode;
 
 //----------------------------------------------------
 
+// Note! Keep this in sync with the C++ side.
 pub const ZigLibraryType = enum(u32) {
     Unknown = 0,
     NativeDynamicLibrary = 1,
     WASMClient = 2,
     WASMServer = 3,
+};
+
+// Note! Keep this in sync with the C++ side.
+pub const ZigBasisInitFlags = enum(u32) {
+    None = 0,
+    BindGoofy = (1 << 0),
+    BindTimbre = (1 << 1),
+    BindNemo = (1 << 2),
+    BindMerlin = (1 << 3),
+    BindTrampoline = (1 << 4),
+
+    pub fn asInt(self: ZigBasisInitFlags) u32 {
+        return @intFromEnum(self);
+    }
 };
 
 var _gZigLibCppPtr: InteropTypedPtr = InteropTypedPtr{
@@ -47,12 +62,23 @@ pub fn getZigLibraryType() ZigLibraryType {
 
 // Exported engine C-api:
 
-export fn basisInit(zigLibCppPtr: InteropTypedPtr) i32 {
+export fn basisInit(zigLibCppPtr: InteropTypedPtr) u32 {
     _gZigLibCppPtr = zigLibCppPtr;
-    return 0;
+
+    var flags: u32 = 0;
+
+    // By default we bind everything.
+    // TODO: Make this adjustable, eg. using zig build system options.
+    flags |= ZigBasisInitFlags.BindGoofy.asInt();
+    flags |= ZigBasisInitFlags.BindTimbre.asInt();
+    flags |= ZigBasisInitFlags.BindNemo.asInt();
+    flags |= ZigBasisInitFlags.BindMerlin.asInt();
+    flags |= ZigBasisInitFlags.BindTrampoline.asInt();
+
+    return flags;
 }
 
-export fn basisInit_WASM(buffer: [*]u8, bufferLength: u32) i32 {
+export fn basisInit_WASM(buffer: [*]u8, bufferLength: u32) u32 {
     basis.assert(@src(), bufferLength == @sizeOf(InteropTypedPtr));
 
     // We can do either...
@@ -359,6 +385,24 @@ export fn CFactory_editorStateModeChanged(
     factoryInterfacePtr.editorStateModeChanged(basis.bindings.libIntPtrFromHost(componentIntPtr), editingEnabled);
 }
 
+export fn CFactory_getAngelScriptPreface(
+    factoryInterfaceIntPtr: basis.IntPtr64,
+    componentIntPtr: basis.IntPtr64,
+    outBuffer: [*c]basis.bindings.InteropBuffer,
+) void {
+    var factoryInterfacePtr = castIntPtr(ComponentFactoryInterface, factoryInterfaceIntPtr);
+    factoryInterfacePtr.getAngelScriptPreface(basis.bindings.libIntPtrFromHost(componentIntPtr), outBuffer);
+}
+
+export fn CFactory_appendAngelScriptMethodAutoCompleteItems(
+    factoryInterfaceIntPtr: basis.IntPtr64,
+    componentIntPtr: basis.IntPtr64,
+    vectorPtr: basis.IntPtr,
+) void {
+    var factoryInterfacePtr = castIntPtr(ComponentFactoryInterface, factoryInterfaceIntPtr);
+    factoryInterfacePtr.appendAngelScriptMethodAutoCompleteItems(basis.bindings.libIntPtrFromHost(componentIntPtr), vectorPtr);
+}
+
 // Propagated value:
 
 export fn PV_updateFloat(pvPtr: basis.IntPtr64, value: f32, localChange: bool, valueTime: f64) void {
@@ -549,6 +593,21 @@ export fn Physics_onCollisionCallback(sceneIntPtr: basis.CppPtr, interopCollisio
 
     collisionData.shape0 = basis.physics.PhysicsShapePtr{ .cppPtr = interopCollisionData.shape0 };
     collisionData.shape1 = basis.physics.PhysicsShapePtr{ .cppPtr = interopCollisionData.shape1 };
+
+    // Leave the actors as .Null when there is no associated actor (e.g. a removed actor),
+    // since PhysicsActorType has no zero value to build from.
+    if (interopCollisionData.actor0 != 0) {
+        collisionData.actor0 = basis.physics.PhysicsActorPtr{
+            .cppPtr = interopCollisionData.actor0,
+            .actorType = @enumFromInt(interopCollisionData.actor0Type),
+        };
+    }
+    if (interopCollisionData.actor1 != 0) {
+        collisionData.actor1 = basis.physics.PhysicsActorPtr{
+            .cppPtr = interopCollisionData.actor1,
+            .actorType = @enumFromInt(interopCollisionData.actor1Type),
+        };
+    }
 
     collisionData.collisionPoints.len = @intCast(interopCollisionData.collisionPointCount);
     for (0..interopCollisionData.collisionPointCount) |i| {

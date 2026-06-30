@@ -1,5 +1,5 @@
 // ----------------------------------------------------
-// Copyright (c) 2018-2025 Madrigal Ltd.
+// Copyright (c) 2018-2026 Madrigal Ltd.
 // This file is part of the Basis SDK, and is subject to the
 // terms and conditions of the Basis SDK License Agreement.
 // https://www.madrigalgames.com
@@ -22,7 +22,7 @@ pub fn Localization_isValidLocalizationKey(keyName: [*c]const basis.bindings.Int
     if (isWasm) {
         @compileError("Localization_isValidLocalizationKey not implemented for WASM yet.");
     } else {
-        return trampoline.bindings.fp._Localization_isValidLocalizationKey(keyName);
+        return trampoline.bindings.fp._Localization_isValidLocalizationKey(keyName) == 1;
     }
 }
 
@@ -71,6 +71,14 @@ pub fn Localization_setUILanguage(id: i32) void {
         @compileError("Localization_setUILanguage not implemented for WASM yet.");
     } else {
         trampoline.bindings.fp._Localization_setUILanguage(id);
+    }
+}
+
+pub fn Localization_getUILanguage() i32 {
+    if (isWasm) {
+        @compileError("Localization_getUILanguage not implemented for WASM yet.");
+    } else {
+        return trampoline.bindings.fp._Localization_getUILanguage();
     }
 }
 

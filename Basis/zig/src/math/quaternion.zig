@@ -1,5 +1,5 @@
 // ----------------------------------------------------
-// Copyright (c) 2018-2025 Madrigal Ltd.
+// Copyright (c) 2018-2026 Madrigal Ltd.
 // This file is part of the Basis modding SDK, and is subject to the
 // terms and conditions of the Basis modding SDK License Agreement.
 // https://www.madrigalgames.com
@@ -68,6 +68,15 @@ pub const Quaternion = struct {
         return q;
     }
 
+    pub fn initFromSlice(slice: []const f32) Quaternion {
+        return Quaternion{
+            .w = slice[0],
+            .x = slice[1],
+            .y = slice[2],
+            .z = slice[3],
+        };
+    }
+
     //----------------------------------------------------
 
     pub fn setRotationX(self: *Quaternion, theta: f32) void {
@@ -132,29 +141,19 @@ pub const Quaternion = struct {
             var root = std.math.sqrt(trace + 1.0);
             self.w = 0.5 * root;
             root = 0.5 / root;
-            self.x = (m._32 - m._23) * root;
-            self.y = (m._13 - m._31) * root;
-            self.z = (m._21 - m._12) * root;
+            self.x = (m._23 - m._32) * root;
+            self.y = (m._31 - m._13) * root;
+            self.z = (m._12 - m._21) * root;
         } else {
             // Create a temp array that allows indexing into the vector part of the quaternion.
             const V: [3]*f32 = .{ &self.x, &self.y, &self.z };
 
             // Create a temp struct holding the rotation part of the matrix, for easy indexing below.
-            var tempRot = [3][3]f32{
-                [_]f32{ 1.0, 0.0, 0.0 },
-                [_]f32{ 0.0, 1.0, 0.0 },
-                [_]f32{ 0.0, 0.0, 1.0 },
+            const tempRot = [3][3]f32{
+                [_]f32{ m._11, m._12, m._13 },
+                [_]f32{ m._21, m._22, m._23 },
+                [_]f32{ m._31, m._32, m._33 },
             };
-
-            tempRot[0][0] = m._11;
-            tempRot[0][1] = m._12;
-            tempRot[0][2] = m._13;
-            tempRot[1][0] = m._21;
-            tempRot[1][1] = m._22;
-            tempRot[1][2] = m._23;
-            tempRot[2][0] = m._31;
-            tempRot[2][1] = m._32;
-            tempRot[2][2] = m._33;
 
             var i: usize = 0;
             var j: usize = 1;
@@ -179,7 +178,7 @@ pub const Quaternion = struct {
             V[i].* = 0.5 * root;
 
             root = 0.5 / root;
-            self.w = (tempRot[k][j] - tempRot[j][k]) * root;
+            self.w = (tempRot[j][k] - tempRot[k][j]) * root;
 
             V[j].* = (tempRot[j][i] + tempRot[i][j]) * root;
             V[k].* = (tempRot[k][i] + tempRot[i][k]) * root;
@@ -263,18 +262,13 @@ pub const Quaternion = struct {
     }
 
     pub fn conjugate(self: Quaternion) Quaternion {
-        var result: Quaternion = undefined;
-
-        // Same rotation amount.
-        result.w = self.w;
-
-        // Opposite axis of rotation.
-        result.x = -self.x;
-        result.y = -self.y;
-        result.z = -self.z;
-
-        // Return it.
-        return result;
+        // Same rotation amount. Opposite axis of rotation.
+        return Quaternion{
+            .w = self.w,
+            .x = -self.x,
+            .y = -self.y,
+            .z = -self.z,
+        };
     }
 
     pub fn inverse(self: Quaternion) Quaternion {
@@ -300,18 +294,18 @@ pub const Quaternion = struct {
         };
     }
 
-    pub fn applyRotationTo(self: Quaternion, vec: Vec3) Vec3 {
-        var v = vec;
+    pub fn applyRotationTo(self: Quaternion, direction: Vec3) Vec3 {
+        var v = direction;
         const oldLen = v.normalizeAndReturnPrevLength();
 
-        var vecQuat: Quaternion = undefined;
-        var resQuat: Quaternion = undefined;
-        vecQuat.x = v.x;
-        vecQuat.y = v.y;
-        vecQuat.z = v.z;
-        vecQuat.w = 0.0;
+        const vecQuat = Quaternion{
+            .w = 0.0,
+            .x = v.x,
+            .y = v.y,
+            .z = v.z,
+        };
 
-        resQuat = vecQuat.concatenate(self.conjugate());
+        var resQuat = vecQuat.concatenate(self.conjugate());
         resQuat = self.concatenate(resQuat);
 
         return Vec3.init(resQuat.x * oldLen, resQuat.y * oldLen, resQuat.z * oldLen);
@@ -397,3 +391,21 @@ pub const Quaternion = struct {
         };
     }
 };
+
+//----------------------------------------------------
+
+test "Quaternion.fromRotationMatrix matches Quaternion.initRotationY" {
+    const theta = std.math.pi / 4.0;
+    const qm = Quaternion.initFromRotationMatrix(Mat43.initRotationY(theta));
+    const qd = Quaternion.initRotationY(theta);
+    const v = Vec3.init(1.0, 2.0, 3.0);
+    try std.testing.expect(basis.math.vec3sAlmostEqual(qd.applyRotationTo(v), qm.applyRotationTo(v)));
+}
+
+test "Quaternion -> Mat43 -> Quaternion round-trip preserves rotation" {
+    const q = Quaternion.initFromAngleAxis(1.2, Vec3.init(0.3, 0.7, 0.5));
+    const m = Mat43.fromOrientationPosition(q, Vec3.Zero);
+    const qr = Quaternion.initFromRotationMatrix(m);
+    const v = Vec3.init(1.0, 2.0, 3.0);
+    try std.testing.expect(basis.math.vec3sAlmostEqual(q.applyRotationTo(v), qr.applyRotationTo(v)));
+}

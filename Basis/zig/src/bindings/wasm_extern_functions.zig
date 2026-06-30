@@ -1,5 +1,5 @@
 // ----------------------------------------------------
-// Copyright (c) 2018-2025 Madrigal Ltd.
+// Copyright (c) 2018-2026 Madrigal Ltd.
 // This file is part of the Basis modding SDK, and is subject to the
 // terms and conditions of the Basis modding SDK License Agreement.
 // https://www.madrigalgames.com
@@ -251,6 +251,7 @@ pub extern "env" fn ComponentContext_writeToPipe_WASM(thisPtr_0: basis.CppPtr, t
 pub extern "env" fn ComponentContext_callScriptOnTick_WASM(thisPtr_0: basis.CppPtr, thisPtr_1: u32, tickDeltaTime: f32) void;
 pub extern "env" fn ComponentContext_getScriptFunctionByDecl_WASM(thisPtr_0: basis.CppPtr, thisPtr_1: u32, declBufferPtr: [*c]const u8, declBufferLength: u32) basis.CppPtr;
 pub extern "env" fn ComponentContext_getScriptFunctionByASFuncPtr_WASM(thisPtr_0: basis.CppPtr, thisPtr_1: u32, funcPtr: basis.CppPtr) basis.CppPtr;
+pub extern "env" fn ComponentContext_setScriptGlobalHandle_WASM(thisPtr_0: basis.CppPtr, thisPtr_1: u32, handleNameBufferPtr: [*c]const u8, handleNameBufferLength: u32, value: basis.CppPtr) void;
 
 // ===============================
 
@@ -309,6 +310,8 @@ pub extern "env" fn InputManager_releaseCursor_WASM() void;
 pub extern "env" fn InputManager_getGameInputMode_WASM() i32;
 pub extern "env" fn InputManager_isKeyPressed_WASM(keyCode: u32) bool;
 pub extern "env" fn InputManager_isMouseButtonPressed_WASM(id: u32) bool;
+pub extern "env" fn InputManager_isGamepadButtonDown_WASM(button: i32) bool;
+pub extern "env" fn InputManager_setGamepadVibration_WASM(index: i32, lowFrequency: f32, highFrequency: f32) void;
 pub extern "env" fn InputManager_getMappedKeyCode_WASM(inputID: u16, context: u8, flags: i32) i32;
 pub extern "env" fn InputManager_getMappedMouseButton_WASM(inputID: u16, context: u8, flags: i32) i32;
 pub extern "env" fn InputManager_getMappedGamepadButton_WASM(inputID: u16, context: u8, flags: i32) i32;
@@ -428,6 +431,10 @@ pub extern "env" fn PhysicsActor_setWorldTransform_WASM(cppPtr: basis.CppPtr, va
 pub extern "env" fn PhysicsActor_getWorldTransform_WASM(cppPtr: basis.CppPtr, valueBufferPtr: [*]u8, valueBufferLength: u32) void;
 pub extern "env" fn PhysicsActor_setKinematicTarget_WASM(cppPtr: basis.CppPtr, valueBufferPtr: [*]const u8, valueBufferLength: u32) void;
 pub extern "env" fn PhysicsActor_setMassData_WASM(cppPtr: basis.CppPtr, mass: f32, comX: f32, comY: f32, comZ: f32) void;
+pub extern "env" fn PhysicsActor_setContactReportThreshold_WASM(cppPtr: basis.CppPtr, threshold: f32) void;
+pub extern "env" fn PhysicsActor_setSolverIterationCounts_WASM(cppPtr: basis.CppPtr, minPositionIters: u32, minVelocityIters: u32) void;
+pub extern "env" fn PhysicsActor_setAngularDamping_WASM(cppPtr: basis.CppPtr, damping: f32) void;
+pub extern "env" fn PhysicsActor_setMaxAngularVelocity_WASM(cppPtr: basis.CppPtr, maxAngVel: f32) void;
 pub extern "env" fn PhysicsActor_getWorldBounds_WASM(cppPtr: basis.CppPtr, valueBufferPtr: [*]u8, valueBufferLength: u32) void;
 pub extern "env" fn PhysicsActor_associateWithGameObject_WASM(cppPtr: basis.CppPtr, gameObjectCppPtr: basis.CppPtr) void;
 pub extern "env" fn PhysicsActor_getAssociatedGameObject_WASM(cppPtr: basis.CppPtr) basis.CppPtr;
@@ -545,9 +552,12 @@ pub extern "env" fn Renderer_addCameraToBackOfQueue_WASM(cppPtr: basis.CppPtr, c
 pub extern "env" fn Renderer_addCameraToFrontOfQueue_WASM(cppPtr: basis.CppPtr, cameraCppPtr: basis.CppPtr) void;
 pub extern "env" fn Renderer_removeCameraFromQueue_WASM(cppPtr: basis.CppPtr, cameraCppPtr: basis.CppPtr) void;
 pub extern "env" fn Renderer_getMainCamera_WASM(cppPtr: basis.CppPtr) basis.CppPtr;
-pub extern "env" fn Renderer_getScreenWidth_WASM(cppPtr: basis.CppPtr) u32;
-pub extern "env" fn Renderer_getScreenHeight_WASM(cppPtr: basis.CppPtr) u32;
-pub extern "env" fn Renderer_setVignetteEnabled_WASM(cppPtr: basis.CppPtr, enabled: c_int) void;
+pub extern "env" fn Renderer_getWindowWidth_WASM(cppPtr: basis.CppPtr) u32;
+pub extern "env" fn Renderer_getWindowHeight_WASM(cppPtr: basis.CppPtr) u32;
+pub extern "env" fn Renderer_getRenderWidth_WASM(cppPtr: basis.CppPtr) u32;
+pub extern "env" fn Renderer_getRenderHeight_WASM(cppPtr: basis.CppPtr) u32;
+pub extern "env" fn Renderer_getRenderScale_WASM(cppPtr: basis.CppPtr) f32;
+pub extern "env" fn Renderer_setRenderScale_WASM(cppPtr: basis.CppPtr, scale: f32) void;
 pub extern "env" fn Renderer_createMesh_WASM(cppPtr: basis.CppPtr, geomCppPtr: basis.CppPtr, createImmutableGPUBuffers: bool, debugNamePtr: [*]const u8, debugNameLength: u32) basis.CppPtr;
 pub extern "env" fn Renderer_createMeshManual_WASM(cppPtr: basis.CppPtr, vertexFormatType: c_int, vertexCount: u32, indexCount: u32, debugNamePtr: [*]const u8, debugNameLength: u32) basis.CppPtr;
 //pub extern "env" fn Renderer_captureSinglePre2DFrame_WASM(cppPtr: basis.CppPtr, outputFolderPath: [*c]const basis.bindings.InteropString) void;
@@ -699,6 +709,11 @@ pub extern "env" fn GameSession_getClientCount_WASM(cppPtr: basis.CppPtr) u32;
 pub extern "env" fn GameSession_getClient_WASM(cppPtr: basis.CppPtr, clientIndex: u32, valueBufferPtr: [*]u8, valueBufferLength: u32) void;
 pub extern "env" fn GameSession_isPaused_WASM(cppPtr: basis.CppPtr) i32;
 pub extern "env" fn GameSession_requestPause_WASM(cppPtr: basis.CppPtr, paused: i32) void;
+pub extern "env" fn GameSession_getTickLevel_WASM(cppPtr: basis.CppPtr) u32;
+pub extern "env" fn GameSession_setTickLevel_WASM(cppPtr: basis.CppPtr, level: u32) void;
+pub extern "env" fn GameSession_requestSetTickLevel_WASM(cppPtr: basis.CppPtr, level: u32) void;
+pub extern "env" fn GameSession_hasStarted_WASM(cppPtr: basis.CppPtr) i32;
+pub extern "env" fn GameSession_hasEnded_WASM(cppPtr: basis.CppPtr) i32;
 pub extern "env" fn GameSession_getLevelData_WASM(cppPtr: basis.CppPtr) u64;
 pub extern "env" fn GameSession_isContinuousSession_WASM(cppPtr: basis.CppPtr) i32;
 
@@ -720,6 +735,7 @@ pub extern "env" fn GameState_clearAvatarObject_WASM(cppPtr: basis.CppPtr, hostI
 pub extern "env" fn GameState_getAvatarObjectByHostID_WASM(cppPtr: basis.CppPtr, hostID: c_int) u32;
 pub extern "env" fn GameState_getHostIDByAvatarObject_WASM(cppPtr: basis.CppPtr, avatarNameHash: u32) c_int;
 pub extern "env" fn GameState_broadcastScriptMessage_WASM(cppPtr: basis.CppPtr, senderCppPtr: basis.CppPtr, msgBufferPtr: [*]u8, msgBufferLength: u32) void;
+pub extern "env" fn GameState_sendScriptMessageToGameObject_WASM(cppPtr: basis.CppPtr, senderCppPtr: basis.CppPtr, receiverNameBufferPtr: [*]const u8, receiverNameBufferLength: u32, msgBufferPtr: [*]const u8, msgBufferLength: u32) void;
 pub extern "env" fn GameState_generateGameObjectName_WASM(cppPtr: basis.CppPtr, prefixBufferPtr: [*]const u8, prefixBufferLength: u32, randomPartLength: c_int, resultBufferPtr: [*]const u8, resultBufferLength: u32) u32;
 
 // ===============================

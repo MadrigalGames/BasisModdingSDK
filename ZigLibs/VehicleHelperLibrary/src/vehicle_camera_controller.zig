@@ -1,5 +1,5 @@
 // ----------------------------------------------------
-// Copyright (c) 2018-2025 Madrigal Ltd.
+// Copyright (c) 2018-2026 Madrigal Ltd.
 // This file is part of the Basis modding SDK, and is subject to the
 // terms and conditions of the Basis modding SDK License Agreement.
 // https://www.madrigalgames.com
@@ -70,22 +70,22 @@ pub const VehicleCameraController = struct {
     };
 
     const DrivingModeData = struct {
-        wantedLocalPosition: Vec3 = Vec3.Zero,
-        wantedLocalLookAtPos: Vec3 = Vec3.Zero,
+        wantedLocalPosition: Vec3 = .Zero,
+        wantedLocalLookAtPos: Vec3 = .Zero,
         cameraTargetDistance: f32 = 0.0,
         firstUpdateAfterSettingParameters: bool = true,
         fovSpeed: f32 = 0.0,
         fov: f32 = 0.0,
         lastCollisionDistance: f32 = -1.0,
-        wantedWorldPosition: Vec3 = Vec3.Zero,
-        wantedWorldLookAtPos: Vec3 = Vec3.Zero,
-        currentPosition: Vec3 = Vec3.Zero,
-        currentLookAtPosition: Vec3 = Vec3.Zero,
+        wantedWorldPosition: Vec3 = .Zero,
+        wantedWorldLookAtPos: Vec3 = .Zero,
+        currentPosition: Vec3 = .Zero,
+        currentLookAtPosition: Vec3 = .Zero,
         interpolator: TransformInterpolator = .{},
     };
 
     const OrbitModeData = struct {
-        lookAtPosition: Vec3 = Vec3.Zero, // This is an offset from the vehicle position, in world space.
+        lookAtPosition: Vec3 = .Zero, // This is an offset from the vehicle position, in world space.
         horizontalRotation: f32 = 0.0,
         verticalRotation: f32 = 0.0,
         fov: f32 = 0.0,
@@ -543,7 +543,7 @@ pub const VehicleCameraController = struct {
 
         if (self.vehicleCameraMode == VehicleCameraMode.Orbit) {
             if (orbitModeHorizontalDeltaWithAcceleration != 0.0) {
-                data.horizontalRotation -= orbitModeHorizontalDeltaWithAcceleration * hSensitivity;
+                data.horizontalRotation += orbitModeHorizontalDeltaWithAcceleration * hSensitivity;
                 if (data.horizontalRotation < 0.0) data.horizontalRotation += basis.math.TwoPi;
                 if (data.horizontalRotation > basis.math.TwoPi) data.horizontalRotation -= basis.math.TwoPi;
             }
@@ -554,7 +554,7 @@ pub const VehicleCameraController = struct {
             // so that we get a nice transition back to the orbit camera later.
             if (self.cameraModeBlendFactor == 0.0) {
                 const vehicleFormward = self.vehicleWorldMatrix.getZ();
-                data.horizontalRotation = std.math.atan2(vehicleFormward.z, vehicleFormward.x) - basis.math.HalfPi;
+                data.horizontalRotation = std.math.atan2(vehicleFormward.x, vehicleFormward.z);
             }
         }
 
@@ -569,9 +569,9 @@ pub const VehicleCameraController = struct {
         // The up/down value is normalized (0..1). 0 means no rotation while 1 means
         // 90 degrees rotation (looking at the avatar from straight above).
 
-        const lowestAngle = std.math.degreesToRadians(20.0);
-        //const highestAngle = -basis.math.Pi / 2.0; // This allows rotating the camera so that it looks straight down.
-        const highestAngle = -std.math.degreesToRadians(70.0);
+        const lowestAngle = -std.math.degreesToRadians(20.0);
+        //const highestAngle = basis.math.Pi / 2.0; // This allows rotating the camera so that it looks straight down.
+        const highestAngle = std.math.degreesToRadians(70.0);
         const upDownRotation = basis.math.remapFloat(data.verticalRotation, 0.0, 1.0, lowestAngle, highestAngle);
 
         var leftRightOrientation: Quaternion = undefined;

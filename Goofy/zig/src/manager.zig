@@ -1,5 +1,5 @@
 // ----------------------------------------------------
-// Copyright (c) 2018-2025 Madrigal Ltd.
+// Copyright (c) 2018-2026 Madrigal Ltd.
 // This file is part of the Basis SDK, and is subject to the
 // terms and conditions of the Basis SDK License Agreement.
 // https://www.madrigalgames.com
@@ -211,16 +211,25 @@ pub fn getUIPosFromPixelPos(pixelPos: basis.math.Vec2) basis.math.Vec2 {
 
 pub const EventCallback = basis.delegate.VoidDelegate4(goofy.UIEvent, goofy.UIViewPtr, basis.CppPtr, goofy.UIEventArgs);
 
-var gEventCallback: EventCallback = .{};
+pub const GlobalData = struct {
+    eventCallback: ?EventCallback = null,
+};
 
 pub fn setEventCallback(cb: EventCallback) void {
-    setEventHandlingEnabled(true);
+    const g = &goofy.g.manager;
+
     basis.assertd(
         @src(),
-        gEventCallback.funcPtr == null and gEventCallback.methodPtr == null,
+        g.eventCallback == null,
         "The Goofy event callback is already set. Trying to set a second time.",
     );
-    gEventCallback = cb;
+    setEventHandlingEnabled(true);
+    g.eventCallback = cb;
+}
+
+pub fn clearEventCallback() void {
+    const g = &goofy.g.manager;
+    g.eventCallback = null;
 }
 
 pub fn _raiseGoofyEvent(
@@ -232,13 +241,15 @@ pub fn _raiseGoofyEvent(
     int0: i32,
     int1: i32,
 ) void {
-    const eventTypeAsEnum: goofy.UIEvent = @enumFromInt(eventType);
-    const view = goofy.UIViewPtr.initFromCppPtr(viewCppPtr);
-    const args = goofy.UIEventArgs{
-        .float0 = float0,
-        .float1 = float1,
-        .int0 = int0,
-        .int1 = int1,
-    };
-    gEventCallback.call(eventTypeAsEnum, view, widgetCppPtr, args);
+    if (goofy.g.manager.eventCallback) |cb| {
+        const eventTypeAsEnum: goofy.UIEvent = @enumFromInt(eventType);
+        const view = goofy.UIViewPtr.initFromCppPtr(viewCppPtr);
+        const args = goofy.UIEventArgs{
+            .float0 = float0,
+            .float1 = float1,
+            .int0 = int0,
+            .int1 = int1,
+        };
+        cb.call(eventTypeAsEnum, view, widgetCppPtr, args);
+    }
 }

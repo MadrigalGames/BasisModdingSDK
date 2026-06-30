@@ -1,5 +1,5 @@
 // ----------------------------------------------------
-// Copyright (c) 2018-2025 Madrigal Ltd.
+// Copyright (c) 2018-2026 Madrigal Ltd.
 // This file is part of the Basis SDK, and is subject to the
 // terms and conditions of the Basis SDK License Agreement.
 // https://www.madrigalgames.com
@@ -22,6 +22,10 @@ pub const UIViewPtr = struct {
         return Self{ .cppPtr = cppPtr };
     }
 
+    pub fn isNull(self: *const Self) bool {
+        return self.cppPtr == 0;
+    }
+
     //----------------------------------------------------
 
     pub fn setRecreationCallback(self: *const Self, callback: RecreationCallback) void {
@@ -29,7 +33,7 @@ pub const UIViewPtr = struct {
             return; // Not yet supported on WASM.
         }
 
-        addRecreationCallback(self.cppPtr, callback);
+        setRecreationCallbackInternal(self.cppPtr, callback);
         goofy.bindings.api.GoofyUIView_setRecreationCallbackEnabled(self.cppPtr, 1);
     }
 
@@ -79,30 +83,26 @@ pub const RecreationCallback = basis.delegate.VoidDelegate1(bool);
 
 const CallbackMap = std.AutoArrayHashMap(basis.CppPtr, RecreationCallback);
 
-var gCallbackAllocator: std.mem.Allocator = undefined;
-var gCallbackMap: *CallbackMap = undefined;
+pub const GlobalData = struct {
+    callbackMap: CallbackMap = undefined,
+};
 
-// Init the map of callbacks. Called from goofy.init().
-pub fn initCallbackMap(allocator: std.mem.Allocator) void {
-    gCallbackAllocator = allocator;
-
-    gCallbackMap = gCallbackAllocator.create(CallbackMap) catch unreachable;
-    gCallbackMap.* = CallbackMap.init(gCallbackAllocator);
+pub fn init() void {
+    goofy.g.view.callbackMap = .init(goofy.g.allocator);
 }
 
-// Deinit the map of callbacks. Called from goofy.deinit().
-pub fn deinitCallbackMap() void {
-    gCallbackMap.deinit();
-    gCallbackAllocator.destroy(gCallbackMap);
+pub fn deinit() void {
+    goofy.g.view.callbackMap.deinit();
 }
 
-// Add a new callback. Called from UIViewPtr.setRecreationCallback().
-fn addRecreationCallback(
+// Called from UIViewPtr.setRecreationCallback().
+fn setRecreationCallbackInternal(
     viewCppPtr: basis.CppPtr,
     callback: RecreationCallback,
 ) void {
-    const gop = gCallbackMap.getOrPut(viewCppPtr) catch unreachable;
-    basis.assertd(@src(), !gop.found_existing, "UIView recreation callback already registered.");
+    const gop = goofy.g.view.callbackMap.getOrPut(viewCppPtr) catch @panic(
+        ("Error getting view recreation callback."),
+    );
     gop.value_ptr.* = callback;
 }
 
@@ -110,13 +110,13 @@ fn addRecreationCallback(
 pub fn runRecreationCallback(
     viewCppPtr: basis.CppPtr,
     success: bool,
-) callconv(.c) void {
-    if (gCallbackMap.get(viewCppPtr)) |cb| {
+) void {
+    if (goofy.g.view.callbackMap.get(viewCppPtr)) |cb| {
         cb.call(success);
     }
 }
 
 // Remove a recreation callback. Called from the C++ side when the view is destroyed.
 pub fn removeRecreationCallback(viewCppPtr: basis.CppPtr) void {
-    _ = gCallbackMap.orderedRemove(viewCppPtr);
+    _ = goofy.g.view.callbackMap.orderedRemove(viewCppPtr);
 }

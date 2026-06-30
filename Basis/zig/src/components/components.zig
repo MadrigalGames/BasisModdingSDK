@@ -1,5 +1,5 @@
 // ----------------------------------------------------
-// Copyright (c) 2018-2025 Madrigal Ltd.
+// Copyright (c) 2018-2026 Madrigal Ltd.
 // This file is part of the Basis modding SDK, and is subject to the
 // terms and conditions of the Basis modding SDK License Agreement.
 // https://www.madrigalgames.com
@@ -36,12 +36,12 @@ pub const MeshComponentData = struct {
     meshInstance: basis.renderer.MeshInstancePtr = basis.renderer.MeshInstancePtr.Null,
 };
 
-const Allocator = std.mem.Allocator;
-
-// Keep a list of all factory interface pointers here. We currently support
-// up to 200 factories on the c++ side, so let's do the same here.
-var gFactoryInterfacePointers: [200]*basis.component_factory.ComponentFactoryInterface = undefined;
-var gFactoryInterfaceCount: usize = 0;
+pub const GlobalData = struct {
+    // Keep a list of all factory interface pointers here. We currently support
+    // up to 200 factories on the c++ side, so let's do the same here.
+    factoryInterfacePointers: [200]*basis.component_factory.ComponentFactoryInterface = undefined,
+    factoryInterfaceCount: usize = 0,
+};
 
 //----------------------------------------------------
 
@@ -79,30 +79,69 @@ pub fn hasEditorState(comptime T: type) bool {
 // WASM registration doesn't use a function pointer here. Rather the callback is hardcoded to a specific extern function.
 // Would be nice to have it as "void" in WASM but "parameter of type 'void' not allowed in function with calling
 // convention 'wasm_watc'", so we'll have to pass a dummy integer.
-pub const ComponentRegistrationCallback = if (basis.build_options.buildAsWASM) i32 else basis.bindings.basis_zig_component_reg_cb;
+pub const ComponentRegistrationCallback =
+    if (basis.build_options.buildAsWASM) i32 else basis.bindings.basis_zig_component_reg_cb;
 
-pub fn initComponentTypes(comptime T: []const type, allocator: Allocator, callback: ComponentRegistrationCallback) void {
+pub fn initComponentTypes(
+    comptime T: []const type,
+    allocator: std.mem.Allocator,
+    io: std.Io,
+    callback: ComponentRegistrationCallback,
+) void {
     inline for (T, 0..) |componentType, i| {
-        initComponentType(componentType, allocator, callback, i);
+        initComponentType(componentType, allocator, io, callback, i);
     }
     //basis.printf("Registered {0} component types\n", .{factoryInterfaceCount});
 }
 
+pub fn beforeHotReload() void {
+    // Make all factories call beforeHotReload() on their components, if they have that method.
+    for (0..basis.g.components.factoryInterfaceCount) |i| {
+        basis.g.components.factoryInterfacePointers[i].beforeHotReload();
+    }
+}
+
+pub fn afterHotReload(comptime ComponentTypes: []const type) void {
+    // Fix up the VTables to point to the functions of the new DLL.
+    for (0..basis.g.components.factoryInterfaceCount) |i| {
+        inline for (ComponentTypes, 0..) |T, typeIndex| {
+            if (basis.g.components.factoryInterfacePointers[i].typeIndex == typeIndex) {
+                //basis.printf("Component factory VTable fixup, type: {s}, index: {}\n", .{ @typeName(T), i });
+                basis.g.components.factoryInterfacePointers[i].setupVTable(basis.component_factory.GameObjectComponentFactory(T));
+            }
+        }
+    }
+
+    // Make all factories call afterHotReload() on their components, if they have that method.
+    for (0..basis.g.components.factoryInterfaceCount) |i| {
+        basis.g.components.factoryInterfacePointers[i].afterHotReload();
+    }
+}
+
 pub fn deinitComponentTypes() void {
-    var i: usize = 0;
-    while (i < gFactoryInterfaceCount) : (i += 1) {
-        gFactoryInterfacePointers[i].deinit();
+    for (0..basis.g.components.factoryInterfaceCount) |i| {
+        basis.g.components.factoryInterfacePointers[i].deinit();
         //basis.printf("Deinited factory {0}\n", .{i});
     }
-    gFactoryInterfaceCount = 0;
+    basis.g.components.factoryInterfaceCount = 0;
 }
 
 //----------------------------------------------------
 
-fn initComponentType(comptime T: type, allocator: Allocator, callback: ComponentRegistrationCallback, componentIndex: usize) void {
+fn initComponentType(
+    comptime T: type,
+    allocator: std.mem.Allocator,
+    io: std.Io,
+    callback: ComponentRegistrationCallback,
+    typeIndex: usize,
+) void {
     const Factory = basis.component_factory.GameObjectComponentFactory(T);
 
-    const factory = Factory.init(allocator) catch |err| {
+    const factory = Factory.init(
+        allocator,
+        io,
+        typeIndex,
+    ) catch |err| {
         basis.fatalErrorWithFormat(@src(), "Error initializing component factory: {s}", .{@errorName(err)});
         return;
     };
@@ -156,8 +195,8 @@ fn initComponentType(comptime T: type, allocator: Allocator, callback: Component
 
     const factoryInterfacePtr: basis.IntPtr = @intFromPtr(&factory.interface);
 
-    gFactoryInterfacePointers[componentIndex] = &factory.interface;
-    gFactoryInterfaceCount += 1;
+    basis.g.components.factoryInterfacePointers[typeIndex] = &factory.interface;
+    basis.g.components.factoryInterfaceCount += 1;
 
     const libCppPtr = basis.library_api.getZigLibCppPtr();
 

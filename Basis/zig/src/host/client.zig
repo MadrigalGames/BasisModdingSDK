@@ -1,5 +1,5 @@
 // ----------------------------------------------------
-// Copyright (c) 2018-2025 Madrigal Ltd.
+// Copyright (c) 2018-2026 Madrigal Ltd.
 // This file is part of the Basis modding SDK, and is subject to the
 // terms and conditions of the Basis modding SDK License Agreement.
 // https://www.madrigalgames.com
@@ -18,11 +18,13 @@ pub const ClientPtr = struct {
 
     cppPtr: basis.CppPtr,
     allocator: Allocator,
+    io: std.Io,
 
     pub fn initNull() Self {
         return Self{
             .cppPtr = 0,
             .allocator = undefined,
+            .io = undefined,
         };
     }
 
@@ -74,7 +76,7 @@ pub const ClientPtr = struct {
 
     pub fn createMessageNode(self: *const Self, messageNodeName: []const u8) *MessageNode {
         const interopName = basis.string.toInteropString(messageNodeName);
-        const messageNodePtr = self.allocator.create(MessageNode) catch unreachable;
+        const messageNodePtr = self.allocator.create(MessageNode) catch @panic("OOM");
         const messageNodeCppPtr = basis.bindings.api.Client_createMessageNode(
             basis.library_api.getZigLibCppPtr(),
             self.cppPtr,
@@ -85,6 +87,7 @@ pub const ClientPtr = struct {
         messageNodePtr.* = MessageNode{
             .cppPtr = messageNodeCppPtr,
             .allocator = self.allocator,
+            .name = basis.String.init_with_contents(self.allocator, messageNodeName) catch @panic("OOM"),
         };
 
         return messageNodePtr;

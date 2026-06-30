@@ -1,5 +1,5 @@
 // ----------------------------------------------------
-// Copyright (c) 2018-2025 Madrigal Ltd.
+// Copyright (c) 2018-2026 Madrigal Ltd.
 // This file is part of the Basis SDK, and is subject to the
 // terms and conditions of the Basis SDK License Agreement.
 // https://www.madrigalgames.com
@@ -18,6 +18,11 @@ pub var _Database_loadOnClient: nemo.bindings.generated_types.basis_zig_Database
 pub var _Database_loadOnServer: nemo.bindings.generated_types.basis_zig_Database_loadOnServer_cb = undefined;
 pub var _Database_unload: nemo.bindings.generated_types.basis_zig_Database_unload_cb = undefined;
 pub var _Database_tick: nemo.bindings.generated_types.basis_zig_Database_tick_cb = undefined;
+pub var _Database_setLanguageCode: nemo.bindings.generated_types.basis_zig_Database_setLanguageCode_cb = undefined;
+pub var _Database_getLanguageCode: nemo.bindings.generated_types.basis_zig_Database_getLanguageCode_cb = undefined;
+pub var _Database_setVoiceLanguageCode: nemo.bindings.generated_types.basis_zig_Database_setVoiceLanguageCode_cb = undefined;
+pub var _Database_getVoiceLanguageCode: nemo.bindings.generated_types.basis_zig_Database_getVoiceLanguageCode_cb = undefined;
+pub var _Database_setVoiceClipDurationCallback: nemo.bindings.generated_types.basis_zig_Database_setVoiceClipDurationCallback_cb = undefined;
 pub var _Database_serialize: nemo.bindings.generated_types.basis_zig_Database_serialize_cb = undefined;
 pub var _Database_deserialize: nemo.bindings.generated_types.basis_zig_Database_deserialize_cb = undefined;
 pub var _Database_getMissionByPath: nemo.bindings.generated_types.basis_zig_Database_getMissionByPath_cb = undefined;
@@ -26,6 +31,11 @@ pub var _Database_getGlobalVariableSetByPath: nemo.bindings.generated_types.basi
 pub var _Database_getGlobalVariableSetByPathHash: nemo.bindings.generated_types.basis_zig_Database_getGlobalVariableSetByPathHash_cb = undefined;
 pub var _Database_getCharacterDataByPath: nemo.bindings.generated_types.basis_zig_Database_getCharacterDataByPath_cb = undefined;
 pub var _Database_getCharacterDataByPathHash: nemo.bindings.generated_types.basis_zig_Database_getCharacterDataByPathHash_cb = undefined;
+pub var _Database_getConversationByPath: nemo.bindings.generated_types.basis_zig_Database_getConversationByPath_cb = undefined;
+pub var _Database_getConversationByPathHash: nemo.bindings.generated_types.basis_zig_Database_getConversationByPathHash_cb = undefined;
+pub var _Database_generateScriptApi: nemo.bindings.generated_types.basis_zig_Database_generateScriptApi_cb = undefined;
+pub var _Database_getScriptPreface: nemo.bindings.generated_types.basis_zig_Database_getScriptPreface_cb = undefined;
+pub var _Database_appendAutoCompleteList: nemo.bindings.generated_types.basis_zig_Database_appendAutoCompleteList_cb = undefined;
 
 // ===============================
 
@@ -35,6 +45,26 @@ pub var _Mission_getPath: nemo.bindings.generated_types.basis_zig_Mission_getPat
 pub var _Mission_getState: nemo.bindings.generated_types.basis_zig_Mission_getState_cb = undefined;
 pub var _Mission_start: nemo.bindings.generated_types.basis_zig_Mission_start_cb = undefined;
 pub var _Mission_abort: nemo.bindings.generated_types.basis_zig_Mission_abort_cb = undefined;
+pub var _Mission_sendSignal: nemo.bindings.generated_types.basis_zig_Mission_sendSignal_cb = undefined;
+
+// ===============================
+
+// class Conversation
+
+pub var _Conversation_getPath: nemo.bindings.generated_types.basis_zig_Conversation_getPath_cb = undefined;
+pub var _Conversation_getState: nemo.bindings.generated_types.basis_zig_Conversation_getState_cb = undefined;
+pub var _Conversation_start: nemo.bindings.generated_types.basis_zig_Conversation_start_cb = undefined;
+pub var _Conversation_end: nemo.bindings.generated_types.basis_zig_Conversation_end_cb = undefined;
+pub var _Conversation_advance: nemo.bindings.generated_types.basis_zig_Conversation_advance_cb = undefined;
+pub var _Conversation_selectResponse: nemo.bindings.generated_types.basis_zig_Conversation_selectResponse_cb = undefined;
+pub var _Conversation_getInkInt: nemo.bindings.generated_types.basis_zig_Conversation_getInkInt_cb = undefined;
+pub var _Conversation_setInkInt: nemo.bindings.generated_types.basis_zig_Conversation_setInkInt_cb = undefined;
+pub var _Conversation_getInkFloat: nemo.bindings.generated_types.basis_zig_Conversation_getInkFloat_cb = undefined;
+pub var _Conversation_setInkFloat: nemo.bindings.generated_types.basis_zig_Conversation_setInkFloat_cb = undefined;
+pub var _Conversation_getInkBool: nemo.bindings.generated_types.basis_zig_Conversation_getInkBool_cb = undefined;
+pub var _Conversation_setInkBool: nemo.bindings.generated_types.basis_zig_Conversation_setInkBool_cb = undefined;
+pub var _Conversation_getInkString: nemo.bindings.generated_types.basis_zig_Conversation_getInkString_cb = undefined;
+pub var _Conversation_setInkString: nemo.bindings.generated_types.basis_zig_Conversation_setInkString_cb = undefined;
 
 // ===============================
 
@@ -57,7 +87,10 @@ pub var _GlobalVariableSet_writeString: nemo.bindings.generated_types.basis_zig_
 pub var _CharacterData_getPath: nemo.bindings.generated_types.basis_zig_CharacterData_getPath_cb = undefined;
 pub var _CharacterData_getFirstName: nemo.bindings.generated_types.basis_zig_CharacterData_getFirstName_cb = undefined;
 pub var _CharacterData_getLastName: nemo.bindings.generated_types.basis_zig_CharacterData_getLastName_cb = undefined;
+pub var _CharacterData_getShortName: nemo.bindings.generated_types.basis_zig_CharacterData_getShortName_cb = undefined;
 pub var _CharacterData_getUIColor: nemo.bindings.generated_types.basis_zig_CharacterData_getUIColor_cb = undefined;
+pub var _CharacterData_getVoiceTemplateCount: nemo.bindings.generated_types.basis_zig_CharacterData_getVoiceTemplateCount_cb = undefined;
+pub var _CharacterData_getVoiceTemplate: nemo.bindings.generated_types.basis_zig_CharacterData_getVoiceTemplate_cb = undefined;
 
 // ===============================
 

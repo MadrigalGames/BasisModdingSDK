@@ -1,5 +1,5 @@
 // ----------------------------------------------------
-// Copyright (c) 2018-2025 Madrigal Ltd.
+// Copyright (c) 2018-2026 Madrigal Ltd.
 // This file is part of the Basis modding SDK, and is subject to the
 // terms and conditions of the Basis modding SDK License Agreement.
 // https://www.madrigalgames.com
@@ -26,6 +26,14 @@ pub const FlowStateFlags = enum(i32) {
     BailOut = 1 << 0,
 };
 
+pub fn FlowStateRegistration(comptime name: []const u8, comptime T: type, comptime flags: FlowStateFlags) type {
+    return struct {
+        pub const Name = name;
+        pub const Type = T;
+        pub const Flags = flags;
+    };
+}
+
 pub const AppMode = enum(i32) {
     AppModeGame = 0,
     AppModeLevelEditor,
@@ -34,7 +42,7 @@ pub const AppMode = enum(i32) {
 
 // Convenience functions for creating/destroying apps:
 
-pub fn create(comptime T: type, allocator: Allocator) *T {
+pub fn create(comptime T: type, allocator: Allocator, io: std.Io) *T {
     basis.bindings.api.init(allocator);
 
     var appPtr: *T = allocator.create(T) catch |err| {
@@ -46,7 +54,7 @@ pub fn create(comptime T: type, allocator: Allocator) *T {
         @intFromPtr(&appPtr.interface),
     );
 
-    appPtr.* = T.init(AppInterface.make(T, appPtr), allocator, cppPtr);
+    appPtr.* = T.init(AppInterface.make(T, appPtr), allocator, io, cppPtr);
     appPtr.postInit() catch |err| {
         basis.fatalErrorWithFormat(@src(), "Error in postInit(): {s}", .{@errorName(err)});
     };
@@ -67,6 +75,7 @@ pub const AppContext = struct {
     const Self = @This();
 
     allocator: Allocator,
+    io: std.Io,
     cppPtr: basis.CppPtr,
 
     // The game flow SMs are lazily created in getClientGameFlowStateMachine()
@@ -80,13 +89,10 @@ pub const AppContext = struct {
 
     cachedAppMode: ?AppMode = null,
 
-    pub fn init(allocator: Allocator, cppPtr: basis.CppPtr) Self {
-        basis.resources.resource_manager.init(allocator);
-
-        basis.debug_overlay.init(allocator);
-
+    pub fn init(allocator: Allocator, io: std.Io, cppPtr: basis.CppPtr) Self {
         return Self{
             .allocator = allocator,
+            .io = io,
             .cppPtr = cppPtr,
         };
     }
@@ -101,10 +107,6 @@ pub const AppContext = struct {
             sm.deinit();
             self.serverGameFlowStateMachine = null;
         }
-
-        basis.debug_overlay.deinit();
-
-        basis.resources.resource_manager.deinit();
     }
 
     pub fn getAppMode(self: *Self) AppMode {
@@ -120,6 +122,7 @@ pub const AppContext = struct {
         return ClientPtr{
             .cppPtr = basis.bindings.api.App_getClient(self.cppPtr),
             .allocator = self.allocator,
+            .io = self.io,
         };
     }
 
@@ -127,6 +130,7 @@ pub const AppContext = struct {
         return ServerPtr{
             .cppPtr = basis.bindings.api.App_getServer(self.cppPtr),
             .allocator = self.allocator,
+            .io = self.io,
         };
     }
 
@@ -284,6 +288,7 @@ pub const AppContext = struct {
 
         self.clientGameFlowStateMachine = basis.state_machine.StateMachine.init(
             self.allocator,
+            self.io,
             basis.bindings.api.App_getClientGameFlowStateMachine(self.cppPtr),
         );
 
@@ -312,7 +317,7 @@ pub const AppContext = struct {
         self: *Self,
         gameName: []const u8,
         levelPath: []const u8,
-        layers: [][]const u8,
+        layers: []const []const u8,
         sessionObjects: []const GameObjectCreationParametersPtr,
         continuous: bool,
         callback: basis.common.CompletionCallback,

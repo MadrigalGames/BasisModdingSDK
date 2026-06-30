@@ -1,5 +1,5 @@
 // ----------------------------------------------------
-// Copyright (c) 2018-2025 Madrigal Ltd.
+// Copyright (c) 2018-2026 Madrigal Ltd.
 // This file is part of the Basis modding SDK, and is subject to the
 // terms and conditions of the Basis modding SDK License Agreement.
 // https://www.madrigalgames.com
@@ -24,7 +24,7 @@ pub fn VoidDelegate0() type {
         funcPtr: ?FuncPtr = null,
         methodPtr: ?MethodPtr = null,
 
-        pub fn init(comptime function: anytype) Self {
+        pub fn initFn(comptime function: anytype) Self {
             return Self{
                 .funcPtr = function,
             };
@@ -88,7 +88,7 @@ pub fn VoidDelegate1(comptime T0: type) type {
         funcPtr: ?FuncPtr = null,
         methodPtr: ?MethodPtr = null,
 
-        pub fn init(comptime function: anytype) Self {
+        pub fn initFn(comptime function: anytype) Self {
             return Self{
                 .funcPtr = function,
             };
@@ -152,7 +152,7 @@ pub fn VoidDelegate2(comptime T0: type, comptime T1: type) type {
         funcPtr: ?FuncPtr = null,
         methodPtr: ?MethodPtr = null,
 
-        pub fn init(comptime function: anytype) Self {
+        pub fn initFn(comptime function: anytype) Self {
             return Self{
                 .funcPtr = function,
             };
@@ -216,7 +216,7 @@ pub fn VoidDelegate3(comptime T0: type, comptime T1: type, comptime T2: type) ty
         funcPtr: ?FuncPtr = null,
         methodPtr: ?MethodPtr = null,
 
-        pub fn init(comptime function: anytype) Self {
+        pub fn initFn(comptime function: anytype) Self {
             return Self{
                 .funcPtr = function,
             };
@@ -280,7 +280,7 @@ pub fn VoidDelegate4(comptime T0: type, comptime T1: type, comptime T2: type, co
         funcPtr: ?FuncPtr = null,
         methodPtr: ?MethodPtr = null,
 
-        pub fn init(comptime function: anytype) Self {
+        pub fn initFn(comptime function: anytype) Self {
             return Self{
                 .funcPtr = function,
             };
@@ -346,7 +346,7 @@ pub fn RetDelegate0(comptime Ret: type) type {
         funcPtr: ?FuncPtr = null,
         methodPtr: ?MethodPtr = null,
 
-        pub fn init(comptime function: anytype) Self {
+        pub fn initFn(comptime function: anytype) Self {
             return Self{
                 .funcPtr = function,
             };
@@ -412,7 +412,7 @@ pub fn RetDelegate1(comptime T0: type, comptime Ret: type) type {
         funcPtr: ?FuncPtr = null,
         methodPtr: ?MethodPtr = null,
 
-        pub fn init(comptime function: anytype) Self {
+        pub fn initFn(comptime function: anytype) Self {
             return Self{
                 .funcPtr = function,
             };
@@ -478,7 +478,7 @@ pub fn RetDelegate2(comptime T0: type, comptime T1: type, comptime Ret: type) ty
         funcPtr: ?FuncPtr = null,
         methodPtr: ?MethodPtr = null,
 
-        pub fn init(comptime function: anytype) Self {
+        pub fn initFn(comptime function: anytype) Self {
             return Self{
                 .funcPtr = function,
             };
@@ -544,7 +544,7 @@ pub fn RetDelegate3(comptime T0: type, comptime T1: type, comptime T2: type, com
         funcPtr: ?FuncPtr = null,
         methodPtr: ?MethodPtr = null,
 
-        pub fn init(comptime function: anytype) Self {
+        pub fn initFn(comptime function: anytype) Self {
             return Self{
                 .funcPtr = function,
             };
@@ -610,7 +610,7 @@ pub fn RetDelegate4(comptime T0: type, comptime T1: type, comptime T2: type, com
         funcPtr: ?FuncPtr = null,
         methodPtr: ?MethodPtr = null,
 
-        pub fn init(comptime function: anytype) Self {
+        pub fn initFn(comptime function: anytype) Self {
             return Self{
                 .funcPtr = function,
             };

@@ -1,5 +1,5 @@
 // ----------------------------------------------------
-// Copyright (c) 2018-2025 Madrigal Ltd.
+// Copyright (c) 2018-2026 Madrigal Ltd.
 // This file is part of the Basis SDK, and is subject to the
 // terms and conditions of the Basis SDK License Agreement.
 // https://www.madrigalgames.com
@@ -36,6 +36,7 @@ pub var _EffectInstance_stopEmitting: merlin.bindings.generated_types.basis_zig_
 pub var _EffectInstance_setIntParameter: merlin.bindings.generated_types.basis_zig_EffectInstance_setIntParameter_cb = undefined;
 pub var _EffectInstance_setFloatParameter: merlin.bindings.generated_types.basis_zig_EffectInstance_setFloatParameter_cb = undefined;
 pub var _EffectInstance_setVectorParameter: merlin.bindings.generated_types.basis_zig_EffectInstance_setVectorParameter_cb = undefined;
+pub var _EffectInstance_setTickInPartialSimulation: merlin.bindings.generated_types.basis_zig_EffectInstance_setTickInPartialSimulation_cb = undefined;
 
 // ===============================
 

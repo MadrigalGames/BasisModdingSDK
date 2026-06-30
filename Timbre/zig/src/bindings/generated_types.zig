@@ -1,5 +1,5 @@
 // ----------------------------------------------------
-// Copyright (c) 2018-2025 Madrigal Ltd.
+// Copyright (c) 2018-2026 Madrigal Ltd.
 // This file is part of the Basis SDK, and is subject to the
 // terms and conditions of the Basis SDK License Agreement.
 // https://www.madrigalgames.com
@@ -15,10 +15,14 @@ const timbre = @import("../timbre.zig");
 pub const basis_zig_TimbreSoundManager_getMasterGroupBus_cb = *const fn () callconv(.c) u64;
 pub const basis_zig_TimbreSoundManager_getGroupBus_cb = *const fn ([*c]const basis.bindings.InteropString) callconv(.c) u64;
 pub const basis_zig_TimbreSoundManager_getEventDesc_cb = *const fn ([*c]const basis.bindings.InteropString) callconv(.c) u64;
-pub const basis_zig_TimbreSoundManager_playAndForget2D_cb = *const fn (u64, bool) callconv(.c) void;
-pub const basis_zig_TimbreSoundManager_playAndForget3D_cb = *const fn (u64, [*c]const basis.bindings.InteropVec3, bool) callconv(.c) void;
-pub const basis_zig_TimbreSoundManager_playByPathAndForget2D_cb = *const fn ([*c]const basis.bindings.InteropString, bool) callconv(.c) void;
-pub const basis_zig_TimbreSoundManager_playByPathAndForget3D_cb = *const fn ([*c]const basis.bindings.InteropString, [*c]const basis.bindings.InteropVec3, bool) callconv(.c) void;
+pub const basis_zig_TimbreSoundManager_playAndForget2D_cb = *const fn (u64, c_int) callconv(.c) void;
+pub const basis_zig_TimbreSoundManager_playAndForget3D_cb = *const fn (u64, [*c]const basis.bindings.InteropVec3, c_int) callconv(.c) void;
+pub const basis_zig_TimbreSoundManager_playByPathAndForget2D_cb = *const fn ([*c]const basis.bindings.InteropString, c_int) callconv(.c) void;
+pub const basis_zig_TimbreSoundManager_playByPathAndForget3D_cb = *const fn ([*c]const basis.bindings.InteropString, [*c]const basis.bindings.InteropVec3, c_int) callconv(.c) void;
+pub const basis_zig_TimbreSoundManager_getBulkAudioAssetDuration_cb = *const fn ([*c]const basis.bindings.InteropString) callconv(.c) f32;
+pub const basis_zig_TimbreSoundManager_getBulkAudioAssetDurationByHash_cb = *const fn (u32) callconv(.c) f32;
+pub const basis_zig_TimbreSoundManager_getBulkAudioAssetID_cb = *const fn ([*c]const basis.bindings.InteropString) callconv(.c) u32;
+pub const basis_zig_TimbreSoundManager_getBulkAudioAssetData_cb = *const fn ([*c]const basis.bindings.InteropString, [*c]f32, [*c]u32) callconv(.c) c_int;
 
 // ===============================
 
@@ -32,6 +36,7 @@ pub const basis_zig_GroupBus_setVolume_cb = *const fn (u64, f32) callconv(.c) vo
 // class EventDescription
 
 pub const basis_zig_EventDescription_createInstance_cb = *const fn (u64, c_int) callconv(.c) u64;
+pub const basis_zig_EventDescription_createInstanceWithAutoPauseTickLevel_cb = *const fn (u64, u32) callconv(.c) u64;
 pub const basis_zig_EventDescription_getParameterIndex_cb = *const fn (u64, [*c]const basis.bindings.InteropString) callconv(.c) u32;
 pub const basis_zig_EventDescription_getLength_cb = *const fn (u64) callconv(.c) f32;
 
@@ -45,12 +50,17 @@ pub const basis_zig_EventInstance_releaseAfterFadeOut_cb = *const fn (u64, f32) 
 pub const basis_zig_EventInstance_getState_cb = *const fn (u64) callconv(.c) u32;
 pub const basis_zig_EventInstance_start_cb = *const fn (u64) callconv(.c) void;
 pub const basis_zig_EventInstance_pause_cb = *const fn (u64) callconv(.c) void;
+pub const basis_zig_EventInstance_unpause_cb = *const fn (u64) callconv(.c) void;
 pub const basis_zig_EventInstance_stop_cb = *const fn (u64) callconv(.c) void;
 pub const basis_zig_EventInstance_setParameterByName_cb = *const fn (u64, [*c]const basis.bindings.InteropString, f32) callconv(.c) void;
 pub const basis_zig_EventInstance_setParameterByIndex_cb = *const fn (u64, u32, f32) callconv(.c) void;
+pub const basis_zig_EventInstance_setWaveAssetRefParameterByName_cb = *const fn (u64, [*c]const basis.bindings.InteropString, u32) callconv(.c) void;
+pub const basis_zig_EventInstance_setWaveAssetRefParameterByIndex_cb = *const fn (u64, u32, u32) callconv(.c) void;
 pub const basis_zig_EventInstance_set3DParameters_cb = *const fn (u64, [*c]const basis.bindings.InteropVec3, [*c]const basis.bindings.InteropVec3) callconv(.c) void;
 pub const basis_zig_EventInstance_sendSignal_cb = *const fn (u64, [*c]const basis.bindings.InteropString) callconv(.c) void;
 pub const basis_zig_EventInstance_fadeIn_cb = *const fn (u64, f32) callconv(.c) void;
+pub const basis_zig_EventInstance_getVolumeMultiplier_cb = *const fn (u64) callconv(.c) f32;
+pub const basis_zig_EventInstance_setVolumeMultiplier_cb = *const fn (u64, f32) callconv(.c) void;
 
 // ===============================
 

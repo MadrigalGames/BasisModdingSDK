@@ -1,5 +1,5 @@
 // ----------------------------------------------------
-// Copyright (c) 2018-2025 Madrigal Ltd.
+// Copyright (c) 2018-2026 Madrigal Ltd.
 // This file is part of the Basis modding SDK, and is subject to the
 // terms and conditions of the Basis modding SDK License Agreement.
 // https://www.madrigalgames.com
@@ -13,7 +13,8 @@ const Allocator = std.mem.Allocator;
 // A polymorphic interface for ComponentFactories.
 pub const ComponentFactoryInterface = struct {
     const Self = @This();
-    object: basis.IntPtr = undefined,
+    object: basis.IntPtr = 0,
+    typeIndex: usize = 0,
     vTable: *const VirtualTable = undefined,
 
     const VirtualTable = struct {
@@ -30,6 +31,8 @@ pub const ComponentFactoryInterface = struct {
         readExposedPropertyLayout: *const fn (*Self, basis.CppPtr) void,
         readExposedPropertyMeta: *const fn (*Self, [*c]basis.bindings.InteropExposedPropertyMeta, u32, [*c]basis.bindings.InteropBuffer, [*c]basis.bindings.InteropBuffer) u32,
         registerAngelScript: *const fn (*Self, basis.CppPtr) void,
+        beforeHotReload: *const fn (*Self) void,
+        afterHotReload: *const fn (*Self) void,
 
         // Methods forwarded to individual components:
         create: *const fn (*Self, basis.IntPtr) void,
@@ -48,6 +51,8 @@ pub const ComponentFactoryInterface = struct {
         deserializeEditorState: *const fn (*Self, basis.IntPtr, *const basis.bindings.InteropString) void,
         resetEditorState: *const fn (*Self, basis.IntPtr) void,
         editorStateModeChanged: *const fn (*Self, basis.IntPtr, bool) void,
+        getAngelScriptPreface: *const fn (*Self, basis.IntPtr, [*c]basis.bindings.InteropBuffer) void,
+        appendAngelScriptMethodAutoCompleteItems: *const fn (*Self, basis.IntPtr, basis.IntPtr) void,
     };
 
     //----------------------------------------------------
@@ -106,6 +111,14 @@ pub const ComponentFactoryInterface = struct {
 
     pub fn registerAngelScript(self: *Self, componentRegistrationIntPtr: basis.CppPtr) void {
         self.vTable.registerAngelScript(self, componentRegistrationIntPtr);
+    }
+
+    pub fn beforeHotReload(self: *Self) void {
+        self.vTable.beforeHotReload(self);
+    }
+
+    pub fn afterHotReload(self: *Self) void {
+        self.vTable.afterHotReload(self);
     }
 
     pub fn create(self: *Self, componentIntPtr: basis.IntPtr) void {
@@ -213,232 +226,286 @@ pub const ComponentFactoryInterface = struct {
         self.vTable.editorStateModeChanged(self, componentIntPtr, editingEnabled);
     }
 
+    pub fn getAngelScriptPreface(
+        self: *Self,
+        componentIntPtr: basis.IntPtr,
+        outBuffer: [*c]basis.bindings.InteropBuffer,
+    ) void {
+        self.vTable.getAngelScriptPreface(self, componentIntPtr, outBuffer);
+    }
+
+    pub fn appendAngelScriptMethodAutoCompleteItems(
+        self: *Self,
+        componentIntPtr: basis.IntPtr,
+        vectorPtr: basis.IntPtr,
+    ) void {
+        self.vTable.appendAngelScriptMethodAutoCompleteItems(self, componentIntPtr, vectorPtr);
+    }
+
     //----------------------------------------------------
 
-    pub fn make(factoryPtr: anytype) Self {
-        const FactoryPtrType = @TypeOf(factoryPtr);
-        return Self{
+    pub fn make(comptime T: type, factoryPtr: *T, typeIndex: usize) Self {
+        var self = Self{
             .object = @intFromPtr(factoryPtr),
-            .vTable = &.{
-                .deinit = struct {
-                    fn wrapCall(self: *Self) void {
-                        var typedFactory = @as(FactoryPtrType, @ptrFromInt(self.object));
-                        typedFactory.deinit();
-                    }
-                }.wrapCall,
-                .newComponent = struct {
-                    fn wrapCall(self: *Self, cppContextPtr: basis.bindings.InteropTypedPtr, onClient: bool) basis.IntPtr {
-                        var typedFactory = @as(FactoryPtrType, @ptrFromInt(self.object));
-                        return typedFactory.newComponent(cppContextPtr, onClient) catch |err| {
-                            basis.fatalErrorWithFormat(@src(), "Error in newComponent(): {s}", .{@errorName(err)});
-                            unreachable;
-                        };
-                    }
-                }.wrapCall,
-                .deleteComponent = struct {
-                    fn wrapCall(self: *Self, onClient: bool, componentIntPtr: basis.IntPtr) void {
-                        var typedFactory = @as(FactoryPtrType, @ptrFromInt(self.object));
-                        typedFactory.deleteComponent(onClient, componentIntPtr);
-                    }
-                }.wrapCall,
-                .update = struct {
-                    fn wrapCall(self: *Self, onClient: bool, deltaTime: f32) void {
-                        var typedFactory = @as(FactoryPtrType, @ptrFromInt(self.object));
-                        typedFactory.update(onClient, deltaTime);
-                    }
-                }.wrapCall,
-                .preTick = struct {
-                    fn wrapCall(self: *Self, onClient: bool, deltaTime: f32) void {
-                        var typedFactory = @as(FactoryPtrType, @ptrFromInt(self.object));
-                        typedFactory.preTick(onClient, deltaTime);
-                    }
-                }.wrapCall,
-                .tick = struct {
-                    fn wrapCall(self: *Self, onClient: bool, deltaTime: f32) void {
-                        var typedFactory = @as(FactoryPtrType, @ptrFromInt(self.object));
-                        typedFactory.tick(onClient, deltaTime);
-                    }
-                }.wrapCall,
-                .createBlueprintProperties = struct {
-                    fn wrapCall(self: *Self) basis.IntPtr {
-                        var typedFactory = @as(FactoryPtrType, @ptrFromInt(self.object));
-                        return typedFactory.createBlueprintProperties();
-                    }
-                }.wrapCall,
-                .bpPropsLoadJSON = struct {
-                    fn wrapCall(self: *Self, bpPropsIntPtr: basis.IntPtr, json: []const u8) bool {
-                        var typedFactory = @as(FactoryPtrType, @ptrFromInt(self.object));
-                        return typedFactory.bpPropsLoadJSON(bpPropsIntPtr, json);
-                    }
-                }.wrapCall,
-                .setBlueprintProperties = struct {
-                    fn wrapCall(self: *Self, componentIntPtr: basis.IntPtr, bpPropsIntPtr: basis.IntPtr) void {
-                        var typedFactory = @as(FactoryPtrType, @ptrFromInt(self.object));
-                        typedFactory.setBlueprintProperties(componentIntPtr, bpPropsIntPtr);
-                    }
-                }.wrapCall,
-                .readExposedPropertyLayout = struct {
-                    fn wrapCall(self: *Self, readerIntPtr: basis.CppPtr) void {
-                        var typedFactory = @as(FactoryPtrType, @ptrFromInt(self.object));
-                        typedFactory.readExposedPropertyLayout(readerIntPtr);
-                    }
-                }.wrapCall,
-                .readExposedPropertyMeta = struct {
-                    fn wrapCall(
-                        self: *Self,
-                        metaBuffer: [*c]basis.bindings.InteropExposedPropertyMeta,
-                        metaBufferLength: u32,
-                        defaultValueBuffer: [*c]basis.bindings.InteropBuffer,
-                        stringBuffer: [*c]basis.bindings.InteropBuffer,
-                    ) u32 {
-                        var typedFactory = @as(FactoryPtrType, @ptrFromInt(self.object));
-                        return typedFactory.readExposedPropertyMeta(metaBuffer, metaBufferLength, defaultValueBuffer, stringBuffer);
-                    }
-                }.wrapCall,
-                .registerAngelScript = struct {
-                    fn wrapCall(self: *Self, componentRegistrationIntPtr: basis.CppPtr) void {
-                        var typedFactory = @as(FactoryPtrType, @ptrFromInt(self.object));
-                        typedFactory.registerAngelScript(componentRegistrationIntPtr);
-                    }
-                }.wrapCall,
-                .create = struct {
-                    fn wrapCall(self: *Self, componentIntPtr: basis.IntPtr) void {
-                        var typedFactory = @as(FactoryPtrType, @ptrFromInt(self.object));
-                        typedFactory.create(componentIntPtr);
-                    }
-                }.wrapCall,
-                .onObjectCreated = struct {
-                    fn wrapCall(self: *Self, componentIntPtr: basis.IntPtr) void {
-                        var typedFactory = @as(FactoryPtrType, @ptrFromInt(self.object));
-                        typedFactory.onObjectCreated(componentIntPtr);
-                    }
-                }.wrapCall,
-                .drawEditor = struct {
-                    fn wrapCall(self: *Self, componentIntPtr: basis.IntPtr, selected: bool, hoveredOver: bool) void {
-                        var typedFactory = @as(FactoryPtrType, @ptrFromInt(self.object));
-                        typedFactory.drawEditor(componentIntPtr, selected, hoveredOver);
-                    }
-                }.wrapCall,
-                .onMessageReceived = struct {
-                    fn wrapCall(
-                        self: *Self,
-                        componentIntPtr: basis.IntPtr,
-                        message: basis.messaging.Message,
-                        senderNameHash: basis.string.StringHash,
-                        parameters: basis.messaging.MessageParametersPtr,
-                    ) void {
-                        var typedFactory = @as(FactoryPtrType, @ptrFromInt(self.object));
-                        typedFactory.onMessageReceived(componentIntPtr, message, senderNameHash, parameters);
-                    }
-                }.wrapCall,
-                .onPipeDataReceived = struct {
-                    fn wrapCall(
-                        self: *Self,
-                        componentIntPtr: basis.IntPtr,
-                        pipe: u64,
-                        data: []const u8,
-                    ) void {
-                        var typedFactory = @as(FactoryPtrType, @ptrFromInt(self.object));
-                        typedFactory.onPipeDataReceived(componentIntPtr, pipe, data);
-                    }
-                }.wrapCall,
-                .onBecameClientLocalAvatar = struct {
-                    fn wrapCall(self: *Self, componentIntPtr: basis.IntPtr) void {
-                        var typedFactory = @as(FactoryPtrType, @ptrFromInt(self.object));
-                        typedFactory.onBecameClientLocalAvatar(componentIntPtr);
-                    }
-                }.wrapCall,
-                .onLostClientLocalAvatar = struct {
-                    fn wrapCall(self: *Self, componentIntPtr: basis.IntPtr) void {
-                        var typedFactory = @as(FactoryPtrType, @ptrFromInt(self.object));
-                        typedFactory.onLostClientLocalAvatar(componentIntPtr);
-                    }
-                }.wrapCall,
-                .onBecameServerAvatar = struct {
-                    fn wrapCall(self: *Self, componentIntPtr: basis.IntPtr, hostID: i32) void {
-                        var typedFactory = @as(FactoryPtrType, @ptrFromInt(self.object));
-                        typedFactory.onBecameServerAvatar(componentIntPtr, hostID);
-                    }
-                }.wrapCall,
-                .onLostServerAvatar = struct {
-                    fn wrapCall(self: *Self, componentIntPtr: basis.IntPtr, hostID: i32) void {
-                        var typedFactory = @as(FactoryPtrType, @ptrFromInt(self.object));
-                        typedFactory.onLostServerAvatar(componentIntPtr, hostID);
-                    }
-                }.wrapCall,
-                .syncExposedPropertyValues = struct {
-                    fn wrapCall(
-                        self: *Self,
-                        componentIntPtr: basis.IntPtr,
-                        valueBuffer: [*c]basis.bindings.InteropBuffer,
-                        direction: i32,
-                    ) void {
-                        var typedFactory = @as(FactoryPtrType, @ptrFromInt(self.object));
-                        typedFactory.syncExposedPropertyValues(componentIntPtr, valueBuffer, direction);
-                    }
-                }.wrapCall,
-                .exposedPropertyEvent = struct {
-                    fn wrapCall(
-                        self: *Self,
-                        componentIntPtr: basis.IntPtr,
-                        propertyName: *const basis.bindings.InteropString,
-                        eventType: i32,
-                    ) i32 {
-                        var typedFactory = @as(FactoryPtrType, @ptrFromInt(self.object));
-                        return typedFactory.exposedPropertyEvent(componentIntPtr, propertyName, eventType);
-                    }
-                }.wrapCall,
-                .exportLevel = struct {
-                    fn wrapCall(
-                        self: *Self,
-                        componentIntPtr: basis.IntPtr,
-                        phase: i32,
-                        dataBlockMgrCppPtr: basis.CppPtr,
-                    ) i32 {
-                        var typedFactory = @as(FactoryPtrType, @ptrFromInt(self.object));
-                        return typedFactory.exportLevel(componentIntPtr, phase, dataBlockMgrCppPtr);
-                    }
-                }.wrapCall,
-                .serializeEditorState = struct {
-                    fn wrapCall(
-                        self: *Self,
-                        componentIntPtr: basis.IntPtr,
-                        stateData: *basis.bindings.InteropBuffer,
-                    ) void {
-                        var typedFactory = @as(FactoryPtrType, @ptrFromInt(self.object));
-                        typedFactory.serializeEditorState(componentIntPtr, stateData);
-                    }
-                }.wrapCall,
-                .deserializeEditorState = struct {
-                    fn wrapCall(
-                        self: *Self,
-                        componentIntPtr: basis.IntPtr,
-                        stateData: *const basis.bindings.InteropString,
-                    ) void {
-                        var typedFactory = @as(FactoryPtrType, @ptrFromInt(self.object));
-                        typedFactory.deserializeEditorState(componentIntPtr, stateData);
-                    }
-                }.wrapCall,
-                .resetEditorState = struct {
-                    fn wrapCall(
-                        self: *Self,
-                        componentIntPtr: basis.IntPtr,
-                    ) void {
-                        var typedFactory = @as(FactoryPtrType, @ptrFromInt(self.object));
-                        typedFactory.resetEditorState(componentIntPtr);
-                    }
-                }.wrapCall,
-                .editorStateModeChanged = struct {
-                    fn wrapCall(
-                        self: *Self,
-                        componentIntPtr: basis.IntPtr,
-                        editingEnabled: bool,
-                    ) void {
-                        var typedFactory = @as(FactoryPtrType, @ptrFromInt(self.object));
-                        typedFactory.editorStateModeChanged(componentIntPtr, editingEnabled);
-                    }
-                }.wrapCall,
-            },
+            .vTable = undefined,
+            .typeIndex = typeIndex,
+        };
+        self.setupVTable(T);
+        return self;
+    }
+
+    pub fn setupVTable(_self: *Self, comptime T: type) void {
+        _self.vTable = &.{
+            .deinit = struct {
+                fn wrapCall(self: *Self) void {
+                    var typedFactory = @as(*T, @ptrFromInt(self.object));
+                    typedFactory.deinit();
+                }
+            }.wrapCall,
+            .newComponent = struct {
+                fn wrapCall(self: *Self, cppContextPtr: basis.bindings.InteropTypedPtr, onClient: bool) basis.IntPtr {
+                    var typedFactory = @as(*T, @ptrFromInt(self.object));
+                    return typedFactory.newComponent(cppContextPtr, onClient) catch |err| {
+                        basis.fatalErrorWithFormat(@src(), "Error in newComponent(): {s}", .{@errorName(err)});
+                        unreachable;
+                    };
+                }
+            }.wrapCall,
+            .deleteComponent = struct {
+                fn wrapCall(self: *Self, onClient: bool, componentIntPtr: basis.IntPtr) void {
+                    var typedFactory = @as(*T, @ptrFromInt(self.object));
+                    typedFactory.deleteComponent(onClient, componentIntPtr);
+                }
+            }.wrapCall,
+            .update = struct {
+                fn wrapCall(self: *Self, onClient: bool, deltaTime: f32) void {
+                    var typedFactory = @as(*T, @ptrFromInt(self.object));
+                    typedFactory.update(onClient, deltaTime);
+                }
+            }.wrapCall,
+            .preTick = struct {
+                fn wrapCall(self: *Self, onClient: bool, deltaTime: f32) void {
+                    var typedFactory = @as(*T, @ptrFromInt(self.object));
+                    typedFactory.preTick(onClient, deltaTime);
+                }
+            }.wrapCall,
+            .tick = struct {
+                fn wrapCall(self: *Self, onClient: bool, deltaTime: f32) void {
+                    var typedFactory = @as(*T, @ptrFromInt(self.object));
+                    typedFactory.tick(onClient, deltaTime);
+                }
+            }.wrapCall,
+            .createBlueprintProperties = struct {
+                fn wrapCall(self: *Self) basis.IntPtr {
+                    var typedFactory = @as(*T, @ptrFromInt(self.object));
+                    return typedFactory.createBlueprintProperties();
+                }
+            }.wrapCall,
+            .bpPropsLoadJSON = struct {
+                fn wrapCall(self: *Self, bpPropsIntPtr: basis.IntPtr, json: []const u8) bool {
+                    var typedFactory = @as(*T, @ptrFromInt(self.object));
+                    return typedFactory.bpPropsLoadJSON(bpPropsIntPtr, json);
+                }
+            }.wrapCall,
+            .setBlueprintProperties = struct {
+                fn wrapCall(self: *Self, componentIntPtr: basis.IntPtr, bpPropsIntPtr: basis.IntPtr) void {
+                    var typedFactory = @as(*T, @ptrFromInt(self.object));
+                    typedFactory.setBlueprintProperties(componentIntPtr, bpPropsIntPtr);
+                }
+            }.wrapCall,
+            .readExposedPropertyLayout = struct {
+                fn wrapCall(self: *Self, readerIntPtr: basis.CppPtr) void {
+                    var typedFactory = @as(*T, @ptrFromInt(self.object));
+                    typedFactory.readExposedPropertyLayout(readerIntPtr);
+                }
+            }.wrapCall,
+            .readExposedPropertyMeta = struct {
+                fn wrapCall(
+                    self: *Self,
+                    metaBuffer: [*c]basis.bindings.InteropExposedPropertyMeta,
+                    metaBufferLength: u32,
+                    defaultValueBuffer: [*c]basis.bindings.InteropBuffer,
+                    stringBuffer: [*c]basis.bindings.InteropBuffer,
+                ) u32 {
+                    var typedFactory = @as(*T, @ptrFromInt(self.object));
+                    return typedFactory.readExposedPropertyMeta(metaBuffer, metaBufferLength, defaultValueBuffer, stringBuffer);
+                }
+            }.wrapCall,
+            .registerAngelScript = struct {
+                fn wrapCall(self: *Self, componentRegistrationIntPtr: basis.CppPtr) void {
+                    var typedFactory = @as(*T, @ptrFromInt(self.object));
+                    typedFactory.registerAngelScript(componentRegistrationIntPtr);
+                }
+            }.wrapCall,
+            .beforeHotReload = struct {
+                fn wrapCall(self: *Self) void {
+                    var typedFactory = @as(*T, @ptrFromInt(self.object));
+                    typedFactory.beforeHotReload();
+                }
+            }.wrapCall,
+            .afterHotReload = struct {
+                fn wrapCall(self: *Self) void {
+                    var typedFactory = @as(*T, @ptrFromInt(self.object));
+                    typedFactory.afterHotReload();
+                }
+            }.wrapCall,
+            .create = struct {
+                fn wrapCall(self: *Self, componentIntPtr: basis.IntPtr) void {
+                    var typedFactory = @as(*T, @ptrFromInt(self.object));
+                    typedFactory.create(componentIntPtr);
+                }
+            }.wrapCall,
+            .onObjectCreated = struct {
+                fn wrapCall(self: *Self, componentIntPtr: basis.IntPtr) void {
+                    var typedFactory = @as(*T, @ptrFromInt(self.object));
+                    typedFactory.onObjectCreated(componentIntPtr);
+                }
+            }.wrapCall,
+            .drawEditor = struct {
+                fn wrapCall(self: *Self, componentIntPtr: basis.IntPtr, selected: bool, hoveredOver: bool) void {
+                    var typedFactory = @as(*T, @ptrFromInt(self.object));
+                    typedFactory.drawEditor(componentIntPtr, selected, hoveredOver);
+                }
+            }.wrapCall,
+            .onMessageReceived = struct {
+                fn wrapCall(
+                    self: *Self,
+                    componentIntPtr: basis.IntPtr,
+                    message: basis.messaging.Message,
+                    senderNameHash: basis.string.StringHash,
+                    parameters: basis.messaging.MessageParametersPtr,
+                ) void {
+                    var typedFactory = @as(*T, @ptrFromInt(self.object));
+                    typedFactory.onMessageReceived(componentIntPtr, message, senderNameHash, parameters);
+                }
+            }.wrapCall,
+            .onPipeDataReceived = struct {
+                fn wrapCall(
+                    self: *Self,
+                    componentIntPtr: basis.IntPtr,
+                    pipe: u64,
+                    data: []const u8,
+                ) void {
+                    var typedFactory = @as(*T, @ptrFromInt(self.object));
+                    typedFactory.onPipeDataReceived(componentIntPtr, pipe, data);
+                }
+            }.wrapCall,
+            .onBecameClientLocalAvatar = struct {
+                fn wrapCall(self: *Self, componentIntPtr: basis.IntPtr) void {
+                    var typedFactory = @as(*T, @ptrFromInt(self.object));
+                    typedFactory.onBecameClientLocalAvatar(componentIntPtr);
+                }
+            }.wrapCall,
+            .onLostClientLocalAvatar = struct {
+                fn wrapCall(self: *Self, componentIntPtr: basis.IntPtr) void {
+                    var typedFactory = @as(*T, @ptrFromInt(self.object));
+                    typedFactory.onLostClientLocalAvatar(componentIntPtr);
+                }
+            }.wrapCall,
+            .onBecameServerAvatar = struct {
+                fn wrapCall(self: *Self, componentIntPtr: basis.IntPtr, hostID: i32) void {
+                    var typedFactory = @as(*T, @ptrFromInt(self.object));
+                    typedFactory.onBecameServerAvatar(componentIntPtr, hostID);
+                }
+            }.wrapCall,
+            .onLostServerAvatar = struct {
+                fn wrapCall(self: *Self, componentIntPtr: basis.IntPtr, hostID: i32) void {
+                    var typedFactory = @as(*T, @ptrFromInt(self.object));
+                    typedFactory.onLostServerAvatar(componentIntPtr, hostID);
+                }
+            }.wrapCall,
+            .syncExposedPropertyValues = struct {
+                fn wrapCall(
+                    self: *Self,
+                    componentIntPtr: basis.IntPtr,
+                    valueBuffer: [*c]basis.bindings.InteropBuffer,
+                    direction: i32,
+                ) void {
+                    var typedFactory = @as(*T, @ptrFromInt(self.object));
+                    typedFactory.syncExposedPropertyValues(componentIntPtr, valueBuffer, direction);
+                }
+            }.wrapCall,
+            .exposedPropertyEvent = struct {
+                fn wrapCall(
+                    self: *Self,
+                    componentIntPtr: basis.IntPtr,
+                    propertyName: *const basis.bindings.InteropString,
+                    eventType: i32,
+                ) i32 {
+                    var typedFactory = @as(*T, @ptrFromInt(self.object));
+                    return typedFactory.exposedPropertyEvent(componentIntPtr, propertyName, eventType);
+                }
+            }.wrapCall,
+            .exportLevel = struct {
+                fn wrapCall(
+                    self: *Self,
+                    componentIntPtr: basis.IntPtr,
+                    phase: i32,
+                    dataBlockMgrCppPtr: basis.CppPtr,
+                ) i32 {
+                    var typedFactory = @as(*T, @ptrFromInt(self.object));
+                    return typedFactory.exportLevel(componentIntPtr, phase, dataBlockMgrCppPtr);
+                }
+            }.wrapCall,
+            .serializeEditorState = struct {
+                fn wrapCall(
+                    self: *Self,
+                    componentIntPtr: basis.IntPtr,
+                    stateData: *basis.bindings.InteropBuffer,
+                ) void {
+                    var typedFactory = @as(*T, @ptrFromInt(self.object));
+                    typedFactory.serializeEditorState(componentIntPtr, stateData);
+                }
+            }.wrapCall,
+            .deserializeEditorState = struct {
+                fn wrapCall(
+                    self: *Self,
+                    componentIntPtr: basis.IntPtr,
+                    stateData: *const basis.bindings.InteropString,
+                ) void {
+                    var typedFactory = @as(*T, @ptrFromInt(self.object));
+                    typedFactory.deserializeEditorState(componentIntPtr, stateData);
+                }
+            }.wrapCall,
+            .resetEditorState = struct {
+                fn wrapCall(
+                    self: *Self,
+                    componentIntPtr: basis.IntPtr,
+                ) void {
+                    var typedFactory = @as(*T, @ptrFromInt(self.object));
+                    typedFactory.resetEditorState(componentIntPtr);
+                }
+            }.wrapCall,
+            .editorStateModeChanged = struct {
+                fn wrapCall(
+                    self: *Self,
+                    componentIntPtr: basis.IntPtr,
+                    editingEnabled: bool,
+                ) void {
+                    var typedFactory = @as(*T, @ptrFromInt(self.object));
+                    typedFactory.editorStateModeChanged(componentIntPtr, editingEnabled);
+                }
+            }.wrapCall,
+            .getAngelScriptPreface = struct {
+                fn wrapCall(
+                    self: *Self,
+                    componentIntPtr: basis.IntPtr,
+                    outBuffer: [*c]basis.bindings.InteropBuffer,
+                ) void {
+                    var typedFactory = @as(*T, @ptrFromInt(self.object));
+                    typedFactory.getAngelScriptPreface(componentIntPtr, outBuffer);
+                }
+            }.wrapCall,
+            .appendAngelScriptMethodAutoCompleteItems = struct {
+                fn wrapCall(
+                    self: *Self,
+                    componentIntPtr: basis.IntPtr,
+                    vectorPtr: basis.IntPtr,
+                ) void {
+                    var typedFactory = @as(*T, @ptrFromInt(self.object));
+                    typedFactory.appendAngelScriptMethodAutoCompleteItems(componentIntPtr, vectorPtr);
+                }
+            }.wrapCall,
         };
     }
 };
@@ -507,6 +574,7 @@ pub fn GameObjectComponentFactory(comptime T: type) type {
         //----------------------------------------------------
 
         allocator: Allocator,
+        io: std.Io,
         interface: ComponentFactoryInterface,
         clientComponents: ComponentList,
         serverComponents: ComponentList,
@@ -520,13 +588,14 @@ pub fn GameObjectComponentFactory(comptime T: type) type {
 
         //----------------------------------------------------
 
-        pub fn init(allocator: Allocator) !*GameObjectComponentFactory(T) {
+        pub fn init(allocator: Allocator, io: std.Io, typeIndex: usize) !*GameObjectComponentFactory(T) {
             const factory = try allocator.create(GameObjectComponentFactory(T));
             errdefer allocator.destroy(factory);
 
             factory.* = GameObjectComponentFactory(T){
                 .allocator = allocator,
-                .interface = ComponentFactoryInterface.make(factory),
+                .io = io,
+                .interface = ComponentFactoryInterface.make(GameObjectComponentFactory(T), factory, typeIndex),
                 .clientComponents = ComponentList.init(allocator),
                 .serverComponents = ComponentList.init(allocator),
                 .bpPropList = if (hasBPProps) BPPropList.init(allocator) else EmptyBPPropList{},
@@ -564,7 +633,7 @@ pub fn GameObjectComponentFactory(comptime T: type) type {
             const componentPtr = try self.allocator.create(T);
             errdefer self.allocator.destroy(componentPtr);
 
-            componentPtr.* = try T.init(ctxtType.init(self.allocator, cppContextPtr, onClient));
+            componentPtr.* = try T.init(ctxtType.init(self.allocator, self.io, cppContextPtr, onClient));
 
             if (onClient) {
                 try self.clientComponents.append(componentPtr);
@@ -763,6 +832,46 @@ pub fn GameObjectComponentFactory(comptime T: type) type {
                 T.registerAngelScript(reg) catch |err| {
                     basis.fatalErrorWithFormat(@src(), "Error in component registerAngelScript(): {s}", .{@errorName(err)});
                 };
+            }
+        }
+
+        pub fn beforeHotReload(self: *const Self) void {
+            if (@hasDecl(T, "beforeHotReload")) {
+                // Note: We run the function for both the client and server component here.
+                // That should always be safe to do as the hot-reload is done inside of a
+                // thread gate on the C++ side.
+
+                for (self.clientComponents.items) |componentPtr| {
+                    componentPtr.beforeHotReload() catch |err| {
+                        basis.fatalErrorWithFormat(@src(), "Error in component beforeHotReload(): {s}", .{@errorName(err)});
+                    };
+                }
+
+                for (self.serverComponents.items) |componentPtr| {
+                    componentPtr.beforeHotReload() catch |err| {
+                        basis.fatalErrorWithFormat(@src(), "Error in component beforeHotReload(): {s}", .{@errorName(err)});
+                    };
+                }
+            }
+        }
+
+        pub fn afterHotReload(self: *const Self) void {
+            if (@hasDecl(T, "afterHotReload")) {
+                // Note: We run the function for both the client and server component here.
+                // That should always be safe to do as the hot-reload is done inside of a
+                // thread gate on the C++ side.
+
+                for (self.clientComponents.items) |componentPtr| {
+                    componentPtr.afterHotReload() catch |err| {
+                        basis.fatalErrorWithFormat(@src(), "Error in component afterHotReload(): {s}", .{@errorName(err)});
+                    };
+                }
+
+                for (self.serverComponents.items) |componentPtr| {
+                    componentPtr.afterHotReload() catch |err| {
+                        basis.fatalErrorWithFormat(@src(), "Error in component afterHotReload(): {s}", .{@errorName(err)});
+                    };
+                }
             }
         }
 
@@ -1057,6 +1166,32 @@ pub fn GameObjectComponentFactory(comptime T: type) type {
                     basis.fatalErrorWithFormat(@src(), "Error in editorStateModeChanged(): {s}", .{@errorName(err)});
                     unreachable;
                 };
+            }
+        }
+
+        pub fn getAngelScriptPreface(
+            self: *Self,
+            componentIntPtr: basis.IntPtr,
+            outBuffer: [*c]basis.bindings.InteropBuffer,
+        ) void {
+            _ = self; // autofix
+            if (@hasDecl(T, "getAngelScriptPreface")) {
+                var componentPtr = @as(*T, @ptrFromInt(componentIntPtr));
+                componentPtr.getAngelScriptPreface(outBuffer);
+            } else {
+                outBuffer.*.len = 0;
+            }
+        }
+
+        pub fn appendAngelScriptMethodAutoCompleteItems(
+            self: *Self,
+            componentIntPtr: basis.IntPtr,
+            vectorPtr: basis.IntPtr,
+        ) void {
+            _ = self; // autofix
+            if (@hasDecl(T, "appendAngelScriptMethodAutoCompleteItems")) {
+                var componentPtr = @as(*T, @ptrFromInt(componentIntPtr));
+                componentPtr.appendAngelScriptMethodAutoCompleteItems(vectorPtr);
             }
         }
 

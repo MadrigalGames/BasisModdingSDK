@@ -1,5 +1,5 @@
 // ----------------------------------------------------
-// Copyright (c) 2018-2025 Madrigal Ltd.
+// Copyright (c) 2018-2026 Madrigal Ltd.
 // This file is part of the Basis modding SDK, and is subject to the
 // terms and conditions of the Basis modding SDK License Agreement.
 // https://www.madrigalgames.com
@@ -11,8 +11,8 @@ const basis = @import("basis.zig");
 // Keep in sync with C++!
 pub const RenderWindowMode = enum(i32) {
     Windowed = 0,
-    Fullscreen = 1,
-    Borderless = 2,
+    FullscreenBorderless = 1,
+    FullscreenExclusive = 2,
 };
 
 pub const material = @import("renderer/material.zig");

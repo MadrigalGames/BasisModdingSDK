@@ -1,5 +1,5 @@
 // ----------------------------------------------------
-// Copyright (c) 2018-2025 Madrigal Ltd.
+// Copyright (c) 2018-2026 Madrigal Ltd.
 // This file is part of the Basis SDK, and is subject to the
 // terms and conditions of the Basis SDK License Agreement.
 // https://www.madrigalgames.com
@@ -13,6 +13,8 @@ const GameObjectComponent = basis.component_contexts.GameObjectComponent;
 
 const Message = basis.messaging.Message;
 const MessageParametersPtr = basis.messaging.MessageParametersPtr;
+
+const TickLevel = basis.game_session.TickLevel;
 
 pub const TimbreEventComponent = struct {
     const Self = @This();
@@ -28,6 +30,7 @@ pub const TimbreEventComponent = struct {
     eventPath: basis.String,
     autoPlay: bool = false,
     autoPause: bool = true,
+    autoPauseTickLevel: TickLevel = .Partial,
 
     pub const ExposedPropertyMap = .{
         basis.exposed_properties.StringProperty(Self, "eventPath", "", 1, ""),
@@ -35,6 +38,7 @@ pub const TimbreEventComponent = struct {
         basis.exposed_properties.Button("stop", "Stop", "Stop", ""),
         basis.exposed_properties.Property(Self, bool, "autoPlay", false, 1, ""),
         basis.exposed_properties.Property(Self, bool, "autoPause", true, 1, ""),
+        basis.exposed_properties.Property(Self, TickLevel, "autoPauseTickLevel", .Partial, 1, ""),
     };
 
     //----------------------------------------------------
@@ -95,6 +99,12 @@ pub const TimbreEventComponent = struct {
         }
     }
 
+    pub fn isExposedPropertyVisible(self: *Self, propertyName: []const u8) bool {
+        if (basis.string.eql(propertyName, "autoPauseTickLevel")) return self.autoPause;
+
+        return true;
+    }
+
     //----------------------------------------------------
 
     pub fn play(self: *Self) void {
@@ -110,7 +120,11 @@ pub const TimbreEventComponent = struct {
             return;
         }
 
-        self.eventInstance = self.eventDesc.createInstance(self.autoPause);
+        self.eventInstance = if (self.autoPause)
+            self.eventDesc.createInstanceWithAutoPauseTickLevel(self.autoPauseTickLevel)
+        else
+            self.eventDesc.createInstance(false);
+
         self.eventInstance.set3DParameters(self.context.transform.getPosition(), basis.math.Vec3.Zero);
         self.eventInstance.start();
     }

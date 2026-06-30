@@ -1,5 +1,5 @@
 // ----------------------------------------------------
-// Copyright (c) 2018-2025 Madrigal Ltd.
+// Copyright (c) 2018-2026 Madrigal Ltd.
 // This file is part of the Basis modding SDK, and is subject to the
 // terms and conditions of the Basis modding SDK License Agreement.
 // https://www.madrigalgames.com
@@ -26,7 +26,7 @@ pub fn acquireResource(comptime T: type, resourcePath: []const u8) ?T {
     const path = basis.string.toInteropString(resourcePath);
 
     const cppPtr = basis.bindings.api.ResourceManager_acquireResource(
-        gResourceManagerCppPtr,
+        basis.g.resource_manager.resourceManagerCppPtr,
         &path,
         @intFromEnum(basis.typeinfo.getResourceTypeID(T)),
     );
@@ -69,7 +69,7 @@ pub fn getResourcesWithFileExtension(
 
     // Get the list of resource paths and copy to temp buffers on the C++ side.
     const interopStrings = basis.bindings.api.ResourceManager_beginGetResourcesWithFileExtension(
-        gResourceManagerCppPtr,
+        basis.g.resource_manager.resourceManagerCppPtr,
         &fileExt,
         &resourceCount,
     );
@@ -77,9 +77,9 @@ pub fn getResourcesWithFileExtension(
     // Copy from the temp buffers into the array list.
     var i: u32 = 0;
     while (i < resourceCount) : (i += 1) {
-        const str = basis.string.init(gAllocator, interopStrings[i].ptr[0..interopStrings[i].len]);
+        const str = basis.string.init(list.allocator, interopStrings[i].ptr[0..interopStrings[i].len]);
         //basis.printf("Resource: {s}\n", .{str.str()});
-        list.append(str) catch unreachable;
+        list.append(str) catch @panic("OOM");
     }
 
     // Free the temp buffers on the C++ side.
@@ -90,8 +90,8 @@ pub fn registerResourceReloadedCallback(resource: anytype, callback: ResourceCal
     lock();
     defer unlock();
 
-    const id = gCallbackIDAccumulator;
-    gCallbackIDAccumulator += 1;
+    const id = basis.g.resource_manager.callbackIDAccumulator;
+    basis.g.resource_manager.callbackIDAccumulator += 1;
 
     const data = ResourceCallbackData{
         .id = id,
@@ -99,7 +99,7 @@ pub fn registerResourceReloadedCallback(resource: anytype, callback: ResourceCal
         .resourceCppPtr = resource.cppPtr,
     };
 
-    gRegisteredResourceCallbacks.append(data) catch unreachable;
+    basis.g.resource_manager.registeredResourceCallbacks.append(data) catch @panic("OOM");
 
     basis.bindings.api.ResourceManager_registerResourceReloadedCallback(
         data.resourceCppPtr,
@@ -111,9 +111,9 @@ pub fn unregisterResourceReloadedCallback(resource: anytype, callback: ResourceC
     lock();
     defer unlock();
 
-    for (gRegisteredResourceCallbacks.items, 0..) |element, i| {
+    for (basis.g.resource_manager.registeredResourceCallbacks.items, 0..) |element, i| {
         if (callback.eql(element.callback) and resource.cppPtr == element.resourceCppPtr) {
-            const data = gRegisteredResourceCallbacks.swapRemove(i);
+            const data = basis.g.resource_manager.registeredResourceCallbacks.swapRemove(i);
 
             basis.bindings.api.ResourceManager_unregisterResourceReloadedCallback(
                 data.resourceCppPtr,
@@ -132,7 +132,8 @@ pub fn addLooseFileResourcePack(
     lock();
     defer unlock();
 
-    var interopMappings = basis.ArrayList(basis.bindings.InteropLooseFileMapping).init(gAllocator);
+    var interopMappings =
+        basis.ArrayList(basis.bindings.InteropLooseFileMapping).init(basis.g.allocator);
     defer interopMappings.deinit();
 
     for (fileMappings) |mapping| {
@@ -142,36 +143,45 @@ pub fn addLooseFileResourcePack(
             .resourceType = @intFromEnum(mapping.resourceType),
         };
 
-        interopMappings.append(interopMapping) catch unreachable;
+        interopMappings.append(interopMapping) catch @panic("OOM");
     }
 
     const interopName = basis.string.toInteropString(resourcePackName);
     const count: u32 = @as(u32, @intCast(fileMappings.len));
 
     basis.bindings.api.ResourceManager_addLooseFileResourcePack(
-        gResourceManagerCppPtr,
+        basis.g.resource_manager.resourceManagerCppPtr,
         &interopName,
         &interopMappings.items[0],
         count,
     );
 }
 
+pub fn getSourceFilePathForResource(resourcePath: []const u8) ?[]const u8 {
+    const interopResourcePath = basis.string.toInteropString(resourcePath);
+    var interopSourceFilePath: basis.bindings.InteropString = undefined;
+
+    if (basis.bindings.api.ResourceManager_getSourceFilePathForResource(
+        basis.g.resource_manager.resourceManagerCppPtr,
+        &interopResourcePath,
+        &interopSourceFilePath,
+    ) == 1) {
+        return basis.string.fromInteropString(&interopSourceFilePath);
+    }
+
+    return null;
+}
+
 //----------------------------------------------------
 // Resource manager boilerplate. Don't call directly.
 
-pub fn init(allocator: std.mem.Allocator) void {
-    gAllocator = allocator;
-
-    gResourceManagerCppPtr = basis.bindings.api.ResourceManager_init();
-
-    gRegisteredResourceCallbacks = gAllocator.create(CallbackMap) catch unreachable;
-    gRegisteredResourceCallbacks.* = CallbackMap.init(gAllocator);
+pub fn init() void {
+    basis.g.resource_manager.resourceManagerCppPtr = basis.bindings.api.ResourceManager_init();
+    basis.g.resource_manager.registeredResourceCallbacks = .init(basis.g.allocator);
 }
 
 pub fn deinit() void {
-    gRegisteredResourceCallbacks.deinit();
-    gAllocator.destroy(gRegisteredResourceCallbacks);
-
+    basis.g.resource_manager.registeredResourceCallbacks.deinit();
     basis.bindings.api.ResourceManager_deinit();
 }
 
@@ -181,7 +191,7 @@ pub fn _resourceWasReloaded(resourceCppPtr: basis.CppPtr, callbackID: u32) void 
 
     _ = resourceCppPtr;
 
-    for (gRegisteredResourceCallbacks.items) |element| {
+    for (basis.g.resource_manager.registeredResourceCallbacks.items) |element| {
         if (element.id == callbackID) {
             element.callback.call();
             return;
@@ -193,16 +203,14 @@ pub fn _resourceWasReloaded(resourceCppPtr: basis.CppPtr, callbackID: u32) void 
 // Private functions:
 
 fn lock() void {
-    basis.bindings.api.ResourceManager_lock(gResourceManagerCppPtr);
+    basis.bindings.api.ResourceManager_lock(basis.g.resource_manager.resourceManagerCppPtr);
 }
 
 fn unlock() void {
-    basis.bindings.api.ResourceManager_unlock(gResourceManagerCppPtr);
+    basis.bindings.api.ResourceManager_unlock(basis.g.resource_manager.resourceManagerCppPtr);
 }
 
 //----------------------------------------------------
-
-// Private data:
 
 const CallbackMap = basis.ArrayList(ResourceCallbackData);
 
@@ -212,7 +220,8 @@ const ResourceCallbackData = struct {
     resourceCppPtr: basis.CppPtr,
 };
 
-var gAllocator: std.mem.Allocator = undefined;
-var gResourceManagerCppPtr: basis.CppPtr = 0;
-var gCallbackIDAccumulator: u32 = 0;
-var gRegisteredResourceCallbacks: *CallbackMap = undefined;
+pub const GlobalData = struct {
+    resourceManagerCppPtr: basis.CppPtr = 0,
+    callbackIDAccumulator: u32 = 0,
+    registeredResourceCallbacks: CallbackMap = undefined,
+};

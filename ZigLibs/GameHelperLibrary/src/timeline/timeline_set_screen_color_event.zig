@@ -1,5 +1,5 @@
 // ----------------------------------------------------
-// Copyright (c) 2018-2025 Madrigal Ltd.
+// Copyright (c) 2018-2026 Madrigal Ltd.
 // This file is part of the Basis modding SDK, and is subject to the
 // terms and conditions of the Basis modding SDK License Agreement.
 // https://www.madrigalgames.com
@@ -39,7 +39,9 @@ pub const TimelineSetScreenColorEvent = struct {
             .clearOnExit = clearOnExit,
         };
 
-        return ghl.TimelineEventInterface.make(Self, evt);
+        const typeNameHash = comptime basis.typeinfo.getNameHashFromType(Self);
+
+        return ghl.TimelineEventInterface.make(Self, evt, typeNameHash);
     }
 
     pub fn destroy(self: *Self) void {

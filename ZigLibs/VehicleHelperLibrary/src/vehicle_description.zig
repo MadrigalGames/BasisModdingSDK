@@ -1,5 +1,5 @@
 // ----------------------------------------------------
-// Copyright (c) 2018-2025 Madrigal Ltd.
+// Copyright (c) 2018-2026 Madrigal Ltd.
 // This file is part of the Basis modding SDK, and is subject to the
 // terms and conditions of the Basis modding SDK License Agreement.
 // https://www.madrigalgames.com
@@ -99,11 +99,7 @@ pub const VehicleDescription = struct {
     pub fn postInit(self: *Self) void {
         basis.resources.resource_manager.registerResourceReloadedCallback(
             self.jsonResource,
-            .initMethod(
-                self,
-                VehicleDescription,
-                VehicleDescription.onResourceReloaded,
-            ),
+            .initMethod(self, VehicleDescription, onResourceReloaded),
         );
 
         self.loadFromJSON();
@@ -112,11 +108,7 @@ pub const VehicleDescription = struct {
     pub fn deinit(self: *Self) void {
         basis.resources.resource_manager.unregisterResourceReloadedCallback(
             self.jsonResource,
-            .initMethod(
-                self,
-                VehicleDescription,
-                VehicleDescription.onResourceReloaded,
-            ),
+            .initMethod(self, VehicleDescription, onResourceReloaded),
         );
 
         self.autoGearBoxParameters.deinit();
@@ -145,6 +137,20 @@ pub const VehicleDescription = struct {
                 return;
             }
         }
+    }
+
+    pub fn beforeHotReload(self: *Self) void {
+        basis.resources.resource_manager.unregisterResourceReloadedCallback(
+            self.jsonResource,
+            .initMethod(self, VehicleDescription, onResourceReloaded),
+        );
+    }
+
+    pub fn afterHotReload(self: *Self) void {
+        basis.resources.resource_manager.registerResourceReloadedCallback(
+            self.jsonResource,
+            .initMethod(self, VehicleDescription, onResourceReloaded),
+        );
     }
 
     //----------------------------------------------------

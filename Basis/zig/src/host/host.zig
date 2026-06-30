@@ -1,5 +1,5 @@
 // ----------------------------------------------------
-// Copyright (c) 2018-2025 Madrigal Ltd.
+// Copyright (c) 2018-2026 Madrigal Ltd.
 // This file is part of the Basis modding SDK, and is subject to the
 // terms and conditions of the Basis modding SDK License Agreement.
 // https://www.madrigalgames.com
@@ -7,8 +7,6 @@
 
 const std = @import("std");
 const basis = @import("../basis.zig");
-
-const Allocator = std.mem.Allocator;
 
 const MessageNode = basis.messaging.MessageNode;
 
@@ -20,7 +18,8 @@ pub const HostPtr = struct {
     pub const Null = initNull();
 
     cppPtr: basis.CppPtr,
-    allocator: Allocator,
+    allocator: std.mem.Allocator,
+    io: std.Io,
     isClient: bool,
 
     //----------------------------------------------------
@@ -29,6 +28,7 @@ pub const HostPtr = struct {
         return Self{
             .cppPtr = 0,
             .allocator = undefined,
+            .io = undefined,
             .isClient = false,
         };
     }
@@ -36,22 +36,26 @@ pub const HostPtr = struct {
     pub fn init(clientOrServer: anytype) Self {
         var cppPtr: basis.CppPtr = 0;
         var allocator: std.mem.Allocator = undefined;
+        var io: std.Io = undefined;
         var isClient: bool = false;
 
         switch (@TypeOf(clientOrServer)) {
             basis.host.ClientPtr => {
                 cppPtr = clientOrServer.cppPtr;
                 allocator = clientOrServer.allocator;
+                io = clientOrServer.io;
                 isClient = true;
             },
             basis.host.ServerPtr => {
                 cppPtr = clientOrServer.cppPtr;
                 allocator = clientOrServer.allocator;
+                io = clientOrServer.io;
                 isClient = false;
             },
             basis.host.HostPtr => {
                 cppPtr = clientOrServer.cppPtr;
                 allocator = clientOrServer.allocator;
+                io = clientOrServer.io;
                 isClient = clientOrServer.isClient;
             },
             else => {
@@ -62,6 +66,7 @@ pub const HostPtr = struct {
         return Self{
             .cppPtr = cppPtr,
             .allocator = allocator,
+            .io = io,
             .isClient = isClient,
         };
     }
@@ -140,12 +145,20 @@ pub const HostPtr = struct {
 
     pub fn toClient(self: *const Self) basis.host.ClientPtr {
         basis.assert(@src(), self.isClient);
-        return basis.host.ClientPtr{ .cppPtr = self.cppPtr, .allocator = self.allocator };
+        return basis.host.ClientPtr{
+            .cppPtr = self.cppPtr,
+            .allocator = self.allocator,
+            .io = self.io,
+        };
     }
 
     pub fn toServer(self: *const Self) basis.host.ServerPtr {
         basis.assert(@src(), !self.isClient);
-        return basis.host.ServerPtr{ .cppPtr = self.cppPtr, .allocator = self.allocator };
+        return basis.host.ServerPtr{
+            .cppPtr = self.cppPtr,
+            .allocator = self.allocator,
+            .io = self.io,
+        };
     }
 };
 

@@ -1,5 +1,5 @@
 // ----------------------------------------------------
-// Copyright (c) 2018-2025 Madrigal Ltd.
+// Copyright (c) 2018-2026 Madrigal Ltd.
 // This file is part of the Basis SDK, and is subject to the
 // terms and conditions of the Basis SDK License Agreement.
 // https://www.madrigalgames.com
@@ -135,6 +135,14 @@ pub fn EffectInstance_setVectorParameter(cppPtr: basis.CppPtr, index: u8, parame
         @compileError("EffectInstance_setVectorParameter not implemented for WASM yet.");
     } else {
         merlin.bindings.fp._EffectInstance_setVectorParameter(cppPtr, index, parameter);
+    }
+}
+
+pub fn EffectInstance_setTickInPartialSimulation(cppPtr: basis.CppPtr, tickInPartial: c_int) void {
+    if (isWasm) {
+        @compileError("EffectInstance_setTickInPartialSimulation not implemented for WASM yet.");
+    } else {
+        merlin.bindings.fp._EffectInstance_setTickInPartialSimulation(cppPtr, tickInPartial);
     }
 }
 

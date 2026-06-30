@@ -1,5 +1,5 @@
 // ----------------------------------------------------
-// Copyright (c) 2018-2025 Madrigal Ltd.
+// Copyright (c) 2018-2026 Madrigal Ltd.
 // This file is part of the Basis modding SDK, and is subject to the
 // terms and conditions of the Basis modding SDK License Agreement.
 // https://www.madrigalgames.com
@@ -71,8 +71,8 @@ pub const basis_zig_Client_getInterpolationFactor_cb = *const fn (u64) callconv(
 pub const basis_zig_Client_createMessageNode_cb = *const fn (basis.bindings.InteropTypedPtr, u64, [*c]const basis.bindings.InteropString, u64) callconv(.c) u64;
 pub const basis_zig_Client_addRPCListener_cb = *const fn (u64, u64, u64) callconv(.c) u64;
 pub const basis_zig_Client_removeRPCListener_cb = *const fn (u64, u64) callconv(.c) void;
-pub const basis_zig_Client_sendNetworkMessageToHostID_cb = *const fn (u64, [*c]const u8, u32, bool, c_int) callconv(.c) void;
-pub const basis_zig_Client_sendNetworkMessageToPeer_cb = *const fn (u64, [*c]const u8, u32, bool, u64) callconv(.c) void;
+pub const basis_zig_Client_sendNetworkMessageToHostID_cb = *const fn (u64, [*c]const u8, u32, c_int, c_int) callconv(.c) void;
+pub const basis_zig_Client_sendNetworkMessageToPeer_cb = *const fn (u64, [*c]const u8, u32, c_int, u64) callconv(.c) void;
 pub const basis_zig_Client_isConnected_cb = *const fn (u64) callconv(.c) c_int;
 
 // ===============================
@@ -86,8 +86,8 @@ pub const basis_zig_Server_getPrimaryPhysicsScene_cb = *const fn (u64) callconv(
 pub const basis_zig_Server_createMessageNode_cb = *const fn (basis.bindings.InteropTypedPtr, u64, [*c]const basis.bindings.InteropString, u64) callconv(.c) u64;
 pub const basis_zig_Server_addRPCListener_cb = *const fn (u64, u64, u64) callconv(.c) u64;
 pub const basis_zig_Server_removeRPCListener_cb = *const fn (u64, u64) callconv(.c) void;
-pub const basis_zig_Server_sendNetworkMessageToHostID_cb = *const fn (u64, [*c]const u8, u32, bool, c_int) callconv(.c) void;
-pub const basis_zig_Server_sendNetworkMessageToPeer_cb = *const fn (u64, [*c]const u8, u32, bool, u64) callconv(.c) void;
+pub const basis_zig_Server_sendNetworkMessageToHostID_cb = *const fn (u64, [*c]const u8, u32, c_int, c_int) callconv(.c) void;
+pub const basis_zig_Server_sendNetworkMessageToPeer_cb = *const fn (u64, [*c]const u8, u32, c_int, u64) callconv(.c) void;
 pub const basis_zig_Server_endGameSession_cb = *const fn (u64) callconv(.c) void;
 
 // ===============================
@@ -114,19 +114,19 @@ pub const basis_zig_CommandPrompt_getStringParameter_cb = *const fn ([*c]basis.b
 pub const basis_zig_ConfigOptions_addString_cb = *const fn (u64, [*c]const basis.bindings.InteropString, [*c]const basis.bindings.InteropString) callconv(.c) void;
 pub const basis_zig_ConfigOptions_addFloat_cb = *const fn (u64, [*c]const basis.bindings.InteropString, f32) callconv(.c) void;
 pub const basis_zig_ConfigOptions_addInteger_cb = *const fn (u64, [*c]const basis.bindings.InteropString, c_int) callconv(.c) void;
-pub const basis_zig_ConfigOptions_addBool_cb = *const fn (u64, [*c]const basis.bindings.InteropString, bool) callconv(.c) void;
+pub const basis_zig_ConfigOptions_addBool_cb = *const fn (u64, [*c]const basis.bindings.InteropString, c_int) callconv(.c) void;
 pub const basis_zig_ConfigOptions_getString_cb = *const fn (u64, [*c]const basis.bindings.InteropString, [*c]basis.bindings.InteropString) callconv(.c) void;
 pub const basis_zig_ConfigOptions_getFloat_cb = *const fn (u64, [*c]const basis.bindings.InteropString) callconv(.c) f32;
 pub const basis_zig_ConfigOptions_getInteger_cb = *const fn (u64, [*c]const basis.bindings.InteropString) callconv(.c) c_int;
-pub const basis_zig_ConfigOptions_getBool_cb = *const fn (u64, [*c]const basis.bindings.InteropString) callconv(.c) bool;
+pub const basis_zig_ConfigOptions_getBool_cb = *const fn (u64, [*c]const basis.bindings.InteropString) callconv(.c) c_int;
 pub const basis_zig_ConfigOptions_setString_cb = *const fn (u64, [*c]const basis.bindings.InteropString, [*c]const basis.bindings.InteropString) callconv(.c) void;
 pub const basis_zig_ConfigOptions_setFloat_cb = *const fn (u64, [*c]const basis.bindings.InteropString, f32) callconv(.c) void;
 pub const basis_zig_ConfigOptions_setInteger_cb = *const fn (u64, [*c]const basis.bindings.InteropString, c_int) callconv(.c) void;
-pub const basis_zig_ConfigOptions_setBool_cb = *const fn (u64, [*c]const basis.bindings.InteropString, bool) callconv(.c) void;
-pub const basis_zig_ConfigOptions_hasString_cb = *const fn (u64, [*c]const basis.bindings.InteropString) callconv(.c) bool;
-pub const basis_zig_ConfigOptions_hasFloat_cb = *const fn (u64, [*c]const basis.bindings.InteropString) callconv(.c) bool;
-pub const basis_zig_ConfigOptions_hasInteger_cb = *const fn (u64, [*c]const basis.bindings.InteropString) callconv(.c) bool;
-pub const basis_zig_ConfigOptions_hasBool_cb = *const fn (u64, [*c]const basis.bindings.InteropString) callconv(.c) bool;
+pub const basis_zig_ConfigOptions_setBool_cb = *const fn (u64, [*c]const basis.bindings.InteropString, c_int) callconv(.c) void;
+pub const basis_zig_ConfigOptions_hasString_cb = *const fn (u64, [*c]const basis.bindings.InteropString) callconv(.c) c_int;
+pub const basis_zig_ConfigOptions_hasFloat_cb = *const fn (u64, [*c]const basis.bindings.InteropString) callconv(.c) c_int;
+pub const basis_zig_ConfigOptions_hasInteger_cb = *const fn (u64, [*c]const basis.bindings.InteropString) callconv(.c) c_int;
+pub const basis_zig_ConfigOptions_hasBool_cb = *const fn (u64, [*c]const basis.bindings.InteropString) callconv(.c) c_int;
 pub const basis_zig_ConfigOptions_save_cb = *const fn (u64) callconv(.c) void;
 
 // ===============================
@@ -136,8 +136,8 @@ pub const basis_zig_ConfigOptions_save_cb = *const fn (u64) callconv(.c) void;
 pub const basis_zig_PlayerController_getClient_cb = *const fn (basis.bindings.InteropTypedPtr) callconv(.c) u64;
 pub const basis_zig_PlayerController_getServer_cb = *const fn (basis.bindings.InteropTypedPtr) callconv(.c) u64;
 pub const basis_zig_PlayerController_getInputRange_cb = *const fn (basis.bindings.InteropTypedPtr, u16) callconv(.c) f32;
-pub const basis_zig_PlayerController_getInputState_cb = *const fn (basis.bindings.InteropTypedPtr, u16) callconv(.c) bool;
-pub const basis_zig_PlayerController_getInputAction_cb = *const fn (basis.bindings.InteropTypedPtr, u16) callconv(.c) bool;
+pub const basis_zig_PlayerController_getInputState_cb = *const fn (basis.bindings.InteropTypedPtr, u16) callconv(.c) c_int;
+pub const basis_zig_PlayerController_getInputAction_cb = *const fn (basis.bindings.InteropTypedPtr, u16) callconv(.c) c_int;
 pub const basis_zig_PlayerController_subscribeToMessageCategory_cb = *const fn (basis.bindings.InteropTypedPtr, i32) callconv(.c) void;
 pub const basis_zig_PlayerController_allocMsgParams_cb = *const fn (basis.bindings.InteropTypedPtr) callconv(.c) u64;
 pub const basis_zig_PlayerController_sendMessage_cb = *const fn (basis.bindings.InteropTypedPtr, i32, u64) callconv(.c) void;
@@ -166,20 +166,21 @@ pub const basis_zig_GameObject_addGameObjectMeshInstanceMapping_cb = *const fn (
 pub const basis_zig_GameObject_removeGameObjectMeshInstanceMapping_cb = *const fn (u64, u64) callconv(.c) void;
 pub const basis_zig_GameObject_getNameHash_cb = *const fn (u64) callconv(.c) u32;
 pub const basis_zig_GameObject_getWorldTransform_cb = *const fn (u64, [*c]basis.bindings.InteropVec3, [*c]basis.bindings.InteropQuaternion) callconv(.c) c_int;
-pub const basis_zig_GameObject_setWorldTransform_cb = *const fn (u64, [*c]const basis.bindings.InteropVec3, [*c]const basis.bindings.InteropQuaternion, bool) callconv(.c) c_int;
+pub const basis_zig_GameObject_setWorldTransform_cb = *const fn (u64, [*c]const basis.bindings.InteropVec3, [*c]const basis.bindings.InteropQuaternion, c_int) callconv(.c) c_int;
 pub const basis_zig_GameObject_getMeshComponentData_cb = *const fn (u64, [*c]const basis.bindings.InteropString, [*c]u64, [*c]u64, [*c]u64) callconv(.c) c_int;
 pub const basis_zig_GameObject_getPhysicsActor_cb = *const fn (u64, [*c]u64, [*c]u32) callconv(.c) c_int;
 pub const basis_zig_GameObject_setGameTag_cb = *const fn (u64, u32) callconv(.c) void;
 pub const basis_zig_GameObject_getGameTag_cb = *const fn (u64) callconv(.c) u32;
 pub const basis_zig_GameObject_getRenderSceneNode_cb = *const fn (u64) callconv(.c) u64;
+pub const basis_zig_GameObject_getNavMeshObstacleIDs_cb = *const fn (u64, u32, [*c]u32, u32) callconv(.c) u32;
 
 // ===============================
 
 // class ComponentContext
 
 pub const basis_zig_ComponentContext_getName_cb = *const fn (basis.bindings.InteropTypedPtr, [*c]basis.bindings.InteropString) callconv(.c) void;
-pub const basis_zig_ComponentContext_onClient_cb = *const fn (basis.bindings.InteropTypedPtr) callconv(.c) bool;
-pub const basis_zig_ComponentContext_inEditor_cb = *const fn (basis.bindings.InteropTypedPtr) callconv(.c) bool;
+pub const basis_zig_ComponentContext_onClient_cb = *const fn (basis.bindings.InteropTypedPtr) callconv(.c) c_int;
+pub const basis_zig_ComponentContext_inEditor_cb = *const fn (basis.bindings.InteropTypedPtr) callconv(.c) c_int;
 pub const basis_zig_ComponentContext_getClient_cb = *const fn (basis.bindings.InteropTypedPtr) callconv(.c) u64;
 pub const basis_zig_ComponentContext_getServer_cb = *const fn (basis.bindings.InteropTypedPtr) callconv(.c) u64;
 pub const basis_zig_ComponentContext_getGameObject_cb = *const fn (basis.bindings.InteropTypedPtr) callconv(.c) u64;
@@ -197,36 +198,41 @@ pub const basis_zig_ComponentContext_getOrientation_cb = *const fn (basis.bindin
 pub const basis_zig_ComponentContext_setOrientation_cb = *const fn (basis.bindings.InteropTypedPtr, [*c]const basis.bindings.InteropQuaternion) callconv(.c) void;
 pub const basis_zig_ComponentContext_getLinearVelocity_cb = *const fn (basis.bindings.InteropTypedPtr, [*c]basis.bindings.InteropVec3) callconv(.c) void;
 pub const basis_zig_ComponentContext_getAngularVelocity_cb = *const fn (basis.bindings.InteropTypedPtr, [*c]basis.bindings.InteropVec3) callconv(.c) void;
-pub const basis_zig_ComponentContext_setTransform_cb = *const fn (basis.bindings.InteropTypedPtr, [*c]const basis.bindings.InteropVec3, [*c]const basis.bindings.InteropQuaternion, bool) callconv(.c) void;
-pub const basis_zig_ComponentContext_setTransformWithVelocities_cb = *const fn (basis.bindings.InteropTypedPtr, [*c]const basis.bindings.InteropVec3, [*c]const basis.bindings.InteropQuaternion, [*c]const basis.bindings.InteropVec3, [*c]const basis.bindings.InteropVec3, bool) callconv(.c) void;
+pub const basis_zig_ComponentContext_setTransform_cb = *const fn (basis.bindings.InteropTypedPtr, [*c]const basis.bindings.InteropVec3, [*c]const basis.bindings.InteropQuaternion, c_int) callconv(.c) void;
+pub const basis_zig_ComponentContext_setTransformWithVelocities_cb = *const fn (basis.bindings.InteropTypedPtr, [*c]const basis.bindings.InteropVec3, [*c]const basis.bindings.InteropQuaternion, [*c]const basis.bindings.InteropVec3, [*c]const basis.bindings.InteropVec3, c_int) callconv(.c) void;
 pub const basis_zig_ComponentContext_getWorldMatrix_cb = *const fn (basis.bindings.InteropTypedPtr, [*c]basis.bindings.InteropMat43) callconv(.c) void;
 pub const basis_zig_ComponentContext_getRenderSceneNode_cb = *const fn (basis.bindings.InteropTypedPtr) callconv(.c) u64;
-pub const basis_zig_ComponentContext_isClientLocalAvatar_cb = *const fn (basis.bindings.InteropTypedPtr) callconv(.c) bool;
+pub const basis_zig_ComponentContext_isClientLocalAvatar_cb = *const fn (basis.bindings.InteropTypedPtr) callconv(.c) c_int;
 pub const basis_zig_ComponentContext_getAvatarHostID_cb = *const fn (basis.bindings.InteropTypedPtr) callconv(.c) i32;
 pub const basis_zig_ComponentContext_getInputRange_cb = *const fn (basis.bindings.InteropTypedPtr, u16) callconv(.c) f32;
-pub const basis_zig_ComponentContext_getInputState_cb = *const fn (basis.bindings.InteropTypedPtr, u16) callconv(.c) bool;
-pub const basis_zig_ComponentContext_getInputAction_cb = *const fn (basis.bindings.InteropTypedPtr, u16) callconv(.c) bool;
+pub const basis_zig_ComponentContext_getInputState_cb = *const fn (basis.bindings.InteropTypedPtr, u16) callconv(.c) c_int;
+pub const basis_zig_ComponentContext_getInputAction_cb = *const fn (basis.bindings.InteropTypedPtr, u16) callconv(.c) c_int;
 pub const basis_zig_ComponentContext_getCharacterController_cb = *const fn (basis.bindings.InteropTypedPtr) callconv(.c) u64;
 pub const basis_zig_ComponentContext_getPhysicsActor_cb = *const fn (basis.bindings.InteropTypedPtr, [*c]u64, [*c]u32) callconv(.c) c_int;
 pub const basis_zig_ComponentContext_flushExposedProperties_cb = *const fn (basis.bindings.InteropTypedPtr) callconv(.c) void;
 pub const basis_zig_ComponentContext_getParentGameObject_cb = *const fn (basis.bindings.InteropTypedPtr) callconv(.c) u64;
-pub const basis_zig_ComponentContext_registerPipe_cb = *const fn (basis.bindings.InteropTypedPtr, [*c]const basis.bindings.InteropString, c_int, bool) callconv(.c) u64;
+pub const basis_zig_ComponentContext_registerPipe_cb = *const fn (basis.bindings.InteropTypedPtr, [*c]const basis.bindings.InteropString, c_int, c_int) callconv(.c) u64;
 pub const basis_zig_ComponentContext_writeToPipe_cb = *const fn (basis.bindings.InteropTypedPtr, u64, [*c]const u8, u32) callconv(.c) void;
 pub const basis_zig_ComponentContext_callScriptOnTick_cb = *const fn (basis.bindings.InteropTypedPtr, f32) callconv(.c) void;
 pub const basis_zig_ComponentContext_getScriptFunctionByDecl_cb = *const fn (basis.bindings.InteropTypedPtr, [*c]const basis.bindings.InteropString) callconv(.c) u64;
 pub const basis_zig_ComponentContext_getScriptFunctionByASFuncPtr_cb = *const fn (basis.bindings.InteropTypedPtr, u64) callconv(.c) u64;
+pub const basis_zig_ComponentContext_setScriptGlobalHandle_cb = *const fn (basis.bindings.InteropTypedPtr, [*c]const basis.bindings.InteropString, u64) callconv(.c) void;
 
 // ===============================
 
 // class AngelScriptFunction
 
 pub const basis_zig_AngelScriptFunction_prepareCall_cb = *const fn (u64) callconv(.c) void;
-pub const basis_zig_AngelScriptFunction_setBoolParam_cb = *const fn (u64, u32, bool) callconv(.c) void;
+pub const basis_zig_AngelScriptFunction_setBoolParam_cb = *const fn (u64, u32, c_int) callconv(.c) void;
 pub const basis_zig_AngelScriptFunction_setIntParam_cb = *const fn (u64, u32, c_int) callconv(.c) void;
 pub const basis_zig_AngelScriptFunction_setUintParam_cb = *const fn (u64, u32, u32) callconv(.c) void;
 pub const basis_zig_AngelScriptFunction_setFloatParam_cb = *const fn (u64, u32, f32) callconv(.c) void;
 pub const basis_zig_AngelScriptFunction_setStringParam_cb = *const fn (u64, u32, [*c]const basis.bindings.InteropString) callconv(.c) void;
-pub const basis_zig_AngelScriptFunction_setGameObjectRefParam_cb = *const fn (u64, u32, u32, u64, bool) callconv(.c) void;
+pub const basis_zig_AngelScriptFunction_setGameObjectRefParam_cb = *const fn (u64, u32, u32, u64, c_int) callconv(.c) void;
+pub const basis_zig_AngelScriptFunction_getReturnBool_cb = *const fn (u64) callconv(.c) c_int;
+pub const basis_zig_AngelScriptFunction_getReturnInt_cb = *const fn (u64) callconv(.c) c_int;
+pub const basis_zig_AngelScriptFunction_getReturnUint_cb = *const fn (u64) callconv(.c) u32;
+pub const basis_zig_AngelScriptFunction_getReturnFloat_cb = *const fn (u64) callconv(.c) f32;
 pub const basis_zig_AngelScriptFunction_executeCall_cb = *const fn (u64) callconv(.c) void;
 
 // ===============================
@@ -265,40 +271,45 @@ pub const basis_zig_MessageNode_sendMessage_cb = *const fn (u64, i32, u64) callc
 
 pub const basis_zig_InputManager_addGameInputContextToFront_cb = *const fn (u8) callconv(.c) void;
 pub const basis_zig_InputManager_addGameInputContextToBack_cb = *const fn (u8) callconv(.c) void;
-pub const basis_zig_InputManager_isGameInputContextEnabled_cb = *const fn (u8) callconv(.c) bool;
+pub const basis_zig_InputManager_isGameInputContextEnabled_cb = *const fn (u8) callconv(.c) c_int;
 pub const basis_zig_InputManager_removeGameInputContext_cb = *const fn (u8) callconv(.c) void;
 pub const basis_zig_InputManager_getNFirstEnabledInputContexts_cb = *const fn ([*c]u8, u32) callconv(.c) u32;
-pub const basis_zig_InputManager_isCursorLocked_cb = *const fn () callconv(.c) bool;
+pub const basis_zig_InputManager_isCursorLocked_cb = *const fn () callconv(.c) c_int;
 pub const basis_zig_InputManager_lockCursor_cb = *const fn () callconv(.c) void;
 pub const basis_zig_InputManager_releaseCursor_cb = *const fn () callconv(.c) void;
 pub const basis_zig_InputManager_getGameInputMode_cb = *const fn () callconv(.c) i32;
-pub const basis_zig_InputManager_isKeyPressed_cb = *const fn (u32) callconv(.c) bool;
-pub const basis_zig_InputManager_isMouseButtonPressed_cb = *const fn (u32) callconv(.c) bool;
-pub const basis_zig_InputManager_getMappedKeyCode_cb = *const fn (u16, u8, c_int, [*c]i32) callconv(.c) bool;
-pub const basis_zig_InputManager_getMappedMouseButton_cb = *const fn (u16, u8, c_int, [*c]i32) callconv(.c) bool;
-pub const basis_zig_InputManager_getMappedGamepadButton_cb = *const fn (u16, u8, c_int, [*c]i32) callconv(.c) bool;
-pub const basis_zig_InputManager_getMappedInputSource_cb = *const fn (u16, u8, c_int, c_int, [*c]i32) callconv(.c) bool;
+pub const basis_zig_InputManager_isKeyPressed_cb = *const fn (u32) callconv(.c) c_int;
+pub const basis_zig_InputManager_isMouseButtonPressed_cb = *const fn (u32) callconv(.c) c_int;
+pub const basis_zig_InputManager_isGamepadButtonDown_cb = *const fn (i32) callconv(.c) c_int;
+pub const basis_zig_InputManager_setGamepadVibration_cb = *const fn (i32, f32, f32) callconv(.c) void;
+pub const basis_zig_InputManager_getMappedKeyCode_cb = *const fn (u16, u8, c_int, [*c]i32) callconv(.c) c_int;
+pub const basis_zig_InputManager_getMappedMouseButton_cb = *const fn (u16, u8, c_int, [*c]i32) callconv(.c) c_int;
+pub const basis_zig_InputManager_getMappedGamepadButton_cb = *const fn (u16, u8, c_int, [*c]i32) callconv(.c) c_int;
+pub const basis_zig_InputManager_getMappedInputSource_cb = *const fn (u16, u8, c_int, c_int, [*c]i32) callconv(.c) c_int;
+pub const basis_zig_InputManager_getFirstPressedKey_cb = *const fn () callconv(.c) i32;
+pub const basis_zig_InputManager_getFirstPressedMouseButton_cb = *const fn () callconv(.c) i32;
+pub const basis_zig_InputManager_getKeyName_cb = *const fn (u32, [*c]u8, u32) callconv(.c) u32;
 
 // ===============================
 
 // class PropagatedValue
 
-pub const basis_zig_PropagatedValue_createFloat_cb = *const fn (basis.bindings.InteropTypedPtr, u64, [*c]const basis.bindings.InteropString, bool, bool, f32) callconv(.c) u64;
-pub const basis_zig_PropagatedValue_createDouble_cb = *const fn (basis.bindings.InteropTypedPtr, u64, [*c]const basis.bindings.InteropString, bool, bool, f64) callconv(.c) u64;
-pub const basis_zig_PropagatedValue_createInt32_cb = *const fn (basis.bindings.InteropTypedPtr, u64, [*c]const basis.bindings.InteropString, bool, bool, i32) callconv(.c) u64;
-pub const basis_zig_PropagatedValue_createUint32_cb = *const fn (basis.bindings.InteropTypedPtr, u64, [*c]const basis.bindings.InteropString, bool, bool, u32) callconv(.c) u64;
-pub const basis_zig_PropagatedValue_createInt16_cb = *const fn (basis.bindings.InteropTypedPtr, u64, [*c]const basis.bindings.InteropString, bool, bool, i16) callconv(.c) u64;
-pub const basis_zig_PropagatedValue_createUint16_cb = *const fn (basis.bindings.InteropTypedPtr, u64, [*c]const basis.bindings.InteropString, bool, bool, u16) callconv(.c) u64;
-pub const basis_zig_PropagatedValue_createInt64_cb = *const fn (basis.bindings.InteropTypedPtr, u64, [*c]const basis.bindings.InteropString, bool, bool, i64) callconv(.c) u64;
-pub const basis_zig_PropagatedValue_createUint64_cb = *const fn (basis.bindings.InteropTypedPtr, u64, [*c]const basis.bindings.InteropString, bool, bool, u64) callconv(.c) u64;
-pub const basis_zig_PropagatedValue_createInt8_cb = *const fn (basis.bindings.InteropTypedPtr, u64, [*c]const basis.bindings.InteropString, bool, bool, i8) callconv(.c) u64;
-pub const basis_zig_PropagatedValue_createUint8_cb = *const fn (basis.bindings.InteropTypedPtr, u64, [*c]const basis.bindings.InteropString, bool, bool, u8) callconv(.c) u64;
-pub const basis_zig_PropagatedValue_createBool_cb = *const fn (basis.bindings.InteropTypedPtr, u64, [*c]const basis.bindings.InteropString, bool, bool, bool) callconv(.c) u64;
-pub const basis_zig_PropagatedValue_createVec2_cb = *const fn (basis.bindings.InteropTypedPtr, u64, [*c]const basis.bindings.InteropString, bool, bool, [*c]const basis.bindings.InteropVec2) callconv(.c) u64;
-pub const basis_zig_PropagatedValue_createVec3_cb = *const fn (basis.bindings.InteropTypedPtr, u64, [*c]const basis.bindings.InteropString, bool, bool, [*c]const basis.bindings.InteropVec3) callconv(.c) u64;
-pub const basis_zig_PropagatedValue_createVec4_cb = *const fn (basis.bindings.InteropTypedPtr, u64, [*c]const basis.bindings.InteropString, bool, bool, [*c]const basis.bindings.InteropVec4) callconv(.c) u64;
-pub const basis_zig_PropagatedValue_createQuaternion_cb = *const fn (basis.bindings.InteropTypedPtr, u64, [*c]const basis.bindings.InteropString, bool, bool, [*c]const basis.bindings.InteropQuaternion) callconv(.c) u64;
-pub const basis_zig_PropagatedValue_createMat43_cb = *const fn (basis.bindings.InteropTypedPtr, u64, [*c]const basis.bindings.InteropString, bool, bool, [*c]const basis.bindings.InteropMat43) callconv(.c) u64;
+pub const basis_zig_PropagatedValue_createFloat_cb = *const fn (basis.bindings.InteropTypedPtr, u64, [*c]const basis.bindings.InteropString, c_int, c_int, f32) callconv(.c) u64;
+pub const basis_zig_PropagatedValue_createDouble_cb = *const fn (basis.bindings.InteropTypedPtr, u64, [*c]const basis.bindings.InteropString, c_int, c_int, f64) callconv(.c) u64;
+pub const basis_zig_PropagatedValue_createInt32_cb = *const fn (basis.bindings.InteropTypedPtr, u64, [*c]const basis.bindings.InteropString, c_int, c_int, i32) callconv(.c) u64;
+pub const basis_zig_PropagatedValue_createUint32_cb = *const fn (basis.bindings.InteropTypedPtr, u64, [*c]const basis.bindings.InteropString, c_int, c_int, u32) callconv(.c) u64;
+pub const basis_zig_PropagatedValue_createInt16_cb = *const fn (basis.bindings.InteropTypedPtr, u64, [*c]const basis.bindings.InteropString, c_int, c_int, i16) callconv(.c) u64;
+pub const basis_zig_PropagatedValue_createUint16_cb = *const fn (basis.bindings.InteropTypedPtr, u64, [*c]const basis.bindings.InteropString, c_int, c_int, u16) callconv(.c) u64;
+pub const basis_zig_PropagatedValue_createInt64_cb = *const fn (basis.bindings.InteropTypedPtr, u64, [*c]const basis.bindings.InteropString, c_int, c_int, i64) callconv(.c) u64;
+pub const basis_zig_PropagatedValue_createUint64_cb = *const fn (basis.bindings.InteropTypedPtr, u64, [*c]const basis.bindings.InteropString, c_int, c_int, u64) callconv(.c) u64;
+pub const basis_zig_PropagatedValue_createInt8_cb = *const fn (basis.bindings.InteropTypedPtr, u64, [*c]const basis.bindings.InteropString, c_int, c_int, i8) callconv(.c) u64;
+pub const basis_zig_PropagatedValue_createUint8_cb = *const fn (basis.bindings.InteropTypedPtr, u64, [*c]const basis.bindings.InteropString, c_int, c_int, u8) callconv(.c) u64;
+pub const basis_zig_PropagatedValue_createBool_cb = *const fn (basis.bindings.InteropTypedPtr, u64, [*c]const basis.bindings.InteropString, c_int, c_int, c_int) callconv(.c) u64;
+pub const basis_zig_PropagatedValue_createVec2_cb = *const fn (basis.bindings.InteropTypedPtr, u64, [*c]const basis.bindings.InteropString, c_int, c_int, [*c]const basis.bindings.InteropVec2) callconv(.c) u64;
+pub const basis_zig_PropagatedValue_createVec3_cb = *const fn (basis.bindings.InteropTypedPtr, u64, [*c]const basis.bindings.InteropString, c_int, c_int, [*c]const basis.bindings.InteropVec3) callconv(.c) u64;
+pub const basis_zig_PropagatedValue_createVec4_cb = *const fn (basis.bindings.InteropTypedPtr, u64, [*c]const basis.bindings.InteropString, c_int, c_int, [*c]const basis.bindings.InteropVec4) callconv(.c) u64;
+pub const basis_zig_PropagatedValue_createQuaternion_cb = *const fn (basis.bindings.InteropTypedPtr, u64, [*c]const basis.bindings.InteropString, c_int, c_int, [*c]const basis.bindings.InteropQuaternion) callconv(.c) u64;
+pub const basis_zig_PropagatedValue_createMat43_cb = *const fn (basis.bindings.InteropTypedPtr, u64, [*c]const basis.bindings.InteropString, c_int, c_int, [*c]const basis.bindings.InteropMat43) callconv(.c) u64;
 pub const basis_zig_PropagatedValue_setFloat_cb = *const fn (u64, f32) callconv(.c) void;
 pub const basis_zig_PropagatedValue_setDouble_cb = *const fn (u64, f64) callconv(.c) void;
 pub const basis_zig_PropagatedValue_setInt32_cb = *const fn (u64, i32) callconv(.c) void;
@@ -309,13 +320,13 @@ pub const basis_zig_PropagatedValue_setInt64_cb = *const fn (u64, i64) callconv(
 pub const basis_zig_PropagatedValue_setUint64_cb = *const fn (u64, u64) callconv(.c) void;
 pub const basis_zig_PropagatedValue_setInt8_cb = *const fn (u64, i8) callconv(.c) void;
 pub const basis_zig_PropagatedValue_setUint8_cb = *const fn (u64, u8) callconv(.c) void;
-pub const basis_zig_PropagatedValue_setBool_cb = *const fn (u64, bool) callconv(.c) void;
+pub const basis_zig_PropagatedValue_setBool_cb = *const fn (u64, c_int) callconv(.c) void;
 pub const basis_zig_PropagatedValue_setVec2_cb = *const fn (u64, [*c]const basis.bindings.InteropVec2) callconv(.c) void;
 pub const basis_zig_PropagatedValue_setVec3_cb = *const fn (u64, [*c]const basis.bindings.InteropVec3) callconv(.c) void;
 pub const basis_zig_PropagatedValue_setVec4_cb = *const fn (u64, [*c]const basis.bindings.InteropVec4) callconv(.c) void;
 pub const basis_zig_PropagatedValue_setQuaternion_cb = *const fn (u64, [*c]const basis.bindings.InteropQuaternion) callconv(.c) void;
 pub const basis_zig_PropagatedValue_setMat43_cb = *const fn (u64, [*c]const basis.bindings.InteropMat43) callconv(.c) void;
-pub const basis_zig_PropagatedValue_createAction_cb = *const fn (basis.bindings.InteropTypedPtr, u64, [*c]const basis.bindings.InteropString, bool, bool) callconv(.c) u64;
+pub const basis_zig_PropagatedValue_createAction_cb = *const fn (basis.bindings.InteropTypedPtr, u64, [*c]const basis.bindings.InteropString, c_int, c_int) callconv(.c) u64;
 pub const basis_zig_PropagatedValue_fireAction_cb = *const fn (u64) callconv(.c) void;
 
 // ===============================
@@ -328,17 +339,17 @@ pub const basis_zig_SceneNode_createChildNode_cb = *const fn (u64) callconv(.c) 
 pub const basis_zig_SceneNode_destroyChildNode_cb = *const fn (u64, u64) callconv(.c) void;
 pub const basis_zig_SceneNode_detachAll_cb = *const fn (u64) callconv(.c) void;
 pub const basis_zig_SceneNode_destroyAllChildNodes_cb = *const fn (u64) callconv(.c) void;
-pub const basis_zig_SceneNode_setPosition_cb = *const fn (u64, [*c]const basis.bindings.InteropVec3, c_int, bool) callconv(.c) void;
+pub const basis_zig_SceneNode_setPosition_cb = *const fn (u64, [*c]const basis.bindings.InteropVec3, c_int, c_int) callconv(.c) void;
 pub const basis_zig_SceneNode_getPosition_cb = *const fn (u64, c_int, [*c]basis.bindings.InteropVec3) callconv(.c) void;
-pub const basis_zig_SceneNode_setOrientation_cb = *const fn (u64, [*c]const basis.bindings.InteropQuaternion, c_int, bool) callconv(.c) void;
+pub const basis_zig_SceneNode_setOrientation_cb = *const fn (u64, [*c]const basis.bindings.InteropQuaternion, c_int, c_int) callconv(.c) void;
 pub const basis_zig_SceneNode_getOrientation_cb = *const fn (u64, c_int, [*c]basis.bindings.InteropQuaternion) callconv(.c) void;
-pub const basis_zig_SceneNode_setScale_cb = *const fn (u64, [*c]const basis.bindings.InteropVec3, bool) callconv(.c) void;
+pub const basis_zig_SceneNode_setScale_cb = *const fn (u64, [*c]const basis.bindings.InteropVec3, c_int) callconv(.c) void;
 pub const basis_zig_SceneNode_getScale_cb = *const fn (u64, [*c]basis.bindings.InteropVec3) callconv(.c) void;
-pub const basis_zig_SceneNode_translate_cb = *const fn (u64, [*c]const basis.bindings.InteropVec3, c_int, bool) callconv(.c) void;
-pub const basis_zig_SceneNode_yaw_cb = *const fn (u64, f32, c_int, bool) callconv(.c) void;
-pub const basis_zig_SceneNode_pitch_cb = *const fn (u64, f32, c_int, bool) callconv(.c) void;
-pub const basis_zig_SceneNode_roll_cb = *const fn (u64, f32, c_int, bool) callconv(.c) void;
-pub const basis_zig_SceneNode_lookAtSceneNode_cb = *const fn (u64, u64, bool) callconv(.c) void;
+pub const basis_zig_SceneNode_translate_cb = *const fn (u64, [*c]const basis.bindings.InteropVec3, c_int, c_int) callconv(.c) void;
+pub const basis_zig_SceneNode_yaw_cb = *const fn (u64, f32, c_int, c_int) callconv(.c) void;
+pub const basis_zig_SceneNode_pitch_cb = *const fn (u64, f32, c_int, c_int) callconv(.c) void;
+pub const basis_zig_SceneNode_roll_cb = *const fn (u64, f32, c_int, c_int) callconv(.c) void;
+pub const basis_zig_SceneNode_lookAtSceneNode_cb = *const fn (u64, u64, c_int) callconv(.c) void;
 pub const basis_zig_SceneNode_attachMeshInstance_cb = *const fn (u64, u64) callconv(.c) void;
 pub const basis_zig_SceneNode_detachMeshInstance_cb = *const fn (u64, u64) callconv(.c) void;
 pub const basis_zig_SceneNode_isMeshInstanceAttached_cb = *const fn (u64, u64) callconv(.c) i32;
@@ -359,14 +370,14 @@ pub const basis_zig_PhysicsScene_addVehicleController_cb = *const fn (u64, u64) 
 pub const basis_zig_PhysicsScene_removeVehicleController_cb = *const fn (u64, u64) callconv(.c) void;
 pub const basis_zig_PhysicsScene_addJoint_cb = *const fn (u64, u64, u32) callconv(.c) void;
 pub const basis_zig_PhysicsScene_removeJoint_cb = *const fn (u64, u64, u32) callconv(.c) void;
-pub const basis_zig_PhysicsScene_applyRadialForce_cb = *const fn (u64, [*c]const basis.bindings.InteropVec3, f32, f32, u32, bool) callconv(.c) void;
-pub const basis_zig_PhysicsScene_applyRadialImpulse_cb = *const fn (u64, [*c]const basis.bindings.InteropVec3, f32, f32, u32, bool) callconv(.c) void;
+pub const basis_zig_PhysicsScene_applyRadialForce_cb = *const fn (u64, [*c]const basis.bindings.InteropVec3, f32, f32, u32, c_int) callconv(.c) void;
+pub const basis_zig_PhysicsScene_applyRadialImpulse_cb = *const fn (u64, [*c]const basis.bindings.InteropVec3, f32, f32, u32, c_int) callconv(.c) void;
 pub const basis_zig_PhysicsScene_sphereSweep_cb = *const fn (u64, f32, [*c]const basis.bindings.InteropVec3, [*c]const basis.bindings.InteropVec3, f32, [*c]basis.bindings.PhysicsInteropRayCastResult) callconv(.c) c_int;
 pub const basis_zig_PhysicsScene_sphereSweepEx_cb = *const fn (u64, f32, [*c]const basis.bindings.InteropVec3, [*c]const basis.bindings.InteropVec3, f32, [*c]basis.bindings.PhysicsInteropRayCastResult, u32, u32) callconv(.c) u32;
 pub const basis_zig_PhysicsScene_getSphereOverlapping_cb = *const fn (u64, [*c]const basis.bindings.InteropVec3, f32) callconv(.c) u32;
 pub const basis_zig_PhysicsScene_castRay_cb = *const fn (u64, [*c]const basis.bindings.InteropVec3, [*c]const basis.bindings.InteropVec3, f32, [*c]basis.bindings.PhysicsInteropRayCastResult) callconv(.c) c_int;
 pub const basis_zig_PhysicsScene_castRayEx_cb = *const fn (u64, [*c]const basis.bindings.InteropVec3, [*c]const basis.bindings.InteropVec3, f32, [*c]basis.bindings.PhysicsInteropRayCastResult, u32) callconv(.c) c_int;
-pub const basis_zig_PhysicsScene_castRayWithCallback_cb = *const fn (u64, [*c]const basis.bindings.InteropVec3, [*c]const basis.bindings.InteropVec3, f32, [*c]basis.bindings.PhysicsInteropRayCastResult, u32, u64, bool, basis.bindings.FP_i32_IntPtr_IntPtr64_u32, basis.bindings.FP_i32_IntPtr_IntPtr64_u32_Vec3_Vec3) callconv(.c) c_int;
+pub const basis_zig_PhysicsScene_castRayWithCallback_cb = *const fn (u64, [*c]const basis.bindings.InteropVec3, [*c]const basis.bindings.InteropVec3, f32, [*c]basis.bindings.PhysicsInteropRayCastResult, u32, u64, c_int, basis.bindings.FP_i32_IntPtr_IntPtr64_u32, basis.bindings.FP_i32_IntPtr_IntPtr64_u32_Vec3_Vec3) callconv(.c) c_int;
 pub const basis_zig_PhysicsScene_setCollisionCallbacksEnabled_cb = *const fn (u64, c_int) callconv(.c) void;
 
 // ===============================
@@ -375,7 +386,7 @@ pub const basis_zig_PhysicsScene_setCollisionCallbacksEnabled_cb = *const fn (u6
 
 pub const basis_zig_PhysicsMaterial_getDefaultMaterial_cb = *const fn (u64) callconv(.c) u64;
 pub const basis_zig_PhysicsMaterial_getBaseMaterial_cb = *const fn (u64, u32) callconv(.c) u64;
-pub const basis_zig_PhysicsMaterial_createMaterial_cb = *const fn (u64, c_int, f32, f32, f32, bool, bool) callconv(.c) u64;
+pub const basis_zig_PhysicsMaterial_createMaterial_cb = *const fn (u64, c_int, f32, f32, f32, c_int, c_int) callconv(.c) u64;
 pub const basis_zig_PhysicsMaterial_getBasePhysicsMaterialName_cb = *const fn (u64) callconv(.c) u32;
 pub const basis_zig_PhysicsMaterial_addRef_cb = *const fn (u64) callconv(.c) void;
 pub const basis_zig_PhysicsMaterial_release_cb = *const fn (u64) callconv(.c) void;
@@ -384,12 +395,12 @@ pub const basis_zig_PhysicsMaterial_release_cb = *const fn (u64) callconv(.c) vo
 
 // class PhysicsShape
 
-pub const basis_zig_PhysicsShape_createBox_cb = *const fn (u64, f32, f32, f32, u64, [*c]const basis.bindings.InteropVec3, [*c]const basis.bindings.InteropQuaternion, bool) callconv(.c) u64;
-pub const basis_zig_PhysicsShape_createSphere_cb = *const fn (u64, f32, u64, [*c]const basis.bindings.InteropVec3, [*c]const basis.bindings.InteropQuaternion, bool) callconv(.c) u64;
-pub const basis_zig_PhysicsShape_createCapsule_cb = *const fn (u64, f32, f32, u64, [*c]const basis.bindings.InteropVec3, [*c]const basis.bindings.InteropQuaternion, bool) callconv(.c) u64;
-pub const basis_zig_PhysicsShape_createCylinder_cb = *const fn (u64, f32, f32, u64, [*c]const basis.bindings.InteropVec3, [*c]const basis.bindings.InteropQuaternion, bool) callconv(.c) u64;
-pub const basis_zig_PhysicsShape_createCylinderX_cb = *const fn (u64, f32, f32, u64, [*c]const basis.bindings.InteropVec3, [*c]const basis.bindings.InteropQuaternion, bool) callconv(.c) u64;
-pub const basis_zig_PhysicsShape_createCylinderZ_cb = *const fn (u64, f32, f32, u64, [*c]const basis.bindings.InteropVec3, [*c]const basis.bindings.InteropQuaternion, bool) callconv(.c) u64;
+pub const basis_zig_PhysicsShape_createBox_cb = *const fn (u64, f32, f32, f32, u64, [*c]const basis.bindings.InteropVec3, [*c]const basis.bindings.InteropQuaternion, c_int) callconv(.c) u64;
+pub const basis_zig_PhysicsShape_createSphere_cb = *const fn (u64, f32, u64, [*c]const basis.bindings.InteropVec3, [*c]const basis.bindings.InteropQuaternion, c_int) callconv(.c) u64;
+pub const basis_zig_PhysicsShape_createCapsule_cb = *const fn (u64, f32, f32, u64, [*c]const basis.bindings.InteropVec3, [*c]const basis.bindings.InteropQuaternion, c_int) callconv(.c) u64;
+pub const basis_zig_PhysicsShape_createCylinder_cb = *const fn (u64, f32, f32, u64, [*c]const basis.bindings.InteropVec3, [*c]const basis.bindings.InteropQuaternion, c_int) callconv(.c) u64;
+pub const basis_zig_PhysicsShape_createCylinderX_cb = *const fn (u64, f32, f32, u64, [*c]const basis.bindings.InteropVec3, [*c]const basis.bindings.InteropQuaternion, c_int) callconv(.c) u64;
+pub const basis_zig_PhysicsShape_createCylinderZ_cb = *const fn (u64, f32, f32, u64, [*c]const basis.bindings.InteropVec3, [*c]const basis.bindings.InteropQuaternion, c_int) callconv(.c) u64;
 pub const basis_zig_PhysicsShape_addRef_cb = *const fn (u64) callconv(.c) void;
 pub const basis_zig_PhysicsShape_release_cb = *const fn (u64) callconv(.c) void;
 
@@ -397,14 +408,18 @@ pub const basis_zig_PhysicsShape_release_cb = *const fn (u64) callconv(.c) void;
 
 // class PhysicsActor
 
-pub const basis_zig_PhysicsActor_createRigidBodyDynamic_cb = *const fn (u64, [*c]u64, u32, f32, [*c]const basis.bindings.InteropVec3, [*c]const basis.bindings.InteropVec3, [*c]const basis.bindings.InteropQuaternion, bool, bool) callconv(.c) u64;
+pub const basis_zig_PhysicsActor_createRigidBodyDynamic_cb = *const fn (u64, [*c]u64, u32, f32, [*c]const basis.bindings.InteropVec3, [*c]const basis.bindings.InteropVec3, [*c]const basis.bindings.InteropQuaternion, c_int, c_int) callconv(.c) u64;
 pub const basis_zig_PhysicsActor_createRigidBodyStatic_cb = *const fn (u64, [*c]u64, u32, [*c]const basis.bindings.InteropVec3, [*c]const basis.bindings.InteropQuaternion) callconv(.c) u64;
-pub const basis_zig_PhysicsActor_createBoxTrigger_cb = *const fn (basis.bindings.InteropTypedPtr, u64, f32, f32, f32, [*c]const basis.bindings.InteropVec3, [*c]const basis.bindings.InteropQuaternion, bool, bool) callconv(.c) u64;
-pub const basis_zig_PhysicsActor_createSphereTrigger_cb = *const fn (basis.bindings.InteropTypedPtr, u64, f32, [*c]const basis.bindings.InteropVec3, [*c]const basis.bindings.InteropQuaternion, bool, bool) callconv(.c) u64;
+pub const basis_zig_PhysicsActor_createBoxTrigger_cb = *const fn (basis.bindings.InteropTypedPtr, u64, f32, f32, f32, [*c]const basis.bindings.InteropVec3, [*c]const basis.bindings.InteropQuaternion, c_int, c_int) callconv(.c) u64;
+pub const basis_zig_PhysicsActor_createSphereTrigger_cb = *const fn (basis.bindings.InteropTypedPtr, u64, f32, [*c]const basis.bindings.InteropVec3, [*c]const basis.bindings.InteropQuaternion, c_int, c_int) callconv(.c) u64;
 pub const basis_zig_PhysicsActor_setWorldTransform_cb = *const fn (u64, [*c]const basis.bindings.InteropVec3, [*c]const basis.bindings.InteropQuaternion) callconv(.c) void;
 pub const basis_zig_PhysicsActor_getWorldTransform_cb = *const fn (u64, [*c]basis.bindings.InteropVec3, [*c]basis.bindings.InteropQuaternion) callconv(.c) void;
 pub const basis_zig_PhysicsActor_setKinematicTarget_cb = *const fn (u64, [*c]const basis.bindings.InteropVec3, [*c]const basis.bindings.InteropQuaternion) callconv(.c) void;
 pub const basis_zig_PhysicsActor_setMassData_cb = *const fn (u64, f32, [*c]const basis.bindings.InteropVec3) callconv(.c) void;
+pub const basis_zig_PhysicsActor_setContactReportThreshold_cb = *const fn (u64, f32) callconv(.c) void;
+pub const basis_zig_PhysicsActor_setSolverIterationCounts_cb = *const fn (u64, u32, u32) callconv(.c) void;
+pub const basis_zig_PhysicsActor_setAngularDamping_cb = *const fn (u64, f32) callconv(.c) void;
+pub const basis_zig_PhysicsActor_setMaxAngularVelocity_cb = *const fn (u64, f32) callconv(.c) void;
 pub const basis_zig_PhysicsActor_getWorldBounds_cb = *const fn (u64, [*c]basis.bindings.InteropVec3, [*c]basis.bindings.InteropVec3) callconv(.c) void;
 pub const basis_zig_PhysicsActor_associateWithGameObject_cb = *const fn (u64, u64) callconv(.c) void;
 pub const basis_zig_PhysicsActor_getAssociatedGameObject_cb = *const fn (u64) callconv(.c) u64;
@@ -415,8 +430,8 @@ pub const basis_zig_PhysicsActor_setLinearVelocity_cb = *const fn (u64, [*c]cons
 pub const basis_zig_PhysicsActor_getLinearVelocity_cb = *const fn (u64, [*c]basis.bindings.InteropVec3) callconv(.c) void;
 pub const basis_zig_PhysicsActor_setAngularVelocity_cb = *const fn (u64, [*c]const basis.bindings.InteropVec3) callconv(.c) void;
 pub const basis_zig_PhysicsActor_getAngularVelocity_cb = *const fn (u64, [*c]basis.bindings.InteropVec3) callconv(.c) void;
-pub const basis_zig_PhysicsActor_addForce_cb = *const fn (u64, [*c]const basis.bindings.InteropVec3, [*c]const basis.bindings.InteropVec3, bool) callconv(.c) void;
-pub const basis_zig_PhysicsActor_addImpulse_cb = *const fn (u64, [*c]const basis.bindings.InteropVec3, [*c]const basis.bindings.InteropVec3, bool) callconv(.c) void;
+pub const basis_zig_PhysicsActor_addForce_cb = *const fn (u64, [*c]const basis.bindings.InteropVec3, [*c]const basis.bindings.InteropVec3, c_int) callconv(.c) void;
+pub const basis_zig_PhysicsActor_addImpulse_cb = *const fn (u64, [*c]const basis.bindings.InteropVec3, [*c]const basis.bindings.InteropVec3, c_int) callconv(.c) void;
 pub const basis_zig_PhysicsActor_addRef_cb = *const fn (u64) callconv(.c) void;
 pub const basis_zig_PhysicsActor_release_cb = *const fn (u64) callconv(.c) void;
 
@@ -429,10 +444,10 @@ pub const basis_zig_PhysicsJoint_createSphericalJoint_cb = *const fn (u64, u64, 
 pub const basis_zig_PhysicsJoint_createDistanceJoint_cb = *const fn (u64, u64, [*c]const basis.bindings.InteropVec3, [*c]const basis.bindings.InteropQuaternion, u64, [*c]const basis.bindings.InteropVec3, [*c]const basis.bindings.InteropQuaternion) callconv(.c) u64;
 pub const basis_zig_PhysicsJoint_createDof6Joint_cb = *const fn (u64, u64, [*c]const basis.bindings.InteropVec3, [*c]const basis.bindings.InteropQuaternion, u64, [*c]const basis.bindings.InteropVec3, [*c]const basis.bindings.InteropQuaternion) callconv(.c) u64;
 pub const basis_zig_PhysicsJoint_createSphericalSpringJoint_cb = *const fn (u64, u64, [*c]const basis.bindings.InteropVec3, [*c]const basis.bindings.InteropQuaternion, u64, [*c]const basis.bindings.InteropVec3, [*c]const basis.bindings.InteropQuaternion, f32, f32, f32) callconv(.c) u64;
-pub const basis_zig_PhysicsJoint_enableProjection_cb = *const fn (u64, u32, bool, f32, f32) callconv(.c) void;
+pub const basis_zig_PhysicsJoint_enableProjection_cb = *const fn (u64, u32, c_int, f32, f32) callconv(.c) void;
 pub const basis_zig_PhysicsJoint_setBreakForce_cb = *const fn (u64, u32, f32, f32) callconv(.c) void;
 pub const basis_zig_PhysicsJoint_setDof6Motion_cb = *const fn (u64, u32, u32) callconv(.c) void;
-pub const basis_zig_PhysicsJoint_setDof6Drive_cb = *const fn (u64, u32, f32, f32, f32, bool) callconv(.c) void;
+pub const basis_zig_PhysicsJoint_setDof6Drive_cb = *const fn (u64, u32, f32, f32, f32, c_int) callconv(.c) void;
 pub const basis_zig_PhysicsJoint_setDof6TwistLimit_cb = *const fn (u64, f32, f32) callconv(.c) void;
 pub const basis_zig_PhysicsJoint_setDriveGoalPose_cb = *const fn (u64, u32, [*c]const basis.bindings.InteropVec3, [*c]const basis.bindings.InteropQuaternion) callconv(.c) void;
 pub const basis_zig_PhysicsJoint_getConstraintForce_cb = *const fn (u64, u32, [*c]basis.bindings.InteropVec3, [*c]basis.bindings.InteropVec3) callconv(.c) void;
@@ -483,6 +498,7 @@ pub const basis_zig_VehicleController_unfreezeInputData_cb = *const fn (u64) cal
 pub const basis_zig_VehicleController_getWheelCount_cb = *const fn (u64) callconv(.c) u32;
 pub const basis_zig_VehicleController_getWheelStateInfo_cb = *const fn (u64, u32, [*c]basis.bindings.InteropVehWheelStateInfo) callconv(.c) void;
 pub const basis_zig_VehicleController_getStateInfo_cb = *const fn (u64, [*c]basis.bindings.InteropVehStateInfo) callconv(.c) void;
+pub const basis_zig_VehicleController_getFastestWheelRotationSpeed_cb = *const fn (u64) callconv(.c) f32;
 pub const basis_zig_VehicleController_addRef_cb = *const fn (u64) callconv(.c) void;
 pub const basis_zig_VehicleController_release_cb = *const fn (u64) callconv(.c) void;
 
@@ -500,6 +516,7 @@ pub const basis_zig_ResourceManager_unregisterResourceReloadedCallback_cb = *con
 pub const basis_zig_ResourceManager_beginGetResourcesWithFileExtension_cb = *const fn (u64, [*c]const basis.bindings.InteropString, [*c]u32) callconv(.c) [*c]const basis.bindings.InteropString;
 pub const basis_zig_ResourceManager_endGetResourcesWithFileExtension_cb = *const fn () callconv(.c) void;
 pub const basis_zig_ResourceManager_addLooseFileResourcePack_cb = *const fn (u64, [*c]const basis.bindings.InteropString, [*c]const basis.bindings.InteropLooseFileMapping, u32) callconv(.c) void;
+pub const basis_zig_ResourceManager_getSourceFilePathForResource_cb = *const fn (u64, [*c]const basis.bindings.InteropString, [*c]basis.bindings.InteropString) callconv(.c) c_int;
 
 // ===============================
 
@@ -522,10 +539,14 @@ pub const basis_zig_Renderer_addCameraToBackOfQueue_cb = *const fn (u64, u64) ca
 pub const basis_zig_Renderer_addCameraToFrontOfQueue_cb = *const fn (u64, u64) callconv(.c) void;
 pub const basis_zig_Renderer_removeCameraFromQueue_cb = *const fn (u64, u64) callconv(.c) void;
 pub const basis_zig_Renderer_getMainCamera_cb = *const fn (u64) callconv(.c) u64;
-pub const basis_zig_Renderer_getScreenWidth_cb = *const fn (u64) callconv(.c) u32;
-pub const basis_zig_Renderer_getScreenHeight_cb = *const fn (u64) callconv(.c) u32;
-pub const basis_zig_Renderer_setVignetteEnabled_cb = *const fn (u64, c_int) callconv(.c) void;
-pub const basis_zig_Renderer_createMesh_cb = *const fn (u64, u64, bool, [*c]const basis.bindings.InteropString) callconv(.c) u64;
+pub const basis_zig_Renderer_getWindowWidth_cb = *const fn (u64) callconv(.c) u32;
+pub const basis_zig_Renderer_getWindowHeight_cb = *const fn (u64) callconv(.c) u32;
+pub const basis_zig_Renderer_getRenderWidth_cb = *const fn (u64) callconv(.c) u32;
+pub const basis_zig_Renderer_getRenderHeight_cb = *const fn (u64) callconv(.c) u32;
+pub const basis_zig_Renderer_getRenderScale_cb = *const fn (u64) callconv(.c) f32;
+pub const basis_zig_Renderer_setRenderScale_cb = *const fn (u64, f32) callconv(.c) void;
+pub const basis_zig_Renderer_setGraphicsOption_cb = *const fn (u64, c_int, c_int) callconv(.c) void;
+pub const basis_zig_Renderer_createMesh_cb = *const fn (u64, u64, c_int, [*c]const basis.bindings.InteropString) callconv(.c) u64;
 pub const basis_zig_Renderer_createMeshManual_cb = *const fn (u64, c_int, u32, u32, [*c]const basis.bindings.InteropString) callconv(.c) u64;
 pub const basis_zig_Renderer_captureSinglePre2DFrame_cb = *const fn (u64, [*c]const basis.bindings.InteropString) callconv(.c) void;
 pub const basis_zig_Renderer_captureSingleFullEndUserFrame_cb = *const fn (u64, [*c]const basis.bindings.InteropString) callconv(.c) void;
@@ -534,8 +555,9 @@ pub const basis_zig_Renderer_startCapturingPre2DFrames_cb = *const fn (u64, [*c]
 pub const basis_zig_Renderer_startCapturingFullEndUserFrames_cb = *const fn (u64, [*c]const basis.bindings.InteropString, c_int, u32) callconv(.c) void;
 pub const basis_zig_Renderer_startCapturingFullFrames_cb = *const fn (u64, [*c]const basis.bindings.InteropString, c_int, u32) callconv(.c) void;
 pub const basis_zig_Renderer_stopCapturingFrames_cb = *const fn (u64) callconv(.c) void;
-pub const basis_zig_Renderer_applyDisplayOptions_cb = *const fn (u64, c_int, c_int, c_int, bool, c_int) callconv(.c) void;
-pub const basis_zig_Renderer_applyVsyncAndFramerateLimit_cb = *const fn (u64, bool, c_int) callconv(.c) void;
+pub const basis_zig_Renderer_applyDisplayOptions_cb = *const fn (u64, c_int, c_int, c_int, c_int, c_int) callconv(.c) void;
+pub const basis_zig_Renderer_applyVsyncAndFramerateLimit_cb = *const fn (u64, c_int, c_int) callconv(.c) void;
+pub const basis_zig_Renderer_getWindowMode_cb = *const fn (u64) callconv(.c) c_int;
 pub const basis_zig_Renderer_getDisplacementEffectRenderer_cb = *const fn (u64) callconv(.c) u64;
 
 // ===============================
@@ -547,7 +569,7 @@ pub const basis_zig_RenderScene_destroySceneNode_cb = *const fn (u64, u64) callc
 pub const basis_zig_RenderScene_createCamera_cb = *const fn (u64) callconv(.c) u64;
 pub const basis_zig_RenderScene_destroyCamera_cb = *const fn (u64, u64) callconv(.c) void;
 pub const basis_zig_RenderScene_createDynamicMeshInstance_cb = *const fn (u64, u64, [*c]u64, u32) callconv(.c) u64;
-pub const basis_zig_RenderScene_createStaticMeshInstance_cb = *const fn (u64, u64, [*c]u64, u32, bool) callconv(.c) u64;
+pub const basis_zig_RenderScene_createStaticMeshInstance_cb = *const fn (u64, u64, [*c]u64, u32, c_int) callconv(.c) u64;
 pub const basis_zig_RenderScene_destroyMeshInstance_cb = *const fn (u64, u64) callconv(.c) void;
 pub const basis_zig_RenderScene_castRay_cb = *const fn (u64, [*c]const basis.bindings.InteropVec3, [*c]const basis.bindings.InteropVec3, [*c]basis.bindings.RendererInteropRayCastResult, u32, c_int) callconv(.c) c_int;
 pub const basis_zig_RenderScene_getTireTrackRenderer_cb = *const fn (u64) callconv(.c) u64;
@@ -557,12 +579,12 @@ pub const basis_zig_RenderScene_getTireTrackRenderer_cb = *const fn (u64) callco
 // class TireTrackRenderer
 
 pub const basis_zig_TireTrackRenderer_clear_cb = *const fn (u64) callconv(.c) void;
-pub const basis_zig_TireTrackRenderer_registerTire_cb = *const fn (u64, f32, bool, u32) callconv(.c) u32;
+pub const basis_zig_TireTrackRenderer_registerTire_cb = *const fn (u64, f32, c_int, u32) callconv(.c) u32;
 pub const basis_zig_TireTrackRenderer_unregisterTire_cb = *const fn (u64, u32) callconv(.c) void;
 pub const basis_zig_TireTrackRenderer_beginTireTrack_cb = *const fn (u64, u32) callconv(.c) void;
 pub const basis_zig_TireTrackRenderer_endTireTrack_cb = *const fn (u64, u32) callconv(.c) void;
 pub const basis_zig_TireTrackRenderer_updateTireTrack_cb = *const fn (u64, u32, [*c]const basis.bindings.InteropVec3, [*c]const basis.bindings.InteropVec3, f32, f32, [*c]const basis.bindings.InteropVec3) callconv(.c) void;
-pub const basis_zig_TireTrackRenderer_beginStaticTireTrack_cb = *const fn (u64, f32, bool, u32) callconv(.c) u32;
+pub const basis_zig_TireTrackRenderer_beginStaticTireTrack_cb = *const fn (u64, f32, c_int, u32) callconv(.c) u32;
 pub const basis_zig_TireTrackRenderer_addPointToStaticTireTrack_cb = *const fn (u64, u32, [*c]const basis.bindings.InteropVec3, [*c]const basis.bindings.InteropVec3, f32, f32, [*c]const basis.bindings.InteropVec3, f32) callconv(.c) void;
 pub const basis_zig_TireTrackRenderer_endStaticTireTrack_cb = *const fn (u64, u32) callconv(.c) void;
 pub const basis_zig_TireTrackRenderer_removeStaticTireTrack_cb = *const fn (u64, u32) callconv(.c) void;
@@ -641,8 +663,8 @@ pub const basis_zig_Material_release_cb = *const fn (u64) callconv(.c) void;
 
 // class MeshInstance
 
-pub const basis_zig_MeshInstance_setVisible_cb = *const fn (u64, bool) callconv(.c) void;
-pub const basis_zig_MeshInstance_isVisible_cb = *const fn (u64) callconv(.c) bool;
+pub const basis_zig_MeshInstance_setVisible_cb = *const fn (u64, c_int) callconv(.c) void;
+pub const basis_zig_MeshInstance_isVisible_cb = *const fn (u64) callconv(.c) c_int;
 pub const basis_zig_MeshInstance_getMaterial_cb = *const fn (u64, u32) callconv(.c) u64;
 pub const basis_zig_MeshInstance_setMaterial_cb = *const fn (u64, u64, u32) callconv(.c) void;
 pub const basis_zig_MeshInstance_getFlags_cb = *const fn (u64) callconv(.c) c_int;
@@ -650,6 +672,8 @@ pub const basis_zig_MeshInstance_isFlagSet_cb = *const fn (u64, c_int) callconv(
 pub const basis_zig_MeshInstance_setFlagValue_cb = *const fn (u64, c_int, c_int) callconv(.c) void;
 pub const basis_zig_MeshInstance_updateLightProbeData_cb = *const fn (u64) callconv(.c) void;
 pub const basis_zig_MeshInstance_getParentSceneNode_cb = *const fn (u64) callconv(.c) u64;
+pub const basis_zig_MeshInstance_setCullDistanceMultiplier_cb = *const fn (u64, f32) callconv(.c) void;
+pub const basis_zig_MeshInstance_getCullDistanceMultiplier_cb = *const fn (u64) callconv(.c) f32;
 
 // ===============================
 
@@ -664,7 +688,7 @@ pub const basis_zig_Camera_getFovX_cb = *const fn (u64) callconv(.c) f32;
 pub const basis_zig_Camera_getNearClip_cb = *const fn (u64) callconv(.c) f32;
 pub const basis_zig_Camera_getFarClip_cb = *const fn (u64) callconv(.c) f32;
 pub const basis_zig_Camera_getPickRay_cb = *const fn (u64, c_int, c_int, c_int, [*c]basis.bindings.InteropVec3, [*c]basis.bindings.InteropVec3) callconv(.c) void;
-pub const basis_zig_Camera_worldToScreen_cb = *const fn (u64, [*c]const basis.bindings.InteropVec3, [*c]f32, [*c]f32) callconv(.c) bool;
+pub const basis_zig_Camera_worldToScreen_cb = *const fn (u64, [*c]const basis.bindings.InteropVec3, [*c]f32, [*c]f32) callconv(.c) c_int;
 pub const basis_zig_Camera_worldToScreenUnbounded_cb = *const fn (u64, [*c]const basis.bindings.InteropVec3, [*c]f32, [*c]f32) callconv(.c) void;
 pub const basis_zig_Camera_getViewMatrix_cb = *const fn (u64, [*c]basis.bindings.InteropMat43) callconv(.c) void;
 pub const basis_zig_Camera_getProjectionMatrix_cb = *const fn (u64, [*c]basis.bindings.InteropMat4) callconv(.c) void;
@@ -693,6 +717,11 @@ pub const basis_zig_GameSession_getClientCount_cb = *const fn (u64) callconv(.c)
 pub const basis_zig_GameSession_getClient_cb = *const fn (u64, u32, [*c]basis.bindings.InteropClientProxy) callconv(.c) void;
 pub const basis_zig_GameSession_isPaused_cb = *const fn (u64) callconv(.c) i32;
 pub const basis_zig_GameSession_requestPause_cb = *const fn (u64, i32) callconv(.c) void;
+pub const basis_zig_GameSession_getTickLevel_cb = *const fn (u64) callconv(.c) u32;
+pub const basis_zig_GameSession_setTickLevel_cb = *const fn (u64, u32) callconv(.c) void;
+pub const basis_zig_GameSession_requestSetTickLevel_cb = *const fn (u64, u32) callconv(.c) void;
+pub const basis_zig_GameSession_hasStarted_cb = *const fn (u64) callconv(.c) i32;
+pub const basis_zig_GameSession_hasEnded_cb = *const fn (u64) callconv(.c) i32;
 pub const basis_zig_GameSession_getLevelData_cb = *const fn (u64) callconv(.c) u64;
 pub const basis_zig_GameSession_isContinuousSession_cb = *const fn (u64) callconv(.c) i32;
 
@@ -702,18 +731,19 @@ pub const basis_zig_GameSession_isContinuousSession_cb = *const fn (u64) callcon
 
 pub const basis_zig_GameState_getGameObject_cb = *const fn (u64, u32) callconv(.c) u64;
 pub const basis_zig_GameState_getGameObjectFromRenderable_cb = *const fn (u64, u64) callconv(.c) u64;
-pub const basis_zig_GameState_createGameObject_cb = *const fn (u64, [*c]const basis.bindings.InteropString, [*c]const basis.bindings.InteropString, bool) callconv(.c) void;
-pub const basis_zig_GameState_createGameObjectWithStartTransform_cb = *const fn (u64, [*c]const basis.bindings.InteropString, [*c]const basis.bindings.InteropString, [*c]const basis.bindings.InteropVec3, [*c]const basis.bindings.InteropQuaternion, bool) callconv(.c) void;
-pub const basis_zig_GameState_createGameObjectWithSpawnPointIndex_cb = *const fn (u64, [*c]const basis.bindings.InteropString, [*c]const basis.bindings.InteropString, u32, bool) callconv(.c) void;
-pub const basis_zig_GameState_createGameObjectWithSpawnPointName_cb = *const fn (u64, [*c]const basis.bindings.InteropString, [*c]const basis.bindings.InteropString, [*c]const basis.bindings.InteropString, bool) callconv(.c) void;
-pub const basis_zig_GameState_createGameObjectWithParameters_cb = *const fn (u64, u64, bool) callconv(.c) void;
-pub const basis_zig_GameState_destroyGameObject_cb = *const fn (u64, u32, bool, bool) callconv(.c) void;
-pub const basis_zig_GameState_hasGameObject_cb = *const fn (u64, u32) callconv(.c) bool;
+pub const basis_zig_GameState_createGameObject_cb = *const fn (u64, [*c]const basis.bindings.InteropString, [*c]const basis.bindings.InteropString, c_int) callconv(.c) void;
+pub const basis_zig_GameState_createGameObjectWithStartTransform_cb = *const fn (u64, [*c]const basis.bindings.InteropString, [*c]const basis.bindings.InteropString, [*c]const basis.bindings.InteropVec3, [*c]const basis.bindings.InteropQuaternion, c_int) callconv(.c) void;
+pub const basis_zig_GameState_createGameObjectWithSpawnPointIndex_cb = *const fn (u64, [*c]const basis.bindings.InteropString, [*c]const basis.bindings.InteropString, u32, c_int) callconv(.c) void;
+pub const basis_zig_GameState_createGameObjectWithSpawnPointName_cb = *const fn (u64, [*c]const basis.bindings.InteropString, [*c]const basis.bindings.InteropString, [*c]const basis.bindings.InteropString, c_int) callconv(.c) void;
+pub const basis_zig_GameState_createGameObjectWithParameters_cb = *const fn (u64, u64, c_int) callconv(.c) void;
+pub const basis_zig_GameState_destroyGameObject_cb = *const fn (u64, u32, c_int, c_int) callconv(.c) void;
+pub const basis_zig_GameState_hasGameObject_cb = *const fn (u64, u32) callconv(.c) c_int;
 pub const basis_zig_GameState_setAvatarObject_cb = *const fn (u64, u32, i32) callconv(.c) void;
 pub const basis_zig_GameState_clearAvatarObject_cb = *const fn (u64, i32) callconv(.c) void;
 pub const basis_zig_GameState_getAvatarObjectByHostID_cb = *const fn (u64, c_int) callconv(.c) u32;
 pub const basis_zig_GameState_getHostIDByAvatarObject_cb = *const fn (u64, u32) callconv(.c) c_int;
 pub const basis_zig_GameState_broadcastScriptMessage_cb = *const fn (u64, u64, [*c]const basis.bindings.InteropString) callconv(.c) void;
+pub const basis_zig_GameState_sendScriptMessageToGameObject_cb = *const fn (u64, u64, [*c]const basis.bindings.InteropString, [*c]const basis.bindings.InteropString) callconv(.c) void;
 pub const basis_zig_GameState_generateGameObjectName_cb = *const fn (u64, [*c]const basis.bindings.InteropString, c_int, [*c]basis.bindings.InteropString) callconv(.c) void;
 
 // ===============================
@@ -748,8 +778,8 @@ pub const basis_zig_LevelDataBlock_getChunkCount_cb = *const fn (u64) callconv(.
 
 // class NavMeshRuntime
 
-pub const basis_zig_NavMeshRuntime_hasNavMesh_cb = *const fn (u32) callconv(.c) bool;
-pub const basis_zig_NavMeshRuntime_findPath_cb = *const fn (u32, [*c]const basis.bindings.InteropVec3, [*c]const basis.bindings.InteropVec3, [*c]const basis.bindings.InteropNavMeshQueryFilter, [*c]basis.bindings.InteropVec3, u32, [*c]u32, f32) callconv(.c) i32;
+pub const basis_zig_NavMeshRuntime_hasNavMesh_cb = *const fn (u32) callconv(.c) c_int;
+pub const basis_zig_NavMeshRuntime_findPath_cb = *const fn (u32, [*c]const basis.bindings.InteropVec3, [*c]const basis.bindings.InteropVec3, [*c]const basis.bindings.InteropNavMeshQueryFilter, [*c]basis.bindings.InteropVec3, u32, [*c]u32, f32, [*c]const u32, u32) callconv(.c) i32;
 pub const basis_zig_NavMeshRuntime_findClosestPointOnNavMesh_cb = *const fn (u32, [*c]const basis.bindings.InteropVec3, [*c]basis.bindings.InteropVec3, f32) callconv(.c) i32;
 pub const basis_zig_NavMeshRuntime_findRandomPointAroundCircle_cb = *const fn (u32, [*c]const basis.bindings.InteropVec3, f32, [*c]basis.bindings.InteropVec3, f32) callconv(.c) i32;
 pub const basis_zig_NavMeshRuntime_overlapsNavMesh_cb = *const fn (u32, [*c]const basis.bindings.InteropVec3, [*c]const basis.bindings.InteropNavMeshQueryFilter, [*c]const basis.bindings.InteropVec3) callconv(.c) c_int;
@@ -830,6 +860,11 @@ pub const basis_zig_ImGui_menuItem_cb = *const fn ([*c]const basis.bindings.Inte
 pub const basis_zig_ImGui_openPopup_cb = *const fn ([*c]const basis.bindings.InteropString, i32) callconv(.c) void;
 pub const basis_zig_ImGui_beginPopup_cb = *const fn ([*c]const basis.bindings.InteropString, i32) callconv(.c) c_int;
 pub const basis_zig_ImGui_endPopup_cb = *const fn () callconv(.c) void;
+pub const basis_zig_ImGui_beginPopupModal_cb = *const fn ([*c]const basis.bindings.InteropString, c_int) callconv(.c) c_int;
+pub const basis_zig_ImGui_closeCurrentPopup_cb = *const fn () callconv(.c) void;
+pub const basis_zig_ImGui_setItemDefaultFocus_cb = *const fn () callconv(.c) void;
+pub const basis_zig_ImGui_dummy_cb = *const fn ([*c]const basis.bindings.InteropVec2) callconv(.c) void;
+pub const basis_zig_ImGui_getMainViewportCenter_cb = *const fn ([*c]basis.bindings.InteropVec2) callconv(.c) void;
 pub const basis_zig_ImGui_pushStyleColor_cb = *const fn (i32, [*c]const basis.bindings.InteropColor) callconv(.c) void;
 pub const basis_zig_ImGui_popStyleColor_cb = *const fn (c_int) callconv(.c) void;
 pub const basis_zig_ImGui_separator_cb = *const fn () callconv(.c) void;
@@ -861,6 +896,26 @@ pub const basis_zig_ImGui_dragFloat_cb = *const fn ([*c]const basis.bindings.Int
 pub const basis_zig_ImGui_dragInt_cb = *const fn ([*c]const basis.bindings.InteropString, [*c]c_int, f32, c_int, c_int, [*c]const basis.bindings.InteropString, c_int) callconv(.c) c_int;
 pub const basis_zig_ImGui_sliderFloat_cb = *const fn ([*c]const basis.bindings.InteropString, [*c]f32, f32, f32, [*c]const basis.bindings.InteropString, c_int) callconv(.c) c_int;
 pub const basis_zig_ImGui_sliderInt_cb = *const fn ([*c]const basis.bindings.InteropString, [*c]c_int, c_int, c_int, [*c]const basis.bindings.InteropString, c_int) callconv(.c) c_int;
+pub const basis_zig_ImGui_plotMultiLines_cb = *const fn ([*c]const u8, u32, basis.bindings.ImguiPlotMultiLinesGetter) callconv(.c) void;
+pub const basis_zig_ImGui_getContentRegionAvail_cb = *const fn ([*c]basis.bindings.InteropVec2) callconv(.c) void;
+pub const basis_zig_ImGui_pushID_cb = *const fn (c_int) callconv(.c) void;
+pub const basis_zig_ImGui_pushIDPtr_cb = *const fn (u64) callconv(.c) void;
+pub const basis_zig_ImGui_popID_cb = *const fn () callconv(.c) void;
+
+// ===============================
+
+// class ImPlot
+
+pub const basis_zig_ImPlot_beginPlot_cb = *const fn ([*c]const basis.bindings.InteropString, [*c]const basis.bindings.InteropVec2, c_int) callconv(.c) c_int;
+pub const basis_zig_ImPlot_endPlot_cb = *const fn () callconv(.c) void;
+pub const basis_zig_ImPlot_setupAxis_cb = *const fn (c_int, [*c]const basis.bindings.InteropString, c_int) callconv(.c) void;
+pub const basis_zig_ImPlot_setupAxisLimits_cb = *const fn (c_int, f32, f32, c_int) callconv(.c) void;
+pub const basis_zig_ImPlot_setupLegend_cb = *const fn (c_int, c_int) callconv(.c) void;
+pub const basis_zig_ImPlot_plotLine_cb = *const fn ([*c]const basis.bindings.InteropString, [*c]const f32, [*c]const f32, c_int) callconv(.c) void;
+pub const basis_zig_ImPlot_plotLineEx_cb = *const fn ([*c]const basis.bindings.InteropString, [*c]const f32, [*c]const f32, c_int, [*c]const u8, u32) callconv(.c) void;
+pub const basis_zig_ImPlot_plotScatter_cb = *const fn ([*c]const basis.bindings.InteropString, [*c]const f32, [*c]const f32, c_int) callconv(.c) void;
+pub const basis_zig_ImPlot_plotScatterEx_cb = *const fn ([*c]const basis.bindings.InteropString, [*c]const f32, [*c]const f32, c_int, [*c]const u8, u32) callconv(.c) void;
+pub const basis_zig_ImPlot_dragPoint_cb = *const fn (c_int, [*c]f64, [*c]f64, [*c]const basis.bindings.InteropColor, f32, c_int, [*c]bool, [*c]bool, [*c]bool) callconv(.c) c_int;
 
 // ===============================
 
@@ -877,6 +932,7 @@ pub const basis_zig_GameObjectCreationParameters_setPropertyBundlePath_cb = *con
 // class OSUtility
 
 pub const basis_zig_OSUtility_writeStringToClipboard_cb = *const fn ([*c]const basis.bindings.InteropString) callconv(.c) c_int;
+pub const basis_zig_OSUtility_readStringFromClipboard_cb = *const fn ([*c]basis.bindings.InteropString) callconv(.c) c_int;
 
 // ===============================
 

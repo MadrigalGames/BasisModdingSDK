@@ -1,5 +1,5 @@
 // ----------------------------------------------------
-// Copyright (c) 2018-2025 Madrigal Ltd.
+// Copyright (c) 2018-2026 Madrigal Ltd.
 // This file is part of the Basis modding SDK, and is subject to the
 // terms and conditions of the Basis modding SDK License Agreement.
 // https://www.madrigalgames.com
@@ -14,7 +14,7 @@ pub fn FixedLookupTable(comptime MaxSize: usize) type {
 
         //----------------------------------------------------
 
-        samples: [MaxSize * 2]f32 = [_]f32{0.0} ** (MaxSize * 2),
+        samples: [MaxSize * 2]f32 = @splat(0.0),
         size: usize = 0,
 
         //----------------------------------------------------

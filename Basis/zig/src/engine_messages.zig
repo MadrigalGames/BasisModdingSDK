@@ -1,5 +1,5 @@
 // ----------------------------------------------------
-// Copyright (c) 2018-2025 Madrigal Ltd.
+// Copyright (c) 2018-2026 Madrigal Ltd.
 // This file is part of the Basis modding SDK, and is subject to the
 // terms and conditions of the Basis modding SDK License Agreement.
 // https://www.madrigalgames.com
@@ -17,6 +17,7 @@ pub const MESSAGE_CATEGORY_PLAYER_ACTIVITY: c_uint = 6;
 pub const MESSAGE_CATEGORY_RAW_INPUT: c_uint = 7;
 pub const MESSAGE_CATEGORY_INPUT_EVENTS: c_uint = 8;
 pub const MESSAGE_CATEGORY_ASSET_BROWSER: c_uint = 9;
+pub const MESSAGE_CATEGORY_PHYSICS: c_uint = 10;
 
 // Engine flow messages (category: MESSAGE_CATEGORY_GAME_FLOW)
 pub const MESSAGE_START_LOADING_GAME: c_uint = 100;
@@ -95,3 +96,6 @@ pub const MESSAGE_INPUT_EVENT_GAMEPAD_DISCONNECTED: c_uint = 157;
 // Asset browser message (category: MESSAGE_CATEGORY_ASSET_BROWSER)
 pub const MESSAGE_ASSET_BROWSER_GAME_OBJECT_PREVIEWED: c_uint = 158;
 pub const MESSAGE_RESET_ASSET_PREVIEW_CAMERA_VIEW: c_uint = 159;
+
+// Physics messages (category: MESSAGE_CATEGORY_PHYSICS)
+pub const MESSAGE_PHYSICS_OBJECT_TELEPORTED: c_uint = 160;

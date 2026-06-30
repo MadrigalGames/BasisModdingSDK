@@ -1,5 +1,5 @@
 // ----------------------------------------------------
-// Copyright (c) 2018-2025 Madrigal Ltd.
+// Copyright (c) 2018-2026 Madrigal Ltd.
 // This file is part of the Basis SDK, and is subject to the
 // terms and conditions of the Basis SDK License Agreement.
 // https://www.madrigalgames.com
@@ -19,6 +19,11 @@ export fn bindDatabase(
 	loadOnServer: nemo.bindings.generated_types.basis_zig_Database_loadOnServer_cb,
 	unload: nemo.bindings.generated_types.basis_zig_Database_unload_cb,
 	tick: nemo.bindings.generated_types.basis_zig_Database_tick_cb,
+	setLanguageCode: nemo.bindings.generated_types.basis_zig_Database_setLanguageCode_cb,
+	getLanguageCode: nemo.bindings.generated_types.basis_zig_Database_getLanguageCode_cb,
+	setVoiceLanguageCode: nemo.bindings.generated_types.basis_zig_Database_setVoiceLanguageCode_cb,
+	getVoiceLanguageCode: nemo.bindings.generated_types.basis_zig_Database_getVoiceLanguageCode_cb,
+	setVoiceClipDurationCallback: nemo.bindings.generated_types.basis_zig_Database_setVoiceClipDurationCallback_cb,
 	serialize: nemo.bindings.generated_types.basis_zig_Database_serialize_cb,
 	deserialize: nemo.bindings.generated_types.basis_zig_Database_deserialize_cb,
 	getMissionByPath: nemo.bindings.generated_types.basis_zig_Database_getMissionByPath_cb,
@@ -27,6 +32,11 @@ export fn bindDatabase(
 	getGlobalVariableSetByPathHash: nemo.bindings.generated_types.basis_zig_Database_getGlobalVariableSetByPathHash_cb,
 	getCharacterDataByPath: nemo.bindings.generated_types.basis_zig_Database_getCharacterDataByPath_cb,
 	getCharacterDataByPathHash: nemo.bindings.generated_types.basis_zig_Database_getCharacterDataByPathHash_cb,
+	getConversationByPath: nemo.bindings.generated_types.basis_zig_Database_getConversationByPath_cb,
+	getConversationByPathHash: nemo.bindings.generated_types.basis_zig_Database_getConversationByPathHash_cb,
+	generateScriptApi: nemo.bindings.generated_types.basis_zig_Database_generateScriptApi_cb,
+	getScriptPreface: nemo.bindings.generated_types.basis_zig_Database_getScriptPreface_cb,
+	appendAutoCompleteList: nemo.bindings.generated_types.basis_zig_Database_appendAutoCompleteList_cb,
 ) void {
 	nemo.bindings.generated_function_pointers._Database_newDatabase = newDatabase;
 	nemo.bindings.generated_function_pointers._Database_deleteDatabase = deleteDatabase;
@@ -34,6 +44,11 @@ export fn bindDatabase(
 	nemo.bindings.generated_function_pointers._Database_loadOnServer = loadOnServer;
 	nemo.bindings.generated_function_pointers._Database_unload = unload;
 	nemo.bindings.generated_function_pointers._Database_tick = tick;
+	nemo.bindings.generated_function_pointers._Database_setLanguageCode = setLanguageCode;
+	nemo.bindings.generated_function_pointers._Database_getLanguageCode = getLanguageCode;
+	nemo.bindings.generated_function_pointers._Database_setVoiceLanguageCode = setVoiceLanguageCode;
+	nemo.bindings.generated_function_pointers._Database_getVoiceLanguageCode = getVoiceLanguageCode;
+	nemo.bindings.generated_function_pointers._Database_setVoiceClipDurationCallback = setVoiceClipDurationCallback;
 	nemo.bindings.generated_function_pointers._Database_serialize = serialize;
 	nemo.bindings.generated_function_pointers._Database_deserialize = deserialize;
 	nemo.bindings.generated_function_pointers._Database_getMissionByPath = getMissionByPath;
@@ -42,6 +57,11 @@ export fn bindDatabase(
 	nemo.bindings.generated_function_pointers._Database_getGlobalVariableSetByPathHash = getGlobalVariableSetByPathHash;
 	nemo.bindings.generated_function_pointers._Database_getCharacterDataByPath = getCharacterDataByPath;
 	nemo.bindings.generated_function_pointers._Database_getCharacterDataByPathHash = getCharacterDataByPathHash;
+	nemo.bindings.generated_function_pointers._Database_getConversationByPath = getConversationByPath;
+	nemo.bindings.generated_function_pointers._Database_getConversationByPathHash = getConversationByPathHash;
+	nemo.bindings.generated_function_pointers._Database_generateScriptApi = generateScriptApi;
+	nemo.bindings.generated_function_pointers._Database_getScriptPreface = getScriptPreface;
+	nemo.bindings.generated_function_pointers._Database_appendAutoCompleteList = appendAutoCompleteList;
 }
 
 // ===============================
@@ -53,11 +73,49 @@ export fn bindMission(
 	getState: nemo.bindings.generated_types.basis_zig_Mission_getState_cb,
 	start: nemo.bindings.generated_types.basis_zig_Mission_start_cb,
 	abort: nemo.bindings.generated_types.basis_zig_Mission_abort_cb,
+	sendSignal: nemo.bindings.generated_types.basis_zig_Mission_sendSignal_cb,
 ) void {
 	nemo.bindings.generated_function_pointers._Mission_getPath = getPath;
 	nemo.bindings.generated_function_pointers._Mission_getState = getState;
 	nemo.bindings.generated_function_pointers._Mission_start = start;
 	nemo.bindings.generated_function_pointers._Mission_abort = abort;
+	nemo.bindings.generated_function_pointers._Mission_sendSignal = sendSignal;
+}
+
+// ===============================
+
+// class Conversation
+
+export fn bindConversation(
+	getPath: nemo.bindings.generated_types.basis_zig_Conversation_getPath_cb,
+	getState: nemo.bindings.generated_types.basis_zig_Conversation_getState_cb,
+	start: nemo.bindings.generated_types.basis_zig_Conversation_start_cb,
+	end: nemo.bindings.generated_types.basis_zig_Conversation_end_cb,
+	advance: nemo.bindings.generated_types.basis_zig_Conversation_advance_cb,
+	selectResponse: nemo.bindings.generated_types.basis_zig_Conversation_selectResponse_cb,
+	getInkInt: nemo.bindings.generated_types.basis_zig_Conversation_getInkInt_cb,
+	setInkInt: nemo.bindings.generated_types.basis_zig_Conversation_setInkInt_cb,
+	getInkFloat: nemo.bindings.generated_types.basis_zig_Conversation_getInkFloat_cb,
+	setInkFloat: nemo.bindings.generated_types.basis_zig_Conversation_setInkFloat_cb,
+	getInkBool: nemo.bindings.generated_types.basis_zig_Conversation_getInkBool_cb,
+	setInkBool: nemo.bindings.generated_types.basis_zig_Conversation_setInkBool_cb,
+	getInkString: nemo.bindings.generated_types.basis_zig_Conversation_getInkString_cb,
+	setInkString: nemo.bindings.generated_types.basis_zig_Conversation_setInkString_cb,
+) void {
+	nemo.bindings.generated_function_pointers._Conversation_getPath = getPath;
+	nemo.bindings.generated_function_pointers._Conversation_getState = getState;
+	nemo.bindings.generated_function_pointers._Conversation_start = start;
+	nemo.bindings.generated_function_pointers._Conversation_end = end;
+	nemo.bindings.generated_function_pointers._Conversation_advance = advance;
+	nemo.bindings.generated_function_pointers._Conversation_selectResponse = selectResponse;
+	nemo.bindings.generated_function_pointers._Conversation_getInkInt = getInkInt;
+	nemo.bindings.generated_function_pointers._Conversation_setInkInt = setInkInt;
+	nemo.bindings.generated_function_pointers._Conversation_getInkFloat = getInkFloat;
+	nemo.bindings.generated_function_pointers._Conversation_setInkFloat = setInkFloat;
+	nemo.bindings.generated_function_pointers._Conversation_getInkBool = getInkBool;
+	nemo.bindings.generated_function_pointers._Conversation_setInkBool = setInkBool;
+	nemo.bindings.generated_function_pointers._Conversation_getInkString = getInkString;
+	nemo.bindings.generated_function_pointers._Conversation_setInkString = setInkString;
 }
 
 // ===============================
@@ -94,12 +152,18 @@ export fn bindCharacterData(
 	getPath: nemo.bindings.generated_types.basis_zig_CharacterData_getPath_cb,
 	getFirstName: nemo.bindings.generated_types.basis_zig_CharacterData_getFirstName_cb,
 	getLastName: nemo.bindings.generated_types.basis_zig_CharacterData_getLastName_cb,
+	getShortName: nemo.bindings.generated_types.basis_zig_CharacterData_getShortName_cb,
 	getUIColor: nemo.bindings.generated_types.basis_zig_CharacterData_getUIColor_cb,
+	getVoiceTemplateCount: nemo.bindings.generated_types.basis_zig_CharacterData_getVoiceTemplateCount_cb,
+	getVoiceTemplate: nemo.bindings.generated_types.basis_zig_CharacterData_getVoiceTemplate_cb,
 ) void {
 	nemo.bindings.generated_function_pointers._CharacterData_getPath = getPath;
 	nemo.bindings.generated_function_pointers._CharacterData_getFirstName = getFirstName;
 	nemo.bindings.generated_function_pointers._CharacterData_getLastName = getLastName;
+	nemo.bindings.generated_function_pointers._CharacterData_getShortName = getShortName;
 	nemo.bindings.generated_function_pointers._CharacterData_getUIColor = getUIColor;
+	nemo.bindings.generated_function_pointers._CharacterData_getVoiceTemplateCount = getVoiceTemplateCount;
+	nemo.bindings.generated_function_pointers._CharacterData_getVoiceTemplate = getVoiceTemplate;
 }
 
 // ===============================

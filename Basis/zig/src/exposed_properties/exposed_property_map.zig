@@ -1,5 +1,5 @@
 // ----------------------------------------------------
-// Copyright (c) 2018-2025 Madrigal Ltd.
+// Copyright (c) 2018-2026 Madrigal Ltd.
 // This file is part of the Basis modding SDK, and is subject to the
 // terms and conditions of the Basis modding SDK License Agreement.
 // https://www.madrigalgames.com
@@ -182,6 +182,48 @@ pub fn StringProperty(
             if (stream.deserializeString(str)) {} else |err| {
                 basis.assertf(@src(), false, "Error deserializing exposed string property \"{s}\": {s}", .{ fieldName, @errorName(err) });
             }
+        }
+
+        pub fn serializeDefaultValue(stream: *BinaryWriteStream, allocator: std.mem.Allocator) void {
+            _ = allocator;
+            stream.putString(defaultValue);
+        }
+    };
+}
+
+pub fn InPlaceStringProperty(
+    comptime parentType: type,
+    comptime fieldName: []const u8,
+    comptime defaultValue: []const u8,
+    comptime versionAdded: i32,
+    comptime options: []const u8,
+) type {
+    return struct {
+        pub const PropertyType = ExposedPropertyType.Property;
+        pub const DataType = basis.typeinfo.TypeID.BASIS_TYPE_STRING;
+        pub const Name = fieldName;
+        pub const Options = options;
+        pub const VersionAdded = versionAdded;
+
+        pub fn readLayout(reader: basis.exposed_properties.ExposedPropertyLayoutReaderPtr) void {
+            reader.processString(fieldName, defaultValue, versionAdded, options);
+        }
+
+        pub fn writeValue(parent: *parentType, value: []const u8) void {
+            if (@field(parent.*, fieldName).set(value)) {} else |err| {
+                basis.assertf(@src(), false, "Error setting exposed in-place string property \"{s}\": {s}", .{ fieldName, @errorName(err) });
+            }
+        }
+
+        pub fn serializeValue(parent: *parentType, stream: *BinaryWriteStream) void {
+            stream.putString(@field(parent.*, fieldName).str());
+        }
+
+        pub fn deserializeValue(parent: *parentType, stream: *BinaryReadStream) void {
+            const str = &@field(parent.*, fieldName);
+            stream.deserializeInPlaceString(str) catch |err| {
+                basis.assertf(@src(), false, "Error deserializing exposed in-place string property \"{s}\": {s}", .{ fieldName, @errorName(err) });
+            };
         }
 
         pub fn serializeDefaultValue(stream: *BinaryWriteStream, allocator: std.mem.Allocator) void {

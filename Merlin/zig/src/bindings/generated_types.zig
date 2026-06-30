@@ -1,5 +1,5 @@
 // ----------------------------------------------------
-// Copyright (c) 2018-2025 Madrigal Ltd.
+// Copyright (c) 2018-2026 Madrigal Ltd.
 // This file is part of the Basis SDK, and is subject to the
 // terms and conditions of the Basis SDK License Agreement.
 // https://www.madrigalgames.com
@@ -36,6 +36,7 @@ pub const basis_zig_EffectInstance_stopEmitting_cb = *const fn (u64) callconv(.c
 pub const basis_zig_EffectInstance_setIntParameter_cb = *const fn (u64, u8, c_int) callconv(.c) void;
 pub const basis_zig_EffectInstance_setFloatParameter_cb = *const fn (u64, u8, f32) callconv(.c) void;
 pub const basis_zig_EffectInstance_setVectorParameter_cb = *const fn (u64, u8, [*c]const basis.bindings.InteropVec4) callconv(.c) void;
+pub const basis_zig_EffectInstance_setTickInPartialSimulation_cb = *const fn (u64, c_int) callconv(.c) void;
 
 // ===============================
 

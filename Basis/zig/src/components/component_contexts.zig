@@ -1,5 +1,5 @@
 // ----------------------------------------------------
-// Copyright (c) 2018-2025 Madrigal Ltd.
+// Copyright (c) 2018-2026 Madrigal Ltd.
 // This file is part of the Basis modding SDK, and is subject to the
 // terms and conditions of the Basis modding SDK License Agreement.
 // https://www.madrigalgames.com
@@ -7,9 +7,6 @@
 
 const std = @import("std");
 const basis = @import("../basis.zig");
-
-const Allocator = std.mem.Allocator;
-//const testing = std.testing;
 
 const Vec3 = basis.math.Vec3;
 const Quaternion = basis.math.Quaternion;
@@ -22,15 +19,17 @@ const GameObjectPtr = basis.game_object.GameObjectPtr;
 pub const GameObjectComponent = struct {
     const Self = @This();
 
-    allocator: Allocator,
+    allocator: std.mem.Allocator,
+    io: std.Io,
     cppPtr: basis.bindings.InteropTypedPtr,
     transform: TransformApi,
     editor: EditorApi,
     _isOnClient: bool,
 
-    pub fn init(allocator: Allocator, cppPtr: basis.bindings.InteropTypedPtr, _onClient: bool) Self {
+    pub fn init(allocator: std.mem.Allocator, io: std.Io, cppPtr: basis.bindings.InteropTypedPtr, _onClient: bool) Self {
         return Self{
             .allocator = allocator,
+            .io = io,
             .cppPtr = cppPtr,
             .transform = TransformApi.init(cppPtr),
             .editor = EditorApi.init(cppPtr),
@@ -58,12 +57,20 @@ pub const GameObjectComponent = struct {
 
     pub fn getClient(self: *const Self) basis.host.ClientPtr {
         const clientCppPtr = basis.bindings.api.ComponentContext_getClient(self.cppPtr);
-        return basis.host.ClientPtr{ .cppPtr = clientCppPtr, .allocator = self.allocator };
+        return basis.host.ClientPtr{
+            .cppPtr = clientCppPtr,
+            .allocator = self.allocator,
+            .io = self.io,
+        };
     }
 
     pub fn getServer(self: *const Self) basis.host.ServerPtr {
         const serverCppPtr = basis.bindings.api.ComponentContext_getServer(self.cppPtr);
-        return basis.host.ServerPtr{ .cppPtr = serverCppPtr, .allocator = self.allocator };
+        return basis.host.ServerPtr{
+            .cppPtr = serverCppPtr,
+            .allocator = self.allocator,
+            .io = self.io,
+        };
     }
 
     pub fn getHost(self: *const Self) basis.host.HostPtr {
@@ -162,20 +169,27 @@ pub const GameObjectComponent = struct {
         const cppPtr = basis.bindings.api.ComponentContext_getScriptFunctionByASFuncPtr(self.cppPtr, funcPtr);
         return basis.angelscript.AngelScriptFunctionPtr{ .cppPtr = cppPtr };
     }
+
+    pub fn setScriptGlobalHandle(self: *const Self, handleName: []const u8, value: basis.CppPtr) void {
+        const interopName = basis.string.toInteropString(handleName);
+        basis.bindings.api.ComponentContext_setScriptGlobalHandle(self.cppPtr, &interopName, value);
+    }
 };
 
 pub const AvatarTrackingComponent = struct {
     const Self = @This();
 
-    allocator: Allocator,
+    allocator: std.mem.Allocator,
+    io: std.Io,
     cppPtr: basis.bindings.InteropTypedPtr,
     transform: TransformApi,
     editor: EditorApi,
     _isOnClient: bool,
 
-    pub fn init(allocator: Allocator, cppPtr: basis.bindings.InteropTypedPtr, _onClient: bool) Self {
+    pub fn init(allocator: std.mem.Allocator, io: std.Io, cppPtr: basis.bindings.InteropTypedPtr, _onClient: bool) Self {
         return Self{
             .allocator = allocator,
+            .io = io,
             .cppPtr = cppPtr,
             .transform = TransformApi.init(cppPtr),
             .editor = EditorApi.init(cppPtr),
@@ -203,12 +217,20 @@ pub const AvatarTrackingComponent = struct {
 
     pub fn getClient(self: *const Self) basis.host.ClientPtr {
         const clientCppPtr = basis.bindings.api.ComponentContext_getClient(self.cppPtr);
-        return basis.host.ClientPtr{ .cppPtr = clientCppPtr, .allocator = self.allocator };
+        return basis.host.ClientPtr{
+            .cppPtr = clientCppPtr,
+            .allocator = self.allocator,
+            .io = self.io,
+        };
     }
 
     pub fn getServer(self: *const Self) basis.host.ServerPtr {
         const serverCppPtr = basis.bindings.api.ComponentContext_getServer(self.cppPtr);
-        return basis.host.ServerPtr{ .cppPtr = serverCppPtr, .allocator = self.allocator };
+        return basis.host.ServerPtr{
+            .cppPtr = serverCppPtr,
+            .allocator = self.allocator,
+            .io = self.io,
+        };
     }
 
     pub fn getHost(self: *const Self) basis.host.HostPtr {
@@ -294,6 +316,11 @@ pub const AvatarTrackingComponent = struct {
     pub fn getScriptFunctionByASFuncPtr(self: *const Self, funcPtr: basis.angelscript.CallbackHandle) basis.angelscript.AngelScriptFunctionPtr {
         const cppPtr = basis.bindings.api.ComponentContext_getScriptFunctionByASFuncPtr(self.cppPtr, funcPtr);
         return basis.angelscript.AngelScriptFunctionPtr{ .cppPtr = cppPtr };
+    }
+
+    pub fn setScriptGlobalHandle(self: *const Self, handleName: []const u8, value: basis.CppPtr) void {
+        const interopName = basis.string.toInteropString(handleName);
+        basis.bindings.api.ComponentContext_setScriptGlobalHandle(self.cppPtr, &interopName, value);
     }
 
     pub fn isClientLocalAvatar(self: *const Self) bool {

@@ -1,5 +1,5 @@
 // ----------------------------------------------------
-// Copyright (c) 2018-2025 Madrigal Ltd.
+// Copyright (c) 2018-2026 Madrigal Ltd.
 // This file is part of the Basis modding SDK, and is subject to the
 // terms and conditions of the Basis modding SDK License Agreement.
 // https://www.madrigalgames.com
@@ -12,14 +12,16 @@ const imgui = basis.imgui;
 
 //----------------------------------------------------
 
-var gDebugTargetObject: ?basis.game_object.GameObjectPtr = null;
+pub const GlobalData = struct {
+    debugTargetObject: ?basis.game_object.GameObjectPtr = null,
+};
 
 const popupID = "debug_object_popup";
 
 //----------------------------------------------------
 
 pub fn show(targetObject: basis.game_object.GameObjectPtr) void {
-    gDebugTargetObject = targetObject;
+    basis.g.game_object_debug_popup.debugTargetObject = targetObject;
     imgui.openPopup(popupID, imgui.ImGuiPopupFlags.None);
 }
 
@@ -27,8 +29,8 @@ pub fn update(comptime DebugComponentType: type) !void {
     const localServerRunning = basis.app.isLocalServerRunning();
 
     if (imgui.beginPopup(popupID, imgui.ImGuiWindowFlags.None)) {
-        basis.assert(@src(), gDebugTargetObject != null);
-        var debugTarget = gDebugTargetObject.?;
+        basis.assert(@src(), basis.g.game_object_debug_popup.debugTargetObject != null);
+        var debugTarget = basis.g.game_object_debug_popup.debugTargetObject.?;
 
         const debugComponent: ?*DebugComponentType = debugTarget.getComponent(DebugComponentType);
 

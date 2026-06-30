@@ -1,5 +1,5 @@
 // ----------------------------------------------------
-// Copyright (c) 2018-2025 Madrigal Ltd.
+// Copyright (c) 2018-2026 Madrigal Ltd.
 // This file is part of the Basis modding SDK, and is subject to the
 // terms and conditions of the Basis modding SDK License Agreement.
 // https://www.madrigalgames.com
@@ -77,6 +77,10 @@ pub const AABB2D = struct {
 
     pub fn getSize(self: *const Self) Vec2 {
         return self.max.sub(self.min);
+    }
+
+    pub fn contains(self: *const Self, point: Vec2) bool {
+        return (point.x >= self.min.x) and (point.x <= self.max.x) and (point.y >= self.min.y) and (point.y <= self.max.y);
     }
 
     //----------------------------------------------------

@@ -1,5 +1,5 @@
 // ----------------------------------------------------
-// Copyright (c) 2018-2025 Madrigal Ltd.
+// Copyright (c) 2018-2026 Madrigal Ltd.
 // This file is part of the Basis modding SDK, and is subject to the
 // terms and conditions of the Basis modding SDK License Agreement.
 // https://www.madrigalgames.com
@@ -302,6 +302,7 @@ export fn bindGameObject(
 	setGameTag: basis.bindings.generated_types.basis_zig_GameObject_setGameTag_cb,
 	getGameTag: basis.bindings.generated_types.basis_zig_GameObject_getGameTag_cb,
 	getRenderSceneNode: basis.bindings.generated_types.basis_zig_GameObject_getRenderSceneNode_cb,
+	getNavMeshObstacleIDs: basis.bindings.generated_types.basis_zig_GameObject_getNavMeshObstacleIDs_cb,
 ) void {
 	basis.bindings.generated_function_pointers._GameObject_getName = getName;
 	basis.bindings.generated_function_pointers._GameObject_getType = getType;
@@ -317,6 +318,7 @@ export fn bindGameObject(
 	basis.bindings.generated_function_pointers._GameObject_setGameTag = setGameTag;
 	basis.bindings.generated_function_pointers._GameObject_getGameTag = getGameTag;
 	basis.bindings.generated_function_pointers._GameObject_getRenderSceneNode = getRenderSceneNode;
+	basis.bindings.generated_function_pointers._GameObject_getNavMeshObstacleIDs = getNavMeshObstacleIDs;
 }
 
 // ===============================
@@ -362,6 +364,7 @@ export fn bindComponentContext(
 	callScriptOnTick: basis.bindings.generated_types.basis_zig_ComponentContext_callScriptOnTick_cb,
 	getScriptFunctionByDecl: basis.bindings.generated_types.basis_zig_ComponentContext_getScriptFunctionByDecl_cb,
 	getScriptFunctionByASFuncPtr: basis.bindings.generated_types.basis_zig_ComponentContext_getScriptFunctionByASFuncPtr_cb,
+	setScriptGlobalHandle: basis.bindings.generated_types.basis_zig_ComponentContext_setScriptGlobalHandle_cb,
 ) void {
 	basis.bindings.generated_function_pointers._ComponentContext_getName = getName;
 	basis.bindings.generated_function_pointers._ComponentContext_onClient = onClient;
@@ -401,6 +404,7 @@ export fn bindComponentContext(
 	basis.bindings.generated_function_pointers._ComponentContext_callScriptOnTick = callScriptOnTick;
 	basis.bindings.generated_function_pointers._ComponentContext_getScriptFunctionByDecl = getScriptFunctionByDecl;
 	basis.bindings.generated_function_pointers._ComponentContext_getScriptFunctionByASFuncPtr = getScriptFunctionByASFuncPtr;
+	basis.bindings.generated_function_pointers._ComponentContext_setScriptGlobalHandle = setScriptGlobalHandle;
 }
 
 // ===============================
@@ -415,6 +419,10 @@ export fn bindAngelScriptFunction(
 	setFloatParam: basis.bindings.generated_types.basis_zig_AngelScriptFunction_setFloatParam_cb,
 	setStringParam: basis.bindings.generated_types.basis_zig_AngelScriptFunction_setStringParam_cb,
 	setGameObjectRefParam: basis.bindings.generated_types.basis_zig_AngelScriptFunction_setGameObjectRefParam_cb,
+	getReturnBool: basis.bindings.generated_types.basis_zig_AngelScriptFunction_getReturnBool_cb,
+	getReturnInt: basis.bindings.generated_types.basis_zig_AngelScriptFunction_getReturnInt_cb,
+	getReturnUint: basis.bindings.generated_types.basis_zig_AngelScriptFunction_getReturnUint_cb,
+	getReturnFloat: basis.bindings.generated_types.basis_zig_AngelScriptFunction_getReturnFloat_cb,
 	executeCall: basis.bindings.generated_types.basis_zig_AngelScriptFunction_executeCall_cb,
 ) void {
 	basis.bindings.generated_function_pointers._AngelScriptFunction_prepareCall = prepareCall;
@@ -424,6 +432,10 @@ export fn bindAngelScriptFunction(
 	basis.bindings.generated_function_pointers._AngelScriptFunction_setFloatParam = setFloatParam;
 	basis.bindings.generated_function_pointers._AngelScriptFunction_setStringParam = setStringParam;
 	basis.bindings.generated_function_pointers._AngelScriptFunction_setGameObjectRefParam = setGameObjectRefParam;
+	basis.bindings.generated_function_pointers._AngelScriptFunction_getReturnBool = getReturnBool;
+	basis.bindings.generated_function_pointers._AngelScriptFunction_getReturnInt = getReturnInt;
+	basis.bindings.generated_function_pointers._AngelScriptFunction_getReturnUint = getReturnUint;
+	basis.bindings.generated_function_pointers._AngelScriptFunction_getReturnFloat = getReturnFloat;
 	basis.bindings.generated_function_pointers._AngelScriptFunction_executeCall = executeCall;
 }
 
@@ -499,10 +511,15 @@ export fn bindInputManager(
 	getGameInputMode: basis.bindings.generated_types.basis_zig_InputManager_getGameInputMode_cb,
 	isKeyPressed: basis.bindings.generated_types.basis_zig_InputManager_isKeyPressed_cb,
 	isMouseButtonPressed: basis.bindings.generated_types.basis_zig_InputManager_isMouseButtonPressed_cb,
+	isGamepadButtonDown: basis.bindings.generated_types.basis_zig_InputManager_isGamepadButtonDown_cb,
+	setGamepadVibration: basis.bindings.generated_types.basis_zig_InputManager_setGamepadVibration_cb,
 	getMappedKeyCode: basis.bindings.generated_types.basis_zig_InputManager_getMappedKeyCode_cb,
 	getMappedMouseButton: basis.bindings.generated_types.basis_zig_InputManager_getMappedMouseButton_cb,
 	getMappedGamepadButton: basis.bindings.generated_types.basis_zig_InputManager_getMappedGamepadButton_cb,
 	getMappedInputSource: basis.bindings.generated_types.basis_zig_InputManager_getMappedInputSource_cb,
+	getFirstPressedKey: basis.bindings.generated_types.basis_zig_InputManager_getFirstPressedKey_cb,
+	getFirstPressedMouseButton: basis.bindings.generated_types.basis_zig_InputManager_getFirstPressedMouseButton_cb,
+	getKeyName: basis.bindings.generated_types.basis_zig_InputManager_getKeyName_cb,
 ) void {
 	basis.bindings.generated_function_pointers._InputManager_addGameInputContextToFront = addGameInputContextToFront;
 	basis.bindings.generated_function_pointers._InputManager_addGameInputContextToBack = addGameInputContextToBack;
@@ -515,10 +532,15 @@ export fn bindInputManager(
 	basis.bindings.generated_function_pointers._InputManager_getGameInputMode = getGameInputMode;
 	basis.bindings.generated_function_pointers._InputManager_isKeyPressed = isKeyPressed;
 	basis.bindings.generated_function_pointers._InputManager_isMouseButtonPressed = isMouseButtonPressed;
+	basis.bindings.generated_function_pointers._InputManager_isGamepadButtonDown = isGamepadButtonDown;
+	basis.bindings.generated_function_pointers._InputManager_setGamepadVibration = setGamepadVibration;
 	basis.bindings.generated_function_pointers._InputManager_getMappedKeyCode = getMappedKeyCode;
 	basis.bindings.generated_function_pointers._InputManager_getMappedMouseButton = getMappedMouseButton;
 	basis.bindings.generated_function_pointers._InputManager_getMappedGamepadButton = getMappedGamepadButton;
 	basis.bindings.generated_function_pointers._InputManager_getMappedInputSource = getMappedInputSource;
+	basis.bindings.generated_function_pointers._InputManager_getFirstPressedKey = getFirstPressedKey;
+	basis.bindings.generated_function_pointers._InputManager_getFirstPressedMouseButton = getFirstPressedMouseButton;
+	basis.bindings.generated_function_pointers._InputManager_getKeyName = getKeyName;
 }
 
 // ===============================
@@ -752,6 +774,10 @@ export fn bindPhysicsActor(
 	getWorldTransform: basis.bindings.generated_types.basis_zig_PhysicsActor_getWorldTransform_cb,
 	setKinematicTarget: basis.bindings.generated_types.basis_zig_PhysicsActor_setKinematicTarget_cb,
 	setMassData: basis.bindings.generated_types.basis_zig_PhysicsActor_setMassData_cb,
+	setContactReportThreshold: basis.bindings.generated_types.basis_zig_PhysicsActor_setContactReportThreshold_cb,
+	setSolverIterationCounts: basis.bindings.generated_types.basis_zig_PhysicsActor_setSolverIterationCounts_cb,
+	setAngularDamping: basis.bindings.generated_types.basis_zig_PhysicsActor_setAngularDamping_cb,
+	setMaxAngularVelocity: basis.bindings.generated_types.basis_zig_PhysicsActor_setMaxAngularVelocity_cb,
 	getWorldBounds: basis.bindings.generated_types.basis_zig_PhysicsActor_getWorldBounds_cb,
 	associateWithGameObject: basis.bindings.generated_types.basis_zig_PhysicsActor_associateWithGameObject_cb,
 	getAssociatedGameObject: basis.bindings.generated_types.basis_zig_PhysicsActor_getAssociatedGameObject_cb,
@@ -775,6 +801,10 @@ export fn bindPhysicsActor(
 	basis.bindings.generated_function_pointers._PhysicsActor_getWorldTransform = getWorldTransform;
 	basis.bindings.generated_function_pointers._PhysicsActor_setKinematicTarget = setKinematicTarget;
 	basis.bindings.generated_function_pointers._PhysicsActor_setMassData = setMassData;
+	basis.bindings.generated_function_pointers._PhysicsActor_setContactReportThreshold = setContactReportThreshold;
+	basis.bindings.generated_function_pointers._PhysicsActor_setSolverIterationCounts = setSolverIterationCounts;
+	basis.bindings.generated_function_pointers._PhysicsActor_setAngularDamping = setAngularDamping;
+	basis.bindings.generated_function_pointers._PhysicsActor_setMaxAngularVelocity = setMaxAngularVelocity;
 	basis.bindings.generated_function_pointers._PhysicsActor_getWorldBounds = getWorldBounds;
 	basis.bindings.generated_function_pointers._PhysicsActor_associateWithGameObject = associateWithGameObject;
 	basis.bindings.generated_function_pointers._PhysicsActor_getAssociatedGameObject = getAssociatedGameObject;
@@ -897,6 +927,7 @@ export fn bindVehicleController(
 	getWheelCount: basis.bindings.generated_types.basis_zig_VehicleController_getWheelCount_cb,
 	getWheelStateInfo: basis.bindings.generated_types.basis_zig_VehicleController_getWheelStateInfo_cb,
 	getStateInfo: basis.bindings.generated_types.basis_zig_VehicleController_getStateInfo_cb,
+	getFastestWheelRotationSpeed: basis.bindings.generated_types.basis_zig_VehicleController_getFastestWheelRotationSpeed_cb,
 	addRef: basis.bindings.generated_types.basis_zig_VehicleController_addRef_cb,
 	release: basis.bindings.generated_types.basis_zig_VehicleController_release_cb,
 ) void {
@@ -911,6 +942,7 @@ export fn bindVehicleController(
 	basis.bindings.generated_function_pointers._VehicleController_getWheelCount = getWheelCount;
 	basis.bindings.generated_function_pointers._VehicleController_getWheelStateInfo = getWheelStateInfo;
 	basis.bindings.generated_function_pointers._VehicleController_getStateInfo = getStateInfo;
+	basis.bindings.generated_function_pointers._VehicleController_getFastestWheelRotationSpeed = getFastestWheelRotationSpeed;
 	basis.bindings.generated_function_pointers._VehicleController_addRef = addRef;
 	basis.bindings.generated_function_pointers._VehicleController_release = release;
 }
@@ -930,6 +962,7 @@ export fn bindResourceManager(
 	beginGetResourcesWithFileExtension: basis.bindings.generated_types.basis_zig_ResourceManager_beginGetResourcesWithFileExtension_cb,
 	endGetResourcesWithFileExtension: basis.bindings.generated_types.basis_zig_ResourceManager_endGetResourcesWithFileExtension_cb,
 	addLooseFileResourcePack: basis.bindings.generated_types.basis_zig_ResourceManager_addLooseFileResourcePack_cb,
+	getSourceFilePathForResource: basis.bindings.generated_types.basis_zig_ResourceManager_getSourceFilePathForResource_cb,
 ) void {
 	basis.bindings.generated_function_pointers._ResourceManager_init = init;
 	basis.bindings.generated_function_pointers._ResourceManager_deinit = deinit;
@@ -941,6 +974,7 @@ export fn bindResourceManager(
 	basis.bindings.generated_function_pointers._ResourceManager_beginGetResourcesWithFileExtension = beginGetResourcesWithFileExtension;
 	basis.bindings.generated_function_pointers._ResourceManager_endGetResourcesWithFileExtension = endGetResourcesWithFileExtension;
 	basis.bindings.generated_function_pointers._ResourceManager_addLooseFileResourcePack = addLooseFileResourcePack;
+	basis.bindings.generated_function_pointers._ResourceManager_getSourceFilePathForResource = getSourceFilePathForResource;
 }
 
 // ===============================
@@ -975,9 +1009,13 @@ export fn bindRenderer(
 	addCameraToFrontOfQueue: basis.bindings.generated_types.basis_zig_Renderer_addCameraToFrontOfQueue_cb,
 	removeCameraFromQueue: basis.bindings.generated_types.basis_zig_Renderer_removeCameraFromQueue_cb,
 	getMainCamera: basis.bindings.generated_types.basis_zig_Renderer_getMainCamera_cb,
-	getScreenWidth: basis.bindings.generated_types.basis_zig_Renderer_getScreenWidth_cb,
-	getScreenHeight: basis.bindings.generated_types.basis_zig_Renderer_getScreenHeight_cb,
-	setVignetteEnabled: basis.bindings.generated_types.basis_zig_Renderer_setVignetteEnabled_cb,
+	getWindowWidth: basis.bindings.generated_types.basis_zig_Renderer_getWindowWidth_cb,
+	getWindowHeight: basis.bindings.generated_types.basis_zig_Renderer_getWindowHeight_cb,
+	getRenderWidth: basis.bindings.generated_types.basis_zig_Renderer_getRenderWidth_cb,
+	getRenderHeight: basis.bindings.generated_types.basis_zig_Renderer_getRenderHeight_cb,
+	getRenderScale: basis.bindings.generated_types.basis_zig_Renderer_getRenderScale_cb,
+	setRenderScale: basis.bindings.generated_types.basis_zig_Renderer_setRenderScale_cb,
+	setGraphicsOption: basis.bindings.generated_types.basis_zig_Renderer_setGraphicsOption_cb,
 	createMesh: basis.bindings.generated_types.basis_zig_Renderer_createMesh_cb,
 	createMeshManual: basis.bindings.generated_types.basis_zig_Renderer_createMeshManual_cb,
 	captureSinglePre2DFrame: basis.bindings.generated_types.basis_zig_Renderer_captureSinglePre2DFrame_cb,
@@ -989,6 +1027,7 @@ export fn bindRenderer(
 	stopCapturingFrames: basis.bindings.generated_types.basis_zig_Renderer_stopCapturingFrames_cb,
 	applyDisplayOptions: basis.bindings.generated_types.basis_zig_Renderer_applyDisplayOptions_cb,
 	applyVsyncAndFramerateLimit: basis.bindings.generated_types.basis_zig_Renderer_applyVsyncAndFramerateLimit_cb,
+	getWindowMode: basis.bindings.generated_types.basis_zig_Renderer_getWindowMode_cb,
 	getDisplacementEffectRenderer: basis.bindings.generated_types.basis_zig_Renderer_getDisplacementEffectRenderer_cb,
 ) void {
 	basis.bindings.generated_function_pointers._Renderer_getPrimaryScene = getPrimaryScene;
@@ -996,9 +1035,13 @@ export fn bindRenderer(
 	basis.bindings.generated_function_pointers._Renderer_addCameraToFrontOfQueue = addCameraToFrontOfQueue;
 	basis.bindings.generated_function_pointers._Renderer_removeCameraFromQueue = removeCameraFromQueue;
 	basis.bindings.generated_function_pointers._Renderer_getMainCamera = getMainCamera;
-	basis.bindings.generated_function_pointers._Renderer_getScreenWidth = getScreenWidth;
-	basis.bindings.generated_function_pointers._Renderer_getScreenHeight = getScreenHeight;
-	basis.bindings.generated_function_pointers._Renderer_setVignetteEnabled = setVignetteEnabled;
+	basis.bindings.generated_function_pointers._Renderer_getWindowWidth = getWindowWidth;
+	basis.bindings.generated_function_pointers._Renderer_getWindowHeight = getWindowHeight;
+	basis.bindings.generated_function_pointers._Renderer_getRenderWidth = getRenderWidth;
+	basis.bindings.generated_function_pointers._Renderer_getRenderHeight = getRenderHeight;
+	basis.bindings.generated_function_pointers._Renderer_getRenderScale = getRenderScale;
+	basis.bindings.generated_function_pointers._Renderer_setRenderScale = setRenderScale;
+	basis.bindings.generated_function_pointers._Renderer_setGraphicsOption = setGraphicsOption;
 	basis.bindings.generated_function_pointers._Renderer_createMesh = createMesh;
 	basis.bindings.generated_function_pointers._Renderer_createMeshManual = createMeshManual;
 	basis.bindings.generated_function_pointers._Renderer_captureSinglePre2DFrame = captureSinglePre2DFrame;
@@ -1010,6 +1053,7 @@ export fn bindRenderer(
 	basis.bindings.generated_function_pointers._Renderer_stopCapturingFrames = stopCapturingFrames;
 	basis.bindings.generated_function_pointers._Renderer_applyDisplayOptions = applyDisplayOptions;
 	basis.bindings.generated_function_pointers._Renderer_applyVsyncAndFramerateLimit = applyVsyncAndFramerateLimit;
+	basis.bindings.generated_function_pointers._Renderer_getWindowMode = getWindowMode;
 	basis.bindings.generated_function_pointers._Renderer_getDisplacementEffectRenderer = getDisplacementEffectRenderer;
 }
 
@@ -1207,6 +1251,8 @@ export fn bindMeshInstance(
 	setFlagValue: basis.bindings.generated_types.basis_zig_MeshInstance_setFlagValue_cb,
 	updateLightProbeData: basis.bindings.generated_types.basis_zig_MeshInstance_updateLightProbeData_cb,
 	getParentSceneNode: basis.bindings.generated_types.basis_zig_MeshInstance_getParentSceneNode_cb,
+	setCullDistanceMultiplier: basis.bindings.generated_types.basis_zig_MeshInstance_setCullDistanceMultiplier_cb,
+	getCullDistanceMultiplier: basis.bindings.generated_types.basis_zig_MeshInstance_getCullDistanceMultiplier_cb,
 ) void {
 	basis.bindings.generated_function_pointers._MeshInstance_setVisible = setVisible;
 	basis.bindings.generated_function_pointers._MeshInstance_isVisible = isVisible;
@@ -1217,6 +1263,8 @@ export fn bindMeshInstance(
 	basis.bindings.generated_function_pointers._MeshInstance_setFlagValue = setFlagValue;
 	basis.bindings.generated_function_pointers._MeshInstance_updateLightProbeData = updateLightProbeData;
 	basis.bindings.generated_function_pointers._MeshInstance_getParentSceneNode = getParentSceneNode;
+	basis.bindings.generated_function_pointers._MeshInstance_setCullDistanceMultiplier = setCullDistanceMultiplier;
+	basis.bindings.generated_function_pointers._MeshInstance_getCullDistanceMultiplier = getCullDistanceMultiplier;
 }
 
 // ===============================
@@ -1291,6 +1339,11 @@ export fn bindGameSession(
 	getClient: basis.bindings.generated_types.basis_zig_GameSession_getClient_cb,
 	isPaused: basis.bindings.generated_types.basis_zig_GameSession_isPaused_cb,
 	requestPause: basis.bindings.generated_types.basis_zig_GameSession_requestPause_cb,
+	getTickLevel: basis.bindings.generated_types.basis_zig_GameSession_getTickLevel_cb,
+	setTickLevel: basis.bindings.generated_types.basis_zig_GameSession_setTickLevel_cb,
+	requestSetTickLevel: basis.bindings.generated_types.basis_zig_GameSession_requestSetTickLevel_cb,
+	hasStarted: basis.bindings.generated_types.basis_zig_GameSession_hasStarted_cb,
+	hasEnded: basis.bindings.generated_types.basis_zig_GameSession_hasEnded_cb,
 	getLevelData: basis.bindings.generated_types.basis_zig_GameSession_getLevelData_cb,
 	isContinuousSession: basis.bindings.generated_types.basis_zig_GameSession_isContinuousSession_cb,
 ) void {
@@ -1299,6 +1352,11 @@ export fn bindGameSession(
 	basis.bindings.generated_function_pointers._GameSession_getClient = getClient;
 	basis.bindings.generated_function_pointers._GameSession_isPaused = isPaused;
 	basis.bindings.generated_function_pointers._GameSession_requestPause = requestPause;
+	basis.bindings.generated_function_pointers._GameSession_getTickLevel = getTickLevel;
+	basis.bindings.generated_function_pointers._GameSession_setTickLevel = setTickLevel;
+	basis.bindings.generated_function_pointers._GameSession_requestSetTickLevel = requestSetTickLevel;
+	basis.bindings.generated_function_pointers._GameSession_hasStarted = hasStarted;
+	basis.bindings.generated_function_pointers._GameSession_hasEnded = hasEnded;
 	basis.bindings.generated_function_pointers._GameSession_getLevelData = getLevelData;
 	basis.bindings.generated_function_pointers._GameSession_isContinuousSession = isContinuousSession;
 }
@@ -1322,6 +1380,7 @@ export fn bindGameState(
 	getAvatarObjectByHostID: basis.bindings.generated_types.basis_zig_GameState_getAvatarObjectByHostID_cb,
 	getHostIDByAvatarObject: basis.bindings.generated_types.basis_zig_GameState_getHostIDByAvatarObject_cb,
 	broadcastScriptMessage: basis.bindings.generated_types.basis_zig_GameState_broadcastScriptMessage_cb,
+	sendScriptMessageToGameObject: basis.bindings.generated_types.basis_zig_GameState_sendScriptMessageToGameObject_cb,
 	generateGameObjectName: basis.bindings.generated_types.basis_zig_GameState_generateGameObjectName_cb,
 ) void {
 	basis.bindings.generated_function_pointers._GameState_getGameObject = getGameObject;
@@ -1338,6 +1397,7 @@ export fn bindGameState(
 	basis.bindings.generated_function_pointers._GameState_getAvatarObjectByHostID = getAvatarObjectByHostID;
 	basis.bindings.generated_function_pointers._GameState_getHostIDByAvatarObject = getHostIDByAvatarObject;
 	basis.bindings.generated_function_pointers._GameState_broadcastScriptMessage = broadcastScriptMessage;
+	basis.bindings.generated_function_pointers._GameState_sendScriptMessageToGameObject = sendScriptMessageToGameObject;
 	basis.bindings.generated_function_pointers._GameState_generateGameObjectName = generateGameObjectName;
 }
 
@@ -1537,6 +1597,11 @@ export fn bindImGui(
 	openPopup: basis.bindings.generated_types.basis_zig_ImGui_openPopup_cb,
 	beginPopup: basis.bindings.generated_types.basis_zig_ImGui_beginPopup_cb,
 	endPopup: basis.bindings.generated_types.basis_zig_ImGui_endPopup_cb,
+	beginPopupModal: basis.bindings.generated_types.basis_zig_ImGui_beginPopupModal_cb,
+	closeCurrentPopup: basis.bindings.generated_types.basis_zig_ImGui_closeCurrentPopup_cb,
+	setItemDefaultFocus: basis.bindings.generated_types.basis_zig_ImGui_setItemDefaultFocus_cb,
+	dummy: basis.bindings.generated_types.basis_zig_ImGui_dummy_cb,
+	getMainViewportCenter: basis.bindings.generated_types.basis_zig_ImGui_getMainViewportCenter_cb,
 	pushStyleColor: basis.bindings.generated_types.basis_zig_ImGui_pushStyleColor_cb,
 	popStyleColor: basis.bindings.generated_types.basis_zig_ImGui_popStyleColor_cb,
 	separator: basis.bindings.generated_types.basis_zig_ImGui_separator_cb,
@@ -1568,6 +1633,11 @@ export fn bindImGui(
 	dragInt: basis.bindings.generated_types.basis_zig_ImGui_dragInt_cb,
 	sliderFloat: basis.bindings.generated_types.basis_zig_ImGui_sliderFloat_cb,
 	sliderInt: basis.bindings.generated_types.basis_zig_ImGui_sliderInt_cb,
+	plotMultiLines: basis.bindings.generated_types.basis_zig_ImGui_plotMultiLines_cb,
+	getContentRegionAvail: basis.bindings.generated_types.basis_zig_ImGui_getContentRegionAvail_cb,
+	pushID: basis.bindings.generated_types.basis_zig_ImGui_pushID_cb,
+	pushIDPtr: basis.bindings.generated_types.basis_zig_ImGui_pushIDPtr_cb,
+	popID: basis.bindings.generated_types.basis_zig_ImGui_popID_cb,
 ) void {
 	basis.bindings.generated_function_pointers._ImGui_begin = begin;
 	basis.bindings.generated_function_pointers._ImGui_beginEx = beginEx;
@@ -1578,6 +1648,11 @@ export fn bindImGui(
 	basis.bindings.generated_function_pointers._ImGui_openPopup = openPopup;
 	basis.bindings.generated_function_pointers._ImGui_beginPopup = beginPopup;
 	basis.bindings.generated_function_pointers._ImGui_endPopup = endPopup;
+	basis.bindings.generated_function_pointers._ImGui_beginPopupModal = beginPopupModal;
+	basis.bindings.generated_function_pointers._ImGui_closeCurrentPopup = closeCurrentPopup;
+	basis.bindings.generated_function_pointers._ImGui_setItemDefaultFocus = setItemDefaultFocus;
+	basis.bindings.generated_function_pointers._ImGui_dummy = dummy;
+	basis.bindings.generated_function_pointers._ImGui_getMainViewportCenter = getMainViewportCenter;
 	basis.bindings.generated_function_pointers._ImGui_pushStyleColor = pushStyleColor;
 	basis.bindings.generated_function_pointers._ImGui_popStyleColor = popStyleColor;
 	basis.bindings.generated_function_pointers._ImGui_separator = separator;
@@ -1609,6 +1684,39 @@ export fn bindImGui(
 	basis.bindings.generated_function_pointers._ImGui_dragInt = dragInt;
 	basis.bindings.generated_function_pointers._ImGui_sliderFloat = sliderFloat;
 	basis.bindings.generated_function_pointers._ImGui_sliderInt = sliderInt;
+	basis.bindings.generated_function_pointers._ImGui_plotMultiLines = plotMultiLines;
+	basis.bindings.generated_function_pointers._ImGui_getContentRegionAvail = getContentRegionAvail;
+	basis.bindings.generated_function_pointers._ImGui_pushID = pushID;
+	basis.bindings.generated_function_pointers._ImGui_pushIDPtr = pushIDPtr;
+	basis.bindings.generated_function_pointers._ImGui_popID = popID;
+}
+
+// ===============================
+
+// class ImPlot
+
+export fn bindImPlot(
+	beginPlot: basis.bindings.generated_types.basis_zig_ImPlot_beginPlot_cb,
+	endPlot: basis.bindings.generated_types.basis_zig_ImPlot_endPlot_cb,
+	setupAxis: basis.bindings.generated_types.basis_zig_ImPlot_setupAxis_cb,
+	setupAxisLimits: basis.bindings.generated_types.basis_zig_ImPlot_setupAxisLimits_cb,
+	setupLegend: basis.bindings.generated_types.basis_zig_ImPlot_setupLegend_cb,
+	plotLine: basis.bindings.generated_types.basis_zig_ImPlot_plotLine_cb,
+	plotLineEx: basis.bindings.generated_types.basis_zig_ImPlot_plotLineEx_cb,
+	plotScatter: basis.bindings.generated_types.basis_zig_ImPlot_plotScatter_cb,
+	plotScatterEx: basis.bindings.generated_types.basis_zig_ImPlot_plotScatterEx_cb,
+	dragPoint: basis.bindings.generated_types.basis_zig_ImPlot_dragPoint_cb,
+) void {
+	basis.bindings.generated_function_pointers._ImPlot_beginPlot = beginPlot;
+	basis.bindings.generated_function_pointers._ImPlot_endPlot = endPlot;
+	basis.bindings.generated_function_pointers._ImPlot_setupAxis = setupAxis;
+	basis.bindings.generated_function_pointers._ImPlot_setupAxisLimits = setupAxisLimits;
+	basis.bindings.generated_function_pointers._ImPlot_setupLegend = setupLegend;
+	basis.bindings.generated_function_pointers._ImPlot_plotLine = plotLine;
+	basis.bindings.generated_function_pointers._ImPlot_plotLineEx = plotLineEx;
+	basis.bindings.generated_function_pointers._ImPlot_plotScatter = plotScatter;
+	basis.bindings.generated_function_pointers._ImPlot_plotScatterEx = plotScatterEx;
+	basis.bindings.generated_function_pointers._ImPlot_dragPoint = dragPoint;
 }
 
 // ===============================
@@ -1635,8 +1743,10 @@ export fn bindGameObjectCreationParameters(
 
 export fn bindOSUtility(
 	writeStringToClipboard: basis.bindings.generated_types.basis_zig_OSUtility_writeStringToClipboard_cb,
+	readStringFromClipboard: basis.bindings.generated_types.basis_zig_OSUtility_readStringFromClipboard_cb,
 ) void {
 	basis.bindings.generated_function_pointers._OSUtility_writeStringToClipboard = writeStringToClipboard;
+	basis.bindings.generated_function_pointers._OSUtility_readStringFromClipboard = readStringFromClipboard;
 }
 
 // ===============================

@@ -1,5 +1,5 @@
 // ----------------------------------------------------
-// Copyright (c) 2018-2025 Madrigal Ltd.
+// Copyright (c) 2018-2026 Madrigal Ltd.
 // This file is part of the Basis SDK, and is subject to the
 // terms and conditions of the Basis SDK License Agreement.
 // https://www.madrigalgames.com
@@ -19,6 +19,10 @@ pub var _TimbreSoundManager_playAndForget2D: timbre.bindings.generated_types.bas
 pub var _TimbreSoundManager_playAndForget3D: timbre.bindings.generated_types.basis_zig_TimbreSoundManager_playAndForget3D_cb = undefined;
 pub var _TimbreSoundManager_playByPathAndForget2D: timbre.bindings.generated_types.basis_zig_TimbreSoundManager_playByPathAndForget2D_cb = undefined;
 pub var _TimbreSoundManager_playByPathAndForget3D: timbre.bindings.generated_types.basis_zig_TimbreSoundManager_playByPathAndForget3D_cb = undefined;
+pub var _TimbreSoundManager_getBulkAudioAssetDuration: timbre.bindings.generated_types.basis_zig_TimbreSoundManager_getBulkAudioAssetDuration_cb = undefined;
+pub var _TimbreSoundManager_getBulkAudioAssetDurationByHash: timbre.bindings.generated_types.basis_zig_TimbreSoundManager_getBulkAudioAssetDurationByHash_cb = undefined;
+pub var _TimbreSoundManager_getBulkAudioAssetID: timbre.bindings.generated_types.basis_zig_TimbreSoundManager_getBulkAudioAssetID_cb = undefined;
+pub var _TimbreSoundManager_getBulkAudioAssetData: timbre.bindings.generated_types.basis_zig_TimbreSoundManager_getBulkAudioAssetData_cb = undefined;
 
 // ===============================
 
@@ -32,6 +36,7 @@ pub var _GroupBus_setVolume: timbre.bindings.generated_types.basis_zig_GroupBus_
 // class EventDescription
 
 pub var _EventDescription_createInstance: timbre.bindings.generated_types.basis_zig_EventDescription_createInstance_cb = undefined;
+pub var _EventDescription_createInstanceWithAutoPauseTickLevel: timbre.bindings.generated_types.basis_zig_EventDescription_createInstanceWithAutoPauseTickLevel_cb = undefined;
 pub var _EventDescription_getParameterIndex: timbre.bindings.generated_types.basis_zig_EventDescription_getParameterIndex_cb = undefined;
 pub var _EventDescription_getLength: timbre.bindings.generated_types.basis_zig_EventDescription_getLength_cb = undefined;
 
@@ -45,12 +50,17 @@ pub var _EventInstance_releaseAfterFadeOut: timbre.bindings.generated_types.basi
 pub var _EventInstance_getState: timbre.bindings.generated_types.basis_zig_EventInstance_getState_cb = undefined;
 pub var _EventInstance_start: timbre.bindings.generated_types.basis_zig_EventInstance_start_cb = undefined;
 pub var _EventInstance_pause: timbre.bindings.generated_types.basis_zig_EventInstance_pause_cb = undefined;
+pub var _EventInstance_unpause: timbre.bindings.generated_types.basis_zig_EventInstance_unpause_cb = undefined;
 pub var _EventInstance_stop: timbre.bindings.generated_types.basis_zig_EventInstance_stop_cb = undefined;
 pub var _EventInstance_setParameterByName: timbre.bindings.generated_types.basis_zig_EventInstance_setParameterByName_cb = undefined;
 pub var _EventInstance_setParameterByIndex: timbre.bindings.generated_types.basis_zig_EventInstance_setParameterByIndex_cb = undefined;
+pub var _EventInstance_setWaveAssetRefParameterByName: timbre.bindings.generated_types.basis_zig_EventInstance_setWaveAssetRefParameterByName_cb = undefined;
+pub var _EventInstance_setWaveAssetRefParameterByIndex: timbre.bindings.generated_types.basis_zig_EventInstance_setWaveAssetRefParameterByIndex_cb = undefined;
 pub var _EventInstance_set3DParameters: timbre.bindings.generated_types.basis_zig_EventInstance_set3DParameters_cb = undefined;
 pub var _EventInstance_sendSignal: timbre.bindings.generated_types.basis_zig_EventInstance_sendSignal_cb = undefined;
 pub var _EventInstance_fadeIn: timbre.bindings.generated_types.basis_zig_EventInstance_fadeIn_cb = undefined;
+pub var _EventInstance_getVolumeMultiplier: timbre.bindings.generated_types.basis_zig_EventInstance_getVolumeMultiplier_cb = undefined;
+pub var _EventInstance_setVolumeMultiplier: timbre.bindings.generated_types.basis_zig_EventInstance_setVolumeMultiplier_cb = undefined;
 
 // ===============================
 

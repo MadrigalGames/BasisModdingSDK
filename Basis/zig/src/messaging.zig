@@ -1,5 +1,5 @@
 // ----------------------------------------------------
-// Copyright (c) 2018-2025 Madrigal Ltd.
+// Copyright (c) 2018-2026 Madrigal Ltd.
 // This file is part of the Basis modding SDK, and is subject to the
 // terms and conditions of the Basis modding SDK License Agreement.
 // https://www.madrigalgames.com
@@ -134,8 +134,10 @@ pub const MessageNode = struct {
     cppPtr: basis.CppPtr,
     allocator: Allocator,
     onMessageReceived: ?MessageReceivedDelegate = null,
+    name: basis.String,
 
     pub fn deinit(self: *Self) void {
+        self.name.deinit();
         basis.bindings.api.MessageNode_destroy(self.cppPtr); // Destroy the node on the C++ side.
         self.allocator.destroy(self); // Destroy the node on the Zig side.
     }

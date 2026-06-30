@@ -1,5 +1,5 @@
 // ----------------------------------------------------
-// Copyright (c) 2018-2025 Madrigal Ltd.
+// Copyright (c) 2018-2026 Madrigal Ltd.
 // This file is part of the Basis SDK, and is subject to the
 // terms and conditions of the Basis SDK License Agreement.
 // https://www.madrigalgames.com
@@ -62,6 +62,10 @@ pub const EventInstancePtr = struct {
         timbre.bindings.api.EventInstance_pause(self.cppPtr);
     }
 
+    pub fn unpause(self: *const Self) void {
+        timbre.bindings.api.EventInstance_unpause(self.cppPtr);
+    }
+
     pub fn stop(self: *const Self) void {
         timbre.bindings.api.EventInstance_stop(self.cppPtr);
     }
@@ -73,6 +77,15 @@ pub const EventInstancePtr = struct {
 
     pub fn setParameterByIndex(self: *const Self, index: u32, value: f32) void {
         timbre.bindings.api.EventInstance_setParameterByIndex(self.cppPtr, index, value);
+    }
+
+    pub fn setWaveAssetRefParameterByName(self: *const Self, name: []const u8, waveAssetID: u32) void {
+        const interopName = basis.string.toInteropString(name);
+        timbre.bindings.api.EventInstance_setWaveAssetRefParameterByName(self.cppPtr, &interopName, waveAssetID);
+    }
+
+    pub fn setWaveAssetRefParameterByIndex(self: *const Self, index: u32, waveAssetID: u32) void {
+        timbre.bindings.api.EventInstance_setWaveAssetRefParameterByIndex(self.cppPtr, index, waveAssetID);
     }
 
     pub fn set3DParameters(self: *const Self, position: basis.math.Vec3, linearVelocity: basis.math.Vec3) void {
@@ -88,5 +101,13 @@ pub const EventInstancePtr = struct {
 
     pub fn fadeIn(self: *const Self, fadeInDuration: f32) void {
         timbre.bindings.api.EventInstance_fadeIn(self.cppPtr, fadeInDuration);
+    }
+
+    pub fn getVolumeMultiplier(self: *const Self) f32 {
+        return timbre.bindings.api.EventInstance_getVolumeMultiplier(self.cppPtr);
+    }
+
+    pub fn setVolumeMultiplier(self: *const Self, volume: f32) void {
+        return timbre.bindings.api.EventInstance_setVolumeMultiplier(self.cppPtr, volume);
     }
 };

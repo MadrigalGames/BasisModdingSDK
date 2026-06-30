@@ -1,5 +1,5 @@
 // ----------------------------------------------------
-// Copyright (c) 2018-2025 Madrigal Ltd.
+// Copyright (c) 2018-2026 Madrigal Ltd.
 // This file is part of the Basis modding SDK, and is subject to the
 // terms and conditions of the Basis modding SDK License Agreement.
 // https://www.madrigalgames.com
@@ -47,6 +47,15 @@ pub const BinaryReadStream = struct {
         var val: T = undefined;
         val.deserialize(self);
         return val;
+    }
+
+    /// Returns a zero-copy slice into the stream's buffer for a length-prefixed string.
+    /// The returned slice is valid only as long as the underlying buffer is.
+    pub fn getStringSlice(self: *Self) []const u8 {
+        const length: usize = @intCast(self.getInt(u32));
+        const slice = self.buffer[self.cursorPosition..][0..length];
+        self.cursorPosition += length;
+        return slice;
     }
 
     /// Deserialize an array list of the given T. The array list needs to be fully
@@ -98,6 +107,21 @@ pub const BinaryReadStream = struct {
             self.read(target, length);
             string.size = length;
         }
+    }
+
+    // Deserialize into an InPlaceString. Generic on the capacity via anytype;
+    // returns whatever error type the target's set() returns.
+    pub fn deserializeInPlaceString(self: *Self, string: anytype) !void {
+        const length: usize = @intCast(self.getInt(u32));
+
+        if (length == 0) {
+            string.clear();
+            return;
+        }
+
+        const slice = self.buffer[self.cursorPosition..][0..length];
+        self.cursorPosition += length;
+        try string.set(slice);
     }
 
     pub fn read(self: *Self, target: []u8, length: usize) void {

@@ -1,5 +1,5 @@
 // ----------------------------------------------------
-// Copyright (c) 2018-2025 Madrigal Ltd.
+// Copyright (c) 2018-2026 Madrigal Ltd.
 // This file is part of the Basis modding SDK, and is subject to the
 // terms and conditions of the Basis modding SDK License Agreement.
 // https://www.madrigalgames.com
@@ -55,7 +55,7 @@ pub const NavMeshObstacleType = enum(u32) {
 pub const NavMeshQueryFilter = struct {
     pub const MaxAreaCount = 64; // Must be the same as DT_MAX_AREAS in DetourNavMesh.h
     //----------------------------------------------------
-    areaCost: [MaxAreaCount]f32 = [_]f32{1.0} ** MaxAreaCount, // Cost per area type.
+    areaCost: [MaxAreaCount]f32 = @splat(1.0), // Cost per area type.
     includeFlags: u16 = 0xFFFF, // Flags for polygons that can be visited.
     excludeFlags: u16 = 0, // Flags for polygons that should not be visited.
 
@@ -88,7 +88,7 @@ pub fn hasNavMesh(navMeshID: NavMeshID) bool {
 /// Finds a path from the start point to the end point, using the given parameters, and stores the result in [pathArray].
 pub fn findPath(navMeshID: NavMeshID, startPoint: Vec3, endPoint: Vec3, pathArray: []Vec3, pathLength: *u32, searchBoxSize: f32) NavMeshQueryResult {
     const filter = NavMeshQueryFilter{};
-    return findPathWithFilter(navMeshID, startPoint, endPoint, filter, pathArray, pathLength, searchBoxSize);
+    return findPathWithFilter(navMeshID, startPoint, endPoint, filter, pathArray, pathLength, searchBoxSize, &.{});
 }
 
 /// Finds a path from the start point to the end point, using the given parameters, and stores the result in [pathArray].
@@ -100,6 +100,7 @@ pub fn findPathWithFilter(
     pathArray: []Vec3,
     pathLength: *u32,
     searchBoxSize: f32,
+    ignoredSoftObstacles: []const NavMeshObstacleID,
 ) NavMeshQueryResult {
     if (!hasNavMesh(navMeshID)) {
         return NavMeshQueryResult.InvalidNavMesh;
@@ -113,6 +114,8 @@ pub fn findPathWithFilter(
     var interopFilter: basis.bindings.InteropNavMeshQueryFilter = undefined;
     filter.toInterop(&interopFilter);
 
+    const ignoredSoftObstaclesPtr: [*c]const u32 = if (ignoredSoftObstacles.len > 0) ignoredSoftObstacles.ptr else null;
+
     const result: NavMeshQueryResult = @enumFromInt(basis.bindings.api.NavMeshRuntime_findPath(
         @intFromEnum(navMeshID),
         &sp,
@@ -122,6 +125,8 @@ pub fn findPathWithFilter(
         safePathArraySize,
         pathLength,
         searchBoxSize,
+        ignoredSoftObstaclesPtr,
+        @intCast(ignoredSoftObstacles.len),
     ));
 
     if (result == .OK or result == .OKIgnoringSoftObstacles) {
@@ -136,7 +141,7 @@ pub fn findPathWithFilter(
 /// Same as findPath() but only checks if a path exists and returns its length.
 pub fn checkPath(navMeshID: NavMeshID, startPoint: Vec3, endPoint: Vec3, pathLength: *u32, searchBoxSize: f32) NavMeshQueryResult {
     const filter = NavMeshQueryFilter{};
-    return checkPathWithFilter(navMeshID, startPoint, endPoint, filter, pathLength, searchBoxSize);
+    return checkPathWithFilter(navMeshID, startPoint, endPoint, filter, pathLength, searchBoxSize, &.{});
 }
 
 /// Same as findPathWithFilter() but only checks if a path exists and returns its length.
@@ -147,6 +152,7 @@ pub fn checkPathWithFilter(
     filter: NavMeshQueryFilter,
     pathLength: *u32,
     searchBoxSize: f32,
+    ignoredSoftObstacles: []const NavMeshObstacleID,
 ) NavMeshQueryResult {
     if (!hasNavMesh(navMeshID)) {
         return NavMeshQueryResult.InvalidNavMesh;
@@ -160,6 +166,8 @@ pub fn checkPathWithFilter(
     var interopFilter: basis.bindings.InteropNavMeshQueryFilter = undefined;
     filter.toInterop(&interopFilter);
 
+    const ignoredSoftObstaclesPtr: [*c]const u32 = if (ignoredSoftObstacles.len > 0) ignoredSoftObstacles.ptr else null;
+
     const result: NavMeshQueryResult = @enumFromInt(basis.bindings.api.NavMeshRuntime_findPath(
         @intFromEnum(navMeshID),
         &sp,
@@ -169,6 +177,8 @@ pub fn checkPathWithFilter(
         safePathArraySize,
         pathLength,
         searchBoxSize,
+        ignoredSoftObstaclesPtr,
+        @intCast(ignoredSoftObstacles.len),
     ));
 
     return result;

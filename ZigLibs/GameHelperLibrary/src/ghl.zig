@@ -1,5 +1,5 @@
 // ----------------------------------------------------
-// Copyright (c) 2018-2025 Madrigal Ltd.
+// Copyright (c) 2018-2026 Madrigal Ltd.
 // This file is part of the Basis modding SDK, and is subject to the
 // terms and conditions of the Basis modding SDK License Agreement.
 // https://www.madrigalgames.com
@@ -22,6 +22,7 @@ pub const input = @import("input.zig");
 pub const logger = @import("logger.zig");
 pub const render_object = @import("render_object.zig");
 pub const triangle_lines = @import("triangle_lines.zig");
+pub const collision_filter = @import("collision_filter.zig");
 
 //----------------------------------------------------
 
@@ -37,9 +38,22 @@ pub const TimelineSetScreenColorEvent = timeline_set_screen_color_event.Timeline
 pub const TimelineFadeScreenColorEvent = timeline_fade_screen_color_event.TimelineFadeScreenColorEvent;
 pub const PressedHeldInputHelper = input.PressedHeldInputHelper;
 
+pub const TimelineEvents = .{
+    basis.typeinfo.TypeWithNameHash(TimelineTestEvent),
+    basis.typeinfo.TypeWithNameHash(TimelineCallbackEvent),
+    basis.typeinfo.TypeWithNameHash(TimelineCallbackWithDataEvent(usize)), // Add more data types if needed...
+    basis.typeinfo.TypeWithNameHash(TimelineNoopEvent),
+    basis.typeinfo.TypeWithNameHash(TimelineSetScreenColorEvent),
+    basis.typeinfo.TypeWithNameHash(TimelineFadeScreenColorEvent),
+};
+
 pub const Logger = logger.Logger;
 
 pub const RenderObject = render_object.RenderObject;
+
+pub const ActorCollisionFilter = collision_filter.ActorCollisionFilter;
+pub const CollisionFilterEvent = collision_filter.CollisionFilterEvent;
+pub const CollisionFilterCallback = collision_filter.CollisionFilterCallback;
 
 //----------------------------------------------------
 
@@ -50,9 +64,10 @@ pub fn forceAnalysis() void {
         timeline_component_base,
         input,
         logger,
+        collision_filter,
     };
 
     inline for (modules) |module| {
-        std.testing.refAllDeclsRecursive(module);
+        std.testing.refAllDecls(module);
     }
 }

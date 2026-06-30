@@ -1,5 +1,5 @@
 // ----------------------------------------------------
-// Copyright (c) 2018-2025 Madrigal Ltd.
+// Copyright (c) 2018-2026 Madrigal Ltd.
 // This file is part of the Basis SDK, and is subject to the
 // terms and conditions of the Basis SDK License Agreement.
 // https://www.madrigalgames.com
@@ -19,6 +19,7 @@ pub var _Localization_getLocalizedStringByNameWithParams2: trampoline.bindings.g
 pub var _Localization_getLocalizedStringByNameWithParams3: trampoline.bindings.generated_types.basis_zig_Localization_getLocalizedStringByNameWithParams3_cb = undefined;
 pub var _Localization_getLocalizedVec2ByName: trampoline.bindings.generated_types.basis_zig_Localization_getLocalizedVec2ByName_cb = undefined;
 pub var _Localization_setUILanguage: trampoline.bindings.generated_types.basis_zig_Localization_setUILanguage_cb = undefined;
+pub var _Localization_getUILanguage: trampoline.bindings.generated_types.basis_zig_Localization_getUILanguage_cb = undefined;
 
 // ===============================
 

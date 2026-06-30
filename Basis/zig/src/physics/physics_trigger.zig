@@ -1,5 +1,5 @@
 // ----------------------------------------------------
-// Copyright (c) 2018-2025 Madrigal Ltd.
+// Copyright (c) 2018-2026 Madrigal Ltd.
 // This file is part of the Basis modding SDK, and is subject to the
 // terms and conditions of the Basis modding SDK License Agreement.
 // https://www.madrigalgames.com
@@ -22,29 +22,56 @@ const GameObjectPtr = basis.game_object.GameObjectPtr;
 pub const TriggerEnterCallback = basis.delegate.VoidDelegate1(PhysicsActorPtr);
 pub const TriggerExitCallback = basis.delegate.VoidDelegate2(PhysicsActorPtr, bool);
 
-pub fn init(allocator: std.mem.Allocator) void {
-    gTriggerCallbackStates = CallbackStateMap.init(allocator);
-    gTriggerCallbackStatesInitialized = true;
+const TriggerCallbackState = struct {
+    enterCB: ?TriggerEnterCallback = null,
+    exitCB: ?TriggerExitCallback = null,
+};
+
+const CallbackStateMap = basis.HashMap(basis.CppPtr, TriggerCallbackState);
+
+pub const GlobalData = struct {
+    mutex: std.Io.Mutex = .init,
+    callbackStates: CallbackStateMap = undefined,
+    initialized: bool = false,
+};
+
+inline fn getG() *GlobalData {
+    return &basis.g.physics_trigger;
+}
+
+//----------------------------------------------------
+
+pub fn init() void {
+    const g = getG();
+
+    g.callbackStates = CallbackStateMap.init(basis.g.allocator);
+    g.initialized = true;
 }
 
 pub fn deinit() void {
-    gTriggerCallbackStates.deinit();
-    gTriggerCallbackStatesInitialized = false;
+    const g = getG();
+
+    g.callbackStates.deinit();
+    g.initialized = false;
 }
 
-pub fn registerEnterCallback(trigger: PhysicsActorPtr, cb: TriggerEnterCallback) !void {
-    gTriggerCallbackStateMutex.lock();
-    defer gTriggerCallbackStateMutex.unlock();
+//----------------------------------------------------
+
+pub fn registerEnterCallback(trigger: PhysicsActorPtr, cb: TriggerEnterCallback) void {
+    const g = getG();
+
+    g.mutex.lock(basis.g.io) catch @panic("Mutex Canceled");
+    defer g.mutex.unlock(basis.g.io);
 
     basis.assertd(
         @src(),
-        gTriggerCallbackStatesInitialized,
+        g.initialized,
         "Trigger callback states not initialized. Call physics_trigger.init() first.",
     );
 
     basis.assertd(@src(), trigger.actorType == .Trigger, "Cannot set callback. Not a trigger.");
 
-    var result = try gTriggerCallbackStates.getOrPut(trigger.cppPtr);
+    var result = g.callbackStates.getOrPut(trigger.cppPtr) catch @panic("OOM");
 
     if (result.found_existing) {
         basis.assert(@src(), result.value_ptr.enterCB == null);
@@ -55,19 +82,21 @@ pub fn registerEnterCallback(trigger: PhysicsActorPtr, cb: TriggerEnterCallback)
     result.value_ptr.enterCB = cb;
 }
 
-pub fn registerExitCallback(trigger: PhysicsActorPtr, cb: TriggerExitCallback) !void {
-    gTriggerCallbackStateMutex.lock();
-    defer gTriggerCallbackStateMutex.unlock();
+pub fn registerExitCallback(trigger: PhysicsActorPtr, cb: TriggerExitCallback) void {
+    const g = getG();
+
+    g.mutex.lock(basis.g.io) catch @panic("Mutex Canceled");
+    defer g.mutex.unlock(basis.g.io);
 
     basis.assertd(
         @src(),
-        gTriggerCallbackStatesInitialized,
+        g.initialized,
         "Trigger callback states not initialized. Call physics_trigger.init() first.",
     );
 
     basis.assertd(@src(), trigger.actorType == .Trigger, "Cannot set callback. Not a trigger.");
 
-    var result = try gTriggerCallbackStates.getOrPut(trigger.cppPtr);
+    var result = g.callbackStates.getOrPut(trigger.cppPtr) catch @panic("OOM");
     if (result.found_existing) {
         basis.assert(@src(), result.value_ptr.exitCB == null);
     } else {
@@ -77,23 +106,27 @@ pub fn registerExitCallback(trigger: PhysicsActorPtr, cb: TriggerExitCallback) !
 }
 
 pub fn unregisterCallbacks(trigger: PhysicsActorPtr) void {
-    gTriggerCallbackStateMutex.lock();
-    defer gTriggerCallbackStateMutex.unlock();
+    const g = getG();
+
+    g.mutex.lock(basis.g.io) catch @panic("Mutex Canceled");
+    defer g.mutex.unlock(basis.g.io);
 
     basis.assertd(
         @src(),
-        gTriggerCallbackStatesInitialized,
+        g.initialized,
         "Trigger callback states not initialized. Call physics_trigger.init() first.",
     );
 
-    _ = gTriggerCallbackStates.remove(trigger.cppPtr);
+    _ = g.callbackStates.remove(trigger.cppPtr);
 }
 
 pub fn _onTriggerEnterEvent(triggerActorIntPtr: basis.CppPtr, otherActorIntPtr: basis.CppPtr, otherActorType: u32) void {
-    gTriggerCallbackStateMutex.lock();
-    defer gTriggerCallbackStateMutex.unlock();
+    const g = getG();
 
-    const possibleEntry = gTriggerCallbackStates.get(triggerActorIntPtr);
+    g.mutex.lock(basis.g.io) catch @panic("Mutex Canceled");
+    defer g.mutex.unlock(basis.g.io);
+
+    const possibleEntry = g.callbackStates.get(triggerActorIntPtr);
 
     if (possibleEntry) |entry| {
         if (entry.enterCB) |cb| {
@@ -108,10 +141,12 @@ pub fn _onTriggerEnterEvent(triggerActorIntPtr: basis.CppPtr, otherActorIntPtr: 
 }
 
 pub fn _onTriggerExitEvent(triggerActorIntPtr: basis.CppPtr, otherActorIntPtr: basis.CppPtr, otherActorType: u32, otherActorRemoved: bool) void {
-    gTriggerCallbackStateMutex.lock();
-    defer gTriggerCallbackStateMutex.unlock();
+    const g = getG();
 
-    const possibleEntry = gTriggerCallbackStates.get(triggerActorIntPtr);
+    g.mutex.lock(basis.g.io) catch @panic("Mutex Canceled");
+    defer g.mutex.unlock(basis.g.io);
+
+    const possibleEntry = g.callbackStates.get(triggerActorIntPtr);
 
     if (possibleEntry) |entry| {
         if (entry.exitCB) |cb| {
@@ -124,17 +159,6 @@ pub fn _onTriggerExitEvent(triggerActorIntPtr: basis.CppPtr, otherActorIntPtr: b
         }
     }
 }
-
-const TriggerCallbackState = struct {
-    enterCB: ?TriggerEnterCallback = null,
-    exitCB: ?TriggerExitCallback = null,
-};
-
-const CallbackStateMap = basis.HashMap(basis.CppPtr, TriggerCallbackState);
-
-var gTriggerCallbackStateMutex: std.Thread.Mutex = .{};
-var gTriggerCallbackStates: CallbackStateMap = undefined;
-var gTriggerCallbackStatesInitialized: bool = false;
 
 //----------------------------------------------------
 

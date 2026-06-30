@@ -1,5 +1,5 @@
 // ----------------------------------------------------
-// Copyright (c) 2018-2025 Madrigal Ltd.
+// Copyright (c) 2018-2026 Madrigal Ltd.
 // This file is part of the Basis modding SDK, and is subject to the
 // terms and conditions of the Basis modding SDK License Agreement.
 // https://www.madrigalgames.com
@@ -19,15 +19,29 @@ const ServerPtr = basis.host.ServerPtr;
 
 // Convenience functions for creating/destroying player controllers:
 
-pub fn createController(comptime T: type, allocator: Allocator, contextCppPtr: basis.bindings.InteropTypedPtr, hostID: i32) IntPtr {
-    var ctrlPtr: *T = allocator.create(T) catch unreachable;
+pub fn createController(
+    comptime T: type,
+    allocator: Allocator,
+    io: std.Io,
+    contextCppPtr: basis.bindings.InteropTypedPtr,
+    hostID: i32,
+) *PlayerControllerInterface {
+    var ctrlPtr: *T = allocator.create(T) catch @panic("OOM");
 
-    ctrlPtr.* = T.init(PlayerControllerInterface.make(T, ctrlPtr), allocator, contextCppPtr, hostID);
+    const typeNameHash = comptime basis.typeinfo.getNameHashFromType(T);
+
+    ctrlPtr.* = T.init(
+        PlayerControllerInterface.make(T, ctrlPtr, typeNameHash),
+        allocator,
+        io,
+        contextCppPtr,
+        hostID,
+    );
     if (@hasDecl(T, "postInit")) {
         ctrlPtr.postInit();
     }
 
-    return @intFromPtr(&ctrlPtr.interface);
+    return &ctrlPtr.interface;
 }
 
 pub fn destroyController(comptime T: type, allocator: Allocator, interfaceIntPtr: basis.IntPtr) void {
@@ -43,13 +57,16 @@ pub fn destroyController(comptime T: type, allocator: Allocator, interfaceIntPtr
 pub const PlayerControllerInterface = struct {
     const Self = @This();
 
-    object: IntPtr = undefined,
+    object: IntPtr = 0,
+    typeNameHash: u32 = 0,
     vTable: *const VirtualTable = undefined,
 
     const VirtualTable = struct {
         update: *const fn (*Self, f32) void,
         tick: *const fn (*Self, f32) void,
         onMessageReceived: *const fn (*Self, Message, StringHash, MessageParametersPtr) void,
+        beforeHotReload: *const fn (*Self) void,
+        afterHotReload: *const fn (*Self) void,
     };
 
     //----------------------------------------------------
@@ -73,42 +90,73 @@ pub const PlayerControllerInterface = struct {
         self.vTable.onMessageReceived(self, message, senderNameHash, parameters);
     }
 
+    pub fn beforeHotReload(self: *Self) void {
+        self.vTable.beforeHotReload(self);
+    }
+
+    pub fn afterHotReload(self: *Self) void {
+        self.vTable.afterHotReload(self);
+    }
+
     //----------------------------------------------------
 
-    pub fn make(comptime T: type, controllerPtr: *T) Self {
-        return Self{
+    pub fn make(comptime T: type, controllerPtr: *T, typeNameHash: u32) Self {
+        var self = Self{
             .object = @intFromPtr(controllerPtr),
-            .vTable = &.{
-                .update = struct {
-                    fn wrapCall(self: *Self, deltaTime: f32) void {
-                        if (@hasDecl(T, "update")) {
-                            var typedController = @as(*T, @ptrFromInt(self.object));
-                            typedController.update(deltaTime);
-                        }
+            .vTable = undefined,
+            .typeNameHash = typeNameHash,
+        };
+        self.setupVTable(T);
+        return self;
+    }
+
+    pub fn setupVTable(_self: *Self, comptime T: type) void {
+        _self.vTable = &.{
+            .update = struct {
+                fn wrapCall(self: *Self, deltaTime: f32) void {
+                    if (@hasDecl(T, "update")) {
+                        var typedController = @as(*T, @ptrFromInt(self.object));
+                        typedController.update(deltaTime);
                     }
-                }.wrapCall,
-                .tick = struct {
-                    fn wrapCall(self: *Self, tickDeltaTime: f32) void {
-                        if (@hasDecl(T, "tick")) {
-                            var typedController = @as(*T, @ptrFromInt(self.object));
-                            typedController.tick(tickDeltaTime);
-                        }
+                }
+            }.wrapCall,
+            .tick = struct {
+                fn wrapCall(self: *Self, tickDeltaTime: f32) void {
+                    if (@hasDecl(T, "tick")) {
+                        var typedController = @as(*T, @ptrFromInt(self.object));
+                        typedController.tick(tickDeltaTime);
                     }
-                }.wrapCall,
-                .onMessageReceived = struct {
-                    fn wrapCall(
-                        self: *Self,
-                        message: Message,
-                        senderNameHash: StringHash,
-                        parameters: MessageParametersPtr,
-                    ) void {
-                        if (@hasDecl(T, "onMessageReceived")) {
-                            var typedController = @as(*T, @ptrFromInt(self.object));
-                            typedController.onMessageReceived(message, senderNameHash, parameters);
-                        }
+                }
+            }.wrapCall,
+            .onMessageReceived = struct {
+                fn wrapCall(
+                    self: *Self,
+                    message: Message,
+                    senderNameHash: StringHash,
+                    parameters: MessageParametersPtr,
+                ) void {
+                    if (@hasDecl(T, "onMessageReceived")) {
+                        var typedController = @as(*T, @ptrFromInt(self.object));
+                        typedController.onMessageReceived(message, senderNameHash, parameters);
                     }
-                }.wrapCall,
-            },
+                }
+            }.wrapCall,
+            .beforeHotReload = struct {
+                fn wrapCall(self: *Self) void {
+                    if (@hasDecl(T, "beforeHotReload")) {
+                        var typedController = @as(*T, @ptrFromInt(self.object));
+                        typedController.beforeHotReload();
+                    }
+                }
+            }.wrapCall,
+            .afterHotReload = struct {
+                fn wrapCall(self: *Self) void {
+                    if (@hasDecl(T, "afterHotReload")) {
+                        var typedController = @as(*T, @ptrFromInt(self.object));
+                        typedController.afterHotReload();
+                    }
+                }
+            }.wrapCall,
         };
     }
 };
@@ -118,11 +166,13 @@ pub const ClientPlayerController = struct {
 
     cppPtr: basis.bindings.InteropTypedPtr,
     allocator: Allocator,
+    io: std.Io,
 
-    pub fn init(cppPtr: basis.bindings.InteropTypedPtr, allocator: Allocator) ClientPlayerController {
+    pub fn init(cppPtr: basis.bindings.InteropTypedPtr, allocator: Allocator, io: std.Io) ClientPlayerController {
         return ClientPlayerController{
             .cppPtr = cppPtr,
             .allocator = allocator,
+            .io = io,
         };
     }
 
@@ -132,6 +182,7 @@ pub const ClientPlayerController = struct {
         return ClientPtr{
             .cppPtr = basis.bindings.api.PlayerController_getClient(self.cppPtr),
             .allocator = self.allocator,
+            .io = self.io,
         };
     }
 
@@ -172,11 +223,13 @@ pub const ServerPlayerController = struct {
 
     cppPtr: basis.bindings.InteropTypedPtr,
     allocator: Allocator,
+    io: std.Io,
 
-    pub fn init(cppPtr: basis.bindings.InteropTypedPtr, allocator: Allocator) ServerPlayerController {
+    pub fn init(cppPtr: basis.bindings.InteropTypedPtr, allocator: Allocator, io: std.Io) ServerPlayerController {
         return ServerPlayerController{
             .cppPtr = cppPtr,
             .allocator = allocator,
+            .io = io,
         };
     }
 
@@ -186,6 +239,7 @@ pub const ServerPlayerController = struct {
         return ServerPtr{
             .cppPtr = basis.bindings.api.PlayerController_getServer(self.cppPtr),
             .allocator = self.allocator,
+            .io = self.io,
         };
     }
 

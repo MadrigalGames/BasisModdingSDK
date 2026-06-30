@@ -1,5 +1,5 @@
 // ----------------------------------------------------
-// Copyright (c) 2018-2025 Madrigal Ltd.
+// Copyright (c) 2018-2026 Madrigal Ltd.
 // This file is part of the Basis modding SDK, and is subject to the
 // terms and conditions of the Basis modding SDK License Agreement.
 // https://www.madrigalgames.com
@@ -158,15 +158,17 @@ pub const GameStatePtr = struct {
         basis.bindings.api.GameState_broadcastScriptMessage(self.cppPtr, sender.cppPtr, &interopMessage);
     }
 
-    // We probably want this too, but how do we pass the receiver? Maybe as a string of the name?
-    // We don't want to make the sender have a GameObjectPtr to the sender at hand. That would be
-    // silly. Maybe by the time you read this we have a GameObjectRef-like type in Zig?
-    // pub fn sendScriptMessageToGameObject(self: *const Self, sender: GameObjectPtr, receiver: []const u8, message: []const u8) void {
-    //     _ = message;
-    //     _ = receiver;
-    //     _ = sender;
-    //     _ = self;
-    // }
+    pub fn sendScriptMessageToGameObject(self: *const Self, sender: GameObjectPtr, receiver: basis.game_object.GameObjectRef, message: []const u8) void {
+        const interopReceiverName = basis.string.toInteropString(receiver.str());
+        const interopMessage = basis.string.toInteropString(message);
+        basis.bindings.api.GameState_sendScriptMessageToGameObject(self.cppPtr, sender.cppPtr, &interopReceiverName, &interopMessage);
+    }
+
+    pub fn sendScriptMessageToGameObjectWithName(self: *const Self, sender: GameObjectPtr, receiverName: []const u8, message: []const u8) void {
+        const interopReceiverName = basis.string.toInteropString(receiverName);
+        const interopMessage = basis.string.toInteropString(message);
+        basis.bindings.api.GameState_sendScriptMessageToGameObject(self.cppPtr, sender.cppPtr, &interopReceiverName, &interopMessage);
+    }
 
     pub fn generateGameObjectName(self: *const Self, prefix: []const u8, randomPartLength: i32) []const u8 {
         const interopPrefix = basis.string.toInteropString(prefix);

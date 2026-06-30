@@ -1,5 +1,5 @@
 // ----------------------------------------------------
-// Copyright (c) 2018-2025 Madrigal Ltd.
+// Copyright (c) 2018-2026 Madrigal Ltd.
 // This file is part of the Basis SDK, and is subject to the
 // terms and conditions of the Basis SDK License Agreement.
 // https://www.madrigalgames.com
@@ -12,13 +12,14 @@ const trampoline = @import("../trampoline.zig");
 
 // class Localization
 
-pub const basis_zig_Localization_isValidLocalizationKey_cb = *const fn ([*c]const basis.bindings.InteropString) callconv(.c) bool;
+pub const basis_zig_Localization_isValidLocalizationKey_cb = *const fn ([*c]const basis.bindings.InteropString) callconv(.c) c_int;
 pub const basis_zig_Localization_getLocalizedStringByName_cb = *const fn ([*c]const basis.bindings.InteropString, [*c]basis.bindings.InteropString) callconv(.c) void;
 pub const basis_zig_Localization_getLocalizedStringByNameWithParams1_cb = *const fn ([*c]const basis.bindings.InteropString, [*c]const basis.bindings.InteropString, [*c]basis.bindings.InteropString) callconv(.c) void;
 pub const basis_zig_Localization_getLocalizedStringByNameWithParams2_cb = *const fn ([*c]const basis.bindings.InteropString, [*c]const basis.bindings.InteropString, [*c]const basis.bindings.InteropString, [*c]basis.bindings.InteropString) callconv(.c) void;
 pub const basis_zig_Localization_getLocalizedStringByNameWithParams3_cb = *const fn ([*c]const basis.bindings.InteropString, [*c]const basis.bindings.InteropString, [*c]const basis.bindings.InteropString, [*c]const basis.bindings.InteropString, [*c]basis.bindings.InteropString) callconv(.c) void;
 pub const basis_zig_Localization_getLocalizedVec2ByName_cb = *const fn ([*c]const basis.bindings.InteropString, [*c]basis.bindings.InteropVec2) callconv(.c) void;
 pub const basis_zig_Localization_setUILanguage_cb = *const fn (c_int) callconv(.c) void;
+pub const basis_zig_Localization_getUILanguage_cb = *const fn () callconv(.c) c_int;
 
 // ===============================
 

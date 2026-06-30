@@ -1,5 +1,5 @@
 // ----------------------------------------------------
-// Copyright (c) 2018-2025 Madrigal Ltd.
+// Copyright (c) 2018-2026 Madrigal Ltd.
 // This file is part of the Basis SDK, and is subject to the
 // terms and conditions of the Basis SDK License Agreement.
 // https://www.madrigalgames.com
@@ -19,7 +19,7 @@ pub const UICanvasPtr = struct {
     pub fn initNull() Self {
         return Self{
             .cppPtr = 0,
-            .base = goofy.UIWidgetPtr.initNull(),
+            .base = .Null,
         };
     }
 
@@ -30,10 +30,14 @@ pub const UICanvasPtr = struct {
         ) };
     }
 
+    pub fn isNull(self: *const Self) bool {
+        return self.cppPtr == 0;
+    }
+
     //----------------------------------------------------
 
     pub fn setRenderCallback(self: *const Self, callback: RenderCallback) void {
-        addRenderCallback(self.cppPtr, callback);
+        setRenderCallbackInternal(self.cppPtr, callback);
         goofy.bindings.api.GoofyUICanvas_setRenderCallbackEnabled(self.cppPtr, 1);
     }
 
@@ -57,30 +61,24 @@ pub const RenderCallback = basis.delegate.VoidDelegate4(
 
 const CallbackMap = std.AutoArrayHashMap(basis.CppPtr, RenderCallback);
 
-var gCallbackAllocator: std.mem.Allocator = undefined;
-var gCallbackMap: *CallbackMap = undefined;
+pub const GlobalData = struct {
+    callbackMap: CallbackMap = undefined,
+};
 
-// Init the map of callbacks. Called from goofy.init().
-pub fn initCallbackMap(allocator: std.mem.Allocator) void {
-    gCallbackAllocator = allocator;
-
-    gCallbackMap = gCallbackAllocator.create(CallbackMap) catch unreachable;
-    gCallbackMap.* = CallbackMap.init(gCallbackAllocator);
+pub fn init() void {
+    goofy.g.canvas.callbackMap = .init(goofy.g.allocator);
 }
 
-// Deinit the map of callbacks. Called from goofy.deinit().
-pub fn deinitCallbackMap() void {
-    gCallbackMap.deinit();
-    gCallbackAllocator.destroy(gCallbackMap);
+pub fn deinit() void {
+    goofy.g.canvas.callbackMap.deinit();
 }
 
-// Add a new callback. Called from UICanvasPtr.setRenderCallback().
-fn addRenderCallback(
+// Called from UICanvasPtr.setRenderCallback().
+fn setRenderCallbackInternal(
     canvasCppPtr: basis.CppPtr,
     callback: RenderCallback,
 ) void {
-    const gop = gCallbackMap.getOrPut(canvasCppPtr) catch unreachable;
-    basis.assertd(@src(), !gop.found_existing, "UICanvas render callback already registered.");
+    const gop = goofy.g.canvas.callbackMap.getOrPut(canvasCppPtr) catch unreachable;
     gop.value_ptr.* = callback;
 }
 
@@ -90,8 +88,8 @@ pub fn runRenderCallback(
     canvas_cpp_ptr: basis.CppPtr,
     pixel_pos: *const basis.bindings.InteropVec2,
     pixel_size: *const basis.bindings.InteropVec2,
-) callconv(.c) void {
-    if (gCallbackMap.get(canvas_cpp_ptr)) |cb| {
+) void {
+    if (goofy.g.canvas.callbackMap.get(canvas_cpp_ptr)) |cb| {
         const pixel_rect = basis.math.AABB2D.init(
             render_ctxt.pixelRectMinX,
             render_ctxt.pixelRectMinY,
@@ -114,5 +112,5 @@ pub fn runRenderCallback(
 
 // Remove a render callback. Called from the C++ side when the canvas is destroyed.
 pub fn removeRenderCallback(canvas_cpp_ptr: basis.CppPtr) void {
-    _ = gCallbackMap.orderedRemove(canvas_cpp_ptr);
+    _ = goofy.g.canvas.callbackMap.orderedRemove(canvas_cpp_ptr);
 }

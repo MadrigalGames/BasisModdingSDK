@@ -1,5 +1,5 @@
 // ----------------------------------------------------
-// Copyright (c) 2018-2025 Madrigal Ltd.
+// Copyright (c) 2018-2026 Madrigal Ltd.
 // This file is part of the Basis modding SDK, and is subject to the
 // terms and conditions of the Basis modding SDK License Agreement.
 // https://www.madrigalgames.com
@@ -173,5 +173,21 @@ pub const GameObjectPtr = struct {
             .cppPtr = cppPtr,
             .ownsMemory = false,
         };
+    }
+
+    /// Fills outIDs with the obstacle IDs of every NavMeshObstacleComponent on this
+    /// object for the given nav mesh. Returns the IDs written.
+    pub fn getNavMeshObstacleIDs(
+        self: *const Self,
+        navMeshID: basis.navmesh_runtime.NavMeshID,
+        outIDs: []basis.navmesh_runtime.NavMeshObstacleID,
+    ) []basis.navmesh_runtime.NavMeshObstacleID {
+        const count = basis.bindings.api.GameObject_getNavMeshObstacleIDs(
+            self.cppPtr,
+            @intFromEnum(navMeshID),
+            outIDs.ptr,
+            @intCast(outIDs.len),
+        );
+        return outIDs[0..count];
     }
 };

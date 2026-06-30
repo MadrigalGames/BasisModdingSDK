@@ -1,5 +1,5 @@
 // ----------------------------------------------------
-// Copyright (c) 2018-2025 Madrigal Ltd.
+// Copyright (c) 2018-2026 Madrigal Ltd.
 // This file is part of the Basis modding SDK, and is subject to the
 // terms and conditions of the Basis modding SDK License Agreement.
 // https://www.madrigalgames.com
@@ -189,6 +189,17 @@ pub const Timeline = struct {
         self.state = .Setup;
     }
 
+    pub fn beforeHotReload(self: *Self) void {
+        _ = self; // autofix
+        // TODO: Add beforeHotReload() to the event interface type and call it here on all event interfaces.
+    }
+
+    pub fn afterHotReload(self: *Self, comptime SupportedEventTypes: []const type) void {
+        self.fixupActionVTables(SupportedEventTypes);
+
+        // TODO: Add afterHotReload() to the event interface type and call it here on all event interfaces.
+    }
+
     //----------------------------------------------------
 
     /// Call this to update the timeline. Set drivePlayback to true if you want
@@ -266,6 +277,16 @@ pub const Timeline = struct {
     }
 
     //----------------------------------------------------
+
+    fn fixupActionVTables(self: *Self, comptime SupportedEventTypes: []const type) void {
+        for (self.events.items) |*e| {
+            inline for (SupportedEventTypes) |T| {
+                if (e.interface.typeNameHash == T.NameHash) {
+                    e.interface.setupVTable(T.Type);
+                }
+            }
+        }
+    }
 
     fn compareEventDatasForSorting(context: void, a: EventData, b: EventData) bool {
         _ = context;

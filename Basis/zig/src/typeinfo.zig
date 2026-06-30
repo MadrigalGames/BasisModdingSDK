@@ -1,5 +1,5 @@
 // ----------------------------------------------------
-// Copyright (c) 2018-2025 Madrigal Ltd.
+// Copyright (c) 2018-2026 Madrigal Ltd.
 // This file is part of the Basis modding SDK, and is subject to the
 // terms and conditions of the Basis modding SDK License Agreement.
 // https://www.madrigalgames.com
@@ -99,4 +99,38 @@ pub fn getResourceTypeID(comptime T: type) ResourceTypeID {
 
         else => return ResourceTypeID.Unknown,
     }
+}
+
+// Utilities for getting the a type by index or index by type, given a list of types.
+pub const IndexedTypeList = struct {
+    pub fn getTypeFromIndex(comptime List: []const type, index: usize) type {
+        inline for (List, 0..) |Type, i| {
+            if (index == i) {
+                return Type;
+            }
+        }
+
+        @compileError("Could not find type with the given index.");
+    }
+
+    pub fn getIndexFromType(comptime List: []const type, comptime T: type) usize {
+        inline for (List, 0..) |Type, i| {
+            if (Type == T) {
+                return i;
+            }
+        }
+
+        @compileError("Could not find index of given type.");
+    }
+};
+
+pub fn TypeWithNameHash(comptime T: type) type {
+    return struct {
+        pub const Type = T;
+        pub const NameHash = getNameHashFromType(T);
+    };
+}
+
+pub fn getNameHashFromType(comptime T: type) u32 {
+    return std.hash.Adler32.hash(@typeName(T));
 }

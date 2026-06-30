@@ -1,5 +1,5 @@
 // ----------------------------------------------------
-// Copyright (c) 2018-2025 Madrigal Ltd.
+// Copyright (c) 2018-2026 Madrigal Ltd.
 // This file is part of the Basis SDK, and is subject to the
 // terms and conditions of the Basis SDK License Agreement.
 // https://www.madrigalgames.com
@@ -28,12 +28,12 @@ pub const InteropUIRenderContext = extern struct {
 };
 
 pub const InteropPaint = extern struct {
-    xform: [6]f32, // = [_]f32{0.0} ** 6,
-    extent: [2]f32, // = [_]f32{0.0} ** 2,
+    xform: [6]f32, // = @splat(0.0),
+    extent: [2]f32, // = @splat(0.0),
     radius: f32, // = 0.0,
     feather: f32, // = 0.0,
-    innerColor: [4]f32, // = [_]f32{0.0} ** 4,
-    outerColor: [4]f32, // = [_]f32{0.0} ** 4,
+    innerColor: [4]f32, // = @splat(0.0),
+    outerColor: [4]f32, // = @splat(0.0),
     image: i32, // = 0,
 };
 

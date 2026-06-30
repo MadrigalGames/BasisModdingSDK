@@ -1,5 +1,5 @@
 // ----------------------------------------------------
-// Copyright (c) 2018-2025 Madrigal Ltd.
+// Copyright (c) 2018-2026 Madrigal Ltd.
 // This file is part of the Basis SDK, and is subject to the
 // terms and conditions of the Basis SDK License Agreement.
 // https://www.madrigalgames.com
@@ -37,6 +37,14 @@ pub const EventDescriptionPtr = struct {
         const cppPtr = timbre.bindings.api.EventDescription_createInstance(
             self.cppPtr,
             if (autoPause) 1 else 0,
+        );
+        return timbre.EventInstancePtr.initFromCppPtr(cppPtr);
+    }
+
+    pub fn createInstanceWithAutoPauseTickLevel(self: *const Self, autoPauseTickLevel: basis.game_session.TickLevel) timbre.EventInstancePtr {
+        const cppPtr = timbre.bindings.api.EventDescription_createInstanceWithAutoPauseTickLevel(
+            self.cppPtr,
+            @intCast(@intFromEnum(autoPauseTickLevel)),
         );
         return timbre.EventInstancePtr.initFromCppPtr(cppPtr);
     }

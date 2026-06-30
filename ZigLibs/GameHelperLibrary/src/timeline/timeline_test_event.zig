@@ -1,5 +1,5 @@
 // ----------------------------------------------------
-// Copyright (c) 2018-2025 Madrigal Ltd.
+// Copyright (c) 2018-2026 Madrigal Ltd.
 // This file is part of the Basis modding SDK, and is subject to the
 // terms and conditions of the Basis modding SDK License Agreement.
 // https://www.madrigalgames.com
@@ -21,14 +21,21 @@ pub const TimelineTestEvent = struct {
 
     //----------------------------------------------------
 
-    pub fn init(allocator: Allocator, startTime: f32, duration: f32, onClient: bool) !ghl.TimelineEventInterface {
+    pub fn init(
+        allocator: Allocator,
+        startTime: f32,
+        duration: f32,
+        onClient: bool,
+    ) !ghl.TimelineEventInterface {
         const evt = try allocator.create(Self);
         evt.* = Self{
             .allocator = allocator,
             .eventData = ghl.TimelineEventData.init(startTime, duration, onClient),
         };
 
-        return ghl.TimelineEventInterface.make(Self, evt);
+        const typeNameHash = comptime basis.typeinfo.getNameHashFromType(Self);
+
+        return ghl.TimelineEventInterface.make(Self, evt, typeNameHash);
     }
 
     pub fn destroy(self: *Self) void {

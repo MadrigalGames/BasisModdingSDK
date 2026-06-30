@@ -1,5 +1,5 @@
 // ----------------------------------------------------
-// Copyright (c) 2018-2025 Madrigal Ltd.
+// Copyright (c) 2018-2026 Madrigal Ltd.
 // This file is part of the Basis modding SDK, and is subject to the
 // terms and conditions of the Basis modding SDK License Agreement.
 // https://www.madrigalgames.com
@@ -15,9 +15,6 @@ const ConfigOptionsPtr = basis.config_options.ConfigOptionsPtr;
 // A polymorphic interface for Apps.
 pub const AppInterface = struct {
     const Self = @This();
-
-    object: basis.IntPtr = undefined,
-    vTable: *const VirtualTable = undefined,
 
     const VirtualTable = struct {
         deinit: *const fn (*Self) void,
@@ -49,7 +46,10 @@ pub const AppInterface = struct {
 
     //----------------------------------------------------
 
-    // Note that we have to supply "self" as the first parameter here manually.
+    object: basis.IntPtr = 0,
+    vTable: *const VirtualTable = undefined,
+
+    //----------------------------------------------------
 
     pub fn deinit(self: *Self) void {
         self.vTable.deinit(self);
@@ -126,146 +126,152 @@ pub const AppInterface = struct {
     //----------------------------------------------------
 
     pub fn make(comptime T: type, appPtr: *T) Self {
-        return Self{
+        var self = Self{
             .object = @intFromPtr(appPtr),
-            .vTable = &.{
-                .deinit = struct {
-                    fn wrapCall(self: *Self) void {
+            .vTable = undefined,
+        };
+        self.setupVTable(T);
+        return self;
+    }
+
+    pub fn setupVTable(_self: *Self, comptime T: type) void {
+        _self.vTable = &.{
+            .deinit = struct {
+                fn wrapCall(self: *Self) void {
+                    var typedApp = @as(*T, @ptrFromInt(self.object));
+                    typedApp.deinit();
+                }
+            }.wrapCall,
+            .onAppStartup = struct {
+                fn wrapCall(self: *Self) void {
+                    if (@hasDecl(T, "onAppStartup")) {
                         var typedApp = @as(*T, @ptrFromInt(self.object));
-                        typedApp.deinit();
+                        typedApp.onAppStartup() catch |err| {
+                            basis.fatalErrorWithFormat(@src(), "Error in onAppStartup(): {s}", .{@errorName(err)});
+                        };
                     }
-                }.wrapCall,
-                .onAppStartup = struct {
-                    fn wrapCall(self: *Self) void {
-                        if (@hasDecl(T, "onAppStartup")) {
-                            var typedApp = @as(*T, @ptrFromInt(self.object));
-                            typedApp.onAppStartup() catch |err| {
-                                basis.fatalErrorWithFormat(@src(), "Error in onAppStartup(): {s}", .{@errorName(err)});
-                            };
-                        }
-                    }
-                }.wrapCall,
-                .beforeAppShutdown = struct {
-                    fn wrapCall(self: *Self) void {
-                        if (@hasDecl(T, "beforeAppShutdown")) {
-                            var typedApp = @as(*T, @ptrFromInt(self.object));
-                            typedApp.beforeAppShutdown();
-                        }
-                    }
-                }.wrapCall,
-                .onServerCreated = struct {
-                    fn wrapCall(self: *Self) void {
-                        if (@hasDecl(T, "onServerCreated")) {
-                            var typedApp = @as(*T, @ptrFromInt(self.object));
-                            typedApp.onServerCreated() catch |err| {
-                                basis.fatalErrorWithFormat(@src(), "Error in onServerCreated(): {s}", .{@errorName(err)});
-                            };
-                        }
-                    }
-                }.wrapCall,
-                .beforeServerDestroyed = struct {
-                    fn wrapCall(self: *Self) void {
-                        if (@hasDecl(T, "beforeServerDestroyed")) {
-                            var typedApp = @as(*T, @ptrFromInt(self.object));
-                            typedApp.beforeServerDestroyed();
-                        }
-                    }
-                }.wrapCall,
-                .initClientGameFlow = struct {
-                    fn wrapCall(self: *Self) void {
-                        if (@hasDecl(T, "initClientGameFlow")) {
-                            var typedApp = @as(*T, @ptrFromInt(self.object));
-                            typedApp.initClientGameFlow();
-                        }
-                    }
-                }.wrapCall,
-                .initServerGameFlow = struct {
-                    fn wrapCall(self: *Self) void {
-                        if (@hasDecl(T, "initServerGameFlow")) {
-                            var typedApp = @as(*T, @ptrFromInt(self.object));
-                            typedApp.initServerGameFlow();
-                        }
-                    }
-                }.wrapCall,
-                .setInputMappings = struct {
-                    fn wrapCall(self: *Self) void {
+                }
+            }.wrapCall,
+            .beforeAppShutdown = struct {
+                fn wrapCall(self: *Self) void {
+                    if (@hasDecl(T, "beforeAppShutdown")) {
                         var typedApp = @as(*T, @ptrFromInt(self.object));
-                        typedApp.setInputMappings();
+                        typedApp.beforeAppShutdown();
                     }
-                }.wrapCall,
-                .createClientPlayerController = struct {
-                    fn wrapCall(self: *Self, contextCppPtr: basis.bindings.InteropTypedPtr, hostID: i32) basis.IntPtr {
+                }
+            }.wrapCall,
+            .onServerCreated = struct {
+                fn wrapCall(self: *Self) void {
+                    if (@hasDecl(T, "onServerCreated")) {
                         var typedApp = @as(*T, @ptrFromInt(self.object));
-                        return typedApp.createClientPlayerController(contextCppPtr, hostID);
+                        typedApp.onServerCreated() catch |err| {
+                            basis.fatalErrorWithFormat(@src(), "Error in onServerCreated(): {s}", .{@errorName(err)});
+                        };
                     }
-                }.wrapCall,
-                .destroyClientPlayerController = struct {
-                    fn wrapCall(self: *Self, interfaceIntPtr: basis.IntPtr) void {
+                }
+            }.wrapCall,
+            .beforeServerDestroyed = struct {
+                fn wrapCall(self: *Self) void {
+                    if (@hasDecl(T, "beforeServerDestroyed")) {
                         var typedApp = @as(*T, @ptrFromInt(self.object));
-                        typedApp.destroyClientPlayerController(interfaceIntPtr);
+                        typedApp.beforeServerDestroyed();
                     }
-                }.wrapCall,
-                .createServerPlayerController = struct {
-                    fn wrapCall(self: *Self, contextCppPtr: basis.bindings.InteropTypedPtr, hostID: i32) basis.IntPtr {
+                }
+            }.wrapCall,
+            .initClientGameFlow = struct {
+                fn wrapCall(self: *Self) void {
+                    if (@hasDecl(T, "initClientGameFlow")) {
                         var typedApp = @as(*T, @ptrFromInt(self.object));
-                        return typedApp.createServerPlayerController(contextCppPtr, hostID);
+                        typedApp.initClientGameFlow();
                     }
-                }.wrapCall,
-                .destroyServerPlayerController = struct {
-                    fn wrapCall(self: *Self, interfaceIntPtr: basis.IntPtr) void {
+                }
+            }.wrapCall,
+            .initServerGameFlow = struct {
+                fn wrapCall(self: *Self) void {
+                    if (@hasDecl(T, "initServerGameFlow")) {
                         var typedApp = @as(*T, @ptrFromInt(self.object));
-                        typedApp.destroyServerPlayerController(interfaceIntPtr);
+                        typedApp.initServerGameFlow();
                     }
-                }.wrapCall,
-                .onClientUpdate = struct {
-                    fn wrapCall(self: *Self, deltaTime: f32) void {
-                        if (@hasDecl(T, "onClientUpdate")) {
-                            var typedApp = @as(*T, @ptrFromInt(self.object));
-                            typedApp.onClientUpdate(deltaTime);
-                        }
+                }
+            }.wrapCall,
+            .setInputMappings = struct {
+                fn wrapCall(self: *Self) void {
+                    var typedApp = @as(*T, @ptrFromInt(self.object));
+                    typedApp.setInputMappings();
+                }
+            }.wrapCall,
+            .createClientPlayerController = struct {
+                fn wrapCall(self: *Self, contextCppPtr: basis.bindings.InteropTypedPtr, hostID: i32) basis.IntPtr {
+                    var typedApp = @as(*T, @ptrFromInt(self.object));
+                    return typedApp.createClientPlayerController(contextCppPtr, hostID);
+                }
+            }.wrapCall,
+            .destroyClientPlayerController = struct {
+                fn wrapCall(self: *Self, interfaceIntPtr: basis.IntPtr) void {
+                    var typedApp = @as(*T, @ptrFromInt(self.object));
+                    typedApp.destroyClientPlayerController(interfaceIntPtr);
+                }
+            }.wrapCall,
+            .createServerPlayerController = struct {
+                fn wrapCall(self: *Self, contextCppPtr: basis.bindings.InteropTypedPtr, hostID: i32) basis.IntPtr {
+                    var typedApp = @as(*T, @ptrFromInt(self.object));
+                    return typedApp.createServerPlayerController(contextCppPtr, hostID);
+                }
+            }.wrapCall,
+            .destroyServerPlayerController = struct {
+                fn wrapCall(self: *Self, interfaceIntPtr: basis.IntPtr) void {
+                    var typedApp = @as(*T, @ptrFromInt(self.object));
+                    typedApp.destroyServerPlayerController(interfaceIntPtr);
+                }
+            }.wrapCall,
+            .onClientUpdate = struct {
+                fn wrapCall(self: *Self, deltaTime: f32) void {
+                    if (@hasDecl(T, "onClientUpdate")) {
+                        var typedApp = @as(*T, @ptrFromInt(self.object));
+                        typedApp.onClientUpdate(deltaTime);
                     }
-                }.wrapCall,
-                .onServerUpdate = struct {
-                    fn wrapCall(self: *Self, deltaTime: f32) void {
-                        if (@hasDecl(T, "onServerUpdate")) {
-                            var typedApp = @as(*T, @ptrFromInt(self.object));
-                            typedApp.onServerUpdate(deltaTime);
-                        }
+                }
+            }.wrapCall,
+            .onServerUpdate = struct {
+                fn wrapCall(self: *Self, deltaTime: f32) void {
+                    if (@hasDecl(T, "onServerUpdate")) {
+                        var typedApp = @as(*T, @ptrFromInt(self.object));
+                        typedApp.onServerUpdate(deltaTime);
                     }
-                }.wrapCall,
-                .onClientTick = struct {
-                    fn wrapCall(self: *Self, tickDeltaTime: f32) void {
-                        if (@hasDecl(T, "onClientTick")) {
-                            var typedApp = @as(*T, @ptrFromInt(self.object));
-                            typedApp.onClientTick(tickDeltaTime);
-                        }
+                }
+            }.wrapCall,
+            .onClientTick = struct {
+                fn wrapCall(self: *Self, tickDeltaTime: f32) void {
+                    if (@hasDecl(T, "onClientTick")) {
+                        var typedApp = @as(*T, @ptrFromInt(self.object));
+                        typedApp.onClientTick(tickDeltaTime);
                     }
-                }.wrapCall,
-                .onServerTick = struct {
-                    fn wrapCall(self: *Self, tickDeltaTime: f32) void {
-                        if (@hasDecl(T, "onServerTick")) {
-                            var typedApp = @as(*T, @ptrFromInt(self.object));
-                            typedApp.onServerTick(tickDeltaTime);
-                        }
+                }
+            }.wrapCall,
+            .onServerTick = struct {
+                fn wrapCall(self: *Self, tickDeltaTime: f32) void {
+                    if (@hasDecl(T, "onServerTick")) {
+                        var typedApp = @as(*T, @ptrFromInt(self.object));
+                        typedApp.onServerTick(tickDeltaTime);
                     }
-                }.wrapCall,
-                .registerAngelScriptTypes = struct {
-                    fn wrapCall(self: *Self, reg: ASTypeReg) void {
-                        if (@hasDecl(T, "registerAngelScriptTypes")) {
-                            var typedApp = @as(*T, @ptrFromInt(self.object));
-                            typedApp.registerAngelScriptTypes(reg);
-                        }
+                }
+            }.wrapCall,
+            .registerAngelScriptTypes = struct {
+                fn wrapCall(self: *Self, reg: ASTypeReg) void {
+                    if (@hasDecl(T, "registerAngelScriptTypes")) {
+                        var typedApp = @as(*T, @ptrFromInt(self.object));
+                        typedApp.registerAngelScriptTypes(reg);
                     }
-                }.wrapCall,
-                .setDefaultConfigOptions = struct {
-                    fn wrapCall(self: *Self, configOptions: ConfigOptionsPtr) void {
-                        if (@hasDecl(T, "setDefaultConfigOptions")) {
-                            var typedApp = @as(*T, @ptrFromInt(self.object));
-                            typedApp.setDefaultConfigOptions(configOptions);
-                        }
+                }
+            }.wrapCall,
+            .setDefaultConfigOptions = struct {
+                fn wrapCall(self: *Self, configOptions: ConfigOptionsPtr) void {
+                    if (@hasDecl(T, "setDefaultConfigOptions")) {
+                        var typedApp = @as(*T, @ptrFromInt(self.object));
+                        typedApp.setDefaultConfigOptions(configOptions);
                     }
-                }.wrapCall,
-            },
+                }
+            }.wrapCall,
         };
     }
 };

@@ -1,5 +1,5 @@
 // ----------------------------------------------------
-// Copyright (c) 2018-2025 Madrigal Ltd.
+// Copyright (c) 2018-2026 Madrigal Ltd.
 // This file is part of the Basis modding SDK, and is subject to the
 // terms and conditions of the Basis modding SDK License Agreement.
 // https://www.madrigalgames.com
@@ -17,10 +17,6 @@ const VehicleGear = basis.physics.vehicles.VehicleGear;
 const VehicleInputData = basis.physics.vehicles.VehicleInputData;
 const VehicleStateInfo = basis.physics.vehicles.VehicleStateInfo;
 
-// const HotValue<float> gForwardReverseSwitchTime("Auto gear shifter", "Forward/reverse switch time.", 0.1f, 0.2f, 10.0f);
-// const HotValue<float> gForwardReverseStationaryTime("Auto gear shifter", "Forward/reverse stationary time.", 0.1f, 0.1f, 10.0f);
-// const HotValue<float> gForwardReverseSwitchMaxSpeed("Auto gear shifter", "Forward/reverse switch max speed (m/s).", 0.1f, 2.0f, 10.0f);
-
 const gForwardReverseSwitchTime = 0.2;
 const gForwardToReverseStationaryTime = 0.6;
 const gReverseToForwardStationaryTime = 0.5;
@@ -29,8 +25,8 @@ const gForwardReverseSwitchMaxSpeed = 2.0;
 pub const AutoGearBoxParams = struct {
     const Self = @This();
 
-    const MaxGearCount = 6;
-    const MaxCurvePointCount = 8;
+    pub const MaxGearCount = 6;
+    pub const MaxCurvePointCount = 8;
 
     pub const ShiftCurve = basis.BoundedArray(Vec2, MaxCurvePointCount);
 
@@ -41,8 +37,8 @@ pub const AutoGearBoxParams = struct {
 
     //----------------------------------------------------
 
-    shiftUpCurves: ShiftCurveList = undefined,
-    shiftDownCurves: ShiftCurveList = undefined,
+    shiftUpCurves: ShiftCurveList = .{},
+    shiftDownCurves: ShiftCurveList = .{},
     gearCount: u32 = 0,
     minTimeBetweenGearChanges: f32 = 0.4,
 
@@ -52,31 +48,52 @@ pub const AutoGearBoxParams = struct {
         self.gearCount = stream.getInt(u32);
         self.minTimeBetweenGearChanges = stream.getFloat();
 
-        {
-            var i: usize = 0;
-            while (i < self.gearCount - 1) : (i += 1) {
-                const pointCount = stream.getInt(u32);
-                var c: *ShiftCurve = self.shiftUpCurves.addOneAssumeCapacity();
+        // Reset back to zero.
+        self.shiftUpCurves = .{};
+        self.shiftDownCurves = .{};
 
-                var p: usize = 0;
-                while (p < pointCount) : (p += 1) {
-                    const point: *Vec2 = c.addOneAssumeCapacity();
-                    point.* = stream.get(Vec2);
-                }
+        for (0..self.gearCount - 1) |_| {
+            const pointCount = stream.getInt(u32);
+            var c: *ShiftCurve = self.shiftUpCurves.addOneAssumeCapacity();
+
+            for (0..pointCount) |_| {
+                const point: *Vec2 = c.addOneAssumeCapacity();
+                point.* = stream.get(Vec2);
             }
         }
 
-        {
-            var i: usize = 0;
-            while (i < self.gearCount - 1) : (i += 1) {
-                const pointCount = stream.getInt(u32);
-                var c: *ShiftCurve = self.shiftDownCurves.addOneAssumeCapacity();
+        for (0..self.gearCount - 1) |_| {
+            const pointCount = stream.getInt(u32);
+            var c: *ShiftCurve = self.shiftDownCurves.addOneAssumeCapacity();
 
-                var p: usize = 0;
-                while (p < pointCount) : (p += 1) {
-                    const point: *Vec2 = c.addOneAssumeCapacity();
-                    point.* = stream.get(Vec2);
-                }
+            for (0..pointCount) |_| {
+                const point: *Vec2 = c.addOneAssumeCapacity();
+                point.* = stream.get(Vec2);
+            }
+        }
+    }
+
+    pub fn serialize(self: *const Self, stream: *basis.BinaryWriteStream) void {
+        stream.putInt(u32, self.gearCount);
+        stream.putFloat(self.minTimeBetweenGearChanges);
+
+        for (0..self.gearCount - 1) |i| {
+            const curve = self.shiftUpCurves.constSlice()[i];
+            const pointCount = curve.len;
+            stream.putInt(u32, @intCast(pointCount));
+
+            for (0..pointCount) |p| {
+                stream.put(Vec2, curve.constSlice()[p]);
+            }
+        }
+
+        for (0..self.gearCount - 1) |i| {
+            const curve = self.shiftDownCurves.constSlice()[i];
+            const pointCount = curve.len;
+            stream.putInt(u32, @intCast(pointCount));
+
+            for (0..pointCount) |p| {
+                stream.put(Vec2, curve.constSlice()[p]);
             }
         }
     }
@@ -260,145 +277,103 @@ pub const AutoGearBox = struct {
         return Vec2Int.init(@as(i32, @intFromFloat(x)), @as(i32, @intFromFloat(y)));
     }
 
-    pub fn debugDraw(self: *const Self) void {
-        // Frame:
-        basis.debug_draw.drawLine2D(Margin, Margin, Margin + VizWidth, Margin, BorderColor);
-        basis.debug_draw.drawLine2D(Margin, Margin + VizHeight, Margin + VizWidth, Margin + VizHeight, BorderColor);
-        basis.debug_draw.drawLine2D(Margin, Margin, Margin, Margin + VizHeight, BorderColor);
-        basis.debug_draw.drawLine2D(Margin + VizWidth, Margin, Margin + VizWidth, Margin + VizHeight, BorderColor);
+    pub fn debugDrawImgui(
+        self: *const Self,
+        objectName: []const u8,
+        stateInfo: *VehicleStateInfo,
+        vehicleTopSpeed: f32,
+    ) void {
+        _ = objectName; // autofix
+        var tempBuffer: [1024]u8 = undefined;
 
-        // Shift-up curves:
-        {
-            var i: usize = 0;
-            while (i < self.params.gearCount - 1) : (i += 1) {
-                const curve: *const AutoGearBoxParams.ShiftCurve = &self.params.shiftUpCurves.buffer[i];
-                const pointCount = curve.len;
+        const avail = basis.imgui.getContentRegionAvail();
+        const size = Vec2.init(avail.x, avail.x * 0.75);
 
-                var p: usize = 0;
-                while (p < pointCount - 1) : (p += 1) {
-                    const p0 = toScreen(curve.get(p), CurveMin, CurveMax);
-                    const p1 = toScreen(curve.get(p + 1), CurveMin, CurveMax);
-
-                    basis.debug_draw.drawLine2D(p0.x, p0.y, p1.x, p1.y, DebugDrawColors[i]);
-                    basis.debug_draw.drawLine2D(p0.x + 1, p0.y + 1, p1.x + 1, p1.y + 1, DebugDrawColors[i]);
-                    basis.debug_draw.drawLine2D(p0.x - 1, p0.y - 1, p1.x - 1, p1.y - 1, DebugDrawColors[i]);
-                }
-            }
-        }
-
-        // Shift-down curves:
-        {
-            var i: usize = 0;
-            while (i < self.params.gearCount - 1) : (i += 1) {
-                const curve: *const AutoGearBoxParams.ShiftCurve = &self.params.shiftDownCurves.buffer[i];
-                const pointCount = curve.len;
-
-                var p: usize = 0;
-                while (p < pointCount - 1) : (p += 1) {
-                    const p0 = toScreen(curve.get(p), CurveMin, CurveMax);
-                    const p1 = toScreen(curve.get(p + 1), CurveMin, CurveMax);
-
-                    basis.debug_draw.drawLine2D(p0.x, p0.y, p1.x, p1.y, DebugDrawColors[i + (self.params.gearCount - 1)]);
-                }
-            }
-        }
-
-        // Current position:
-        const stateInfo = self.controller.getStateInfo();
         const throttle = self.controller.getInputData().acceleration;
         const speed = stateInfo.currentSpeedForward;
 
-        const cp = toScreen(Vec2.init(speed * 3.6, throttle * 100.0), CurveMin, CurveMax);
-        drawDebugRect(cp.x, cp.y, 4, CurrentPositionColor);
-
-        basis.debug_draw.drawLine2D(cp.x, Margin, cp.x, Margin + VizHeight, BorderColor);
-        basis.debug_draw.drawLine2D(Margin, cp.y, Margin + VizWidth, cp.y, BorderColor);
-
-        // Descriptions:
-
-        const TextXOffset = 16;
-        const TextRowHeight = 18;
-        var rowAcc: i32 = TextRowHeight;
-
-        const shiftUpDesc = [_][]const u8{ "1 -> 2", "2 -> 3", "3 -> 4", "4 -> 5", "5 -> 6" };
-        const shiftDownDesc = [_][]const u8{ "2 -> 1", "3 -> 2", "4 -> 3", "5 -> 4", "6 -> 5" };
-
-        basis.debug_draw.drawStringXY(
-            "Shift-up (thick lines)",
-            Margin + VizWidth + TextXOffset,
-            Margin + rowAcc,
-            basis.Color.White,
-            basis.debug_draw.TextPivot.CenterLeft,
-        );
-        rowAcc += TextRowHeight;
+        {
+            const line = std.fmt.bufPrint(&tempBuffer, "Current gear: {s}", .{stateInfo.currentGear.asString()}) catch unreachable;
+            basis.imgui.text(line);
+        }
 
         {
-            var i: usize = 0;
-            while (i < self.params.gearCount - 1) : (i += 1) {
-                basis.debug_draw.drawStringXY(
-                    shiftUpDesc[i],
-                    Margin + VizWidth + TextXOffset,
-                    Margin + rowAcc,
-                    DebugDrawColors[i],
-                    basis.debug_draw.TextPivot.CenterLeft,
-                );
-                rowAcc += TextRowHeight;
+            const line = std.fmt.bufPrint(&tempBuffer, "Gear count: {}", .{self.params.gearCount}) catch unreachable;
+            basis.imgui.text(line);
+        }
+
+        if (basis.implot.beginPlot("Shift curves", size, 0)) {
+            var xs: [AutoGearBoxParams.MaxCurvePointCount]f32 = undefined;
+            var ys: [AutoGearBoxParams.MaxCurvePointCount]f32 = undefined;
+
+            basis.implot.setupAxis(.X1, "Speed (km/h)", basis.implot.ImPlotAxisFlags.None.asInt());
+            basis.implot.setupAxis(.Y1, "Throttle (%)", basis.implot.ImPlotAxisFlags.None.asInt());
+
+            basis.implot.setupAxisLimits(.X1, -10.0, vehicleTopSpeed + 10.0, .Always);
+            basis.implot.setupAxisLimits(.Y1, -5.0, 105.0, .Always);
+
+            basis.implot.setupLegend(.East, basis.implot.ImPlotLegendFlags.Outside.asInt());
+
+            // Shift-up curves.
+            for (self.params.shiftUpCurves.constSlice(), 0..) |c, curveIndex| {
+                const points = c.constSlice();
+                for (points, 0..) |p, i| {
+                    xs[i] = p.x;
+                    ys[i] = p.y;
+                }
+
+                const label = std.fmt.bufPrint(&tempBuffer, "{} -> {}##shiftUp_{}", .{ curveIndex + 1, curveIndex + 2, curveIndex }) catch unreachable;
+
+                var spec = basis.implot.ImPlotSpec{};
+                spec.lineWeight = 3.0;
+                basis.implot.plotLineEx(label, xs[0..c.len], ys[0..c.len], spec);
             }
-        }
 
-        rowAcc += TextRowHeight;
+            // Shift-down curves.
+            for (self.params.shiftDownCurves.constSlice(), 0..) |c, curveIndex| {
+                const points = c.constSlice();
+                for (points, 0..) |p, i| {
+                    xs[i] = p.x;
+                    ys[i] = p.y;
+                }
 
-        basis.debug_draw.drawStringXY(
-            "Shift-down (thin lines)",
-            Margin + VizWidth + TextXOffset,
-            Margin + rowAcc,
-            basis.Color.White,
-            basis.debug_draw.TextPivot.CenterLeft,
-        );
-        rowAcc += TextRowHeight;
+                const label = std.fmt.bufPrint(&tempBuffer, "{} -> {}##shiftDown_{}", .{ curveIndex + 2, curveIndex + 1, curveIndex }) catch unreachable;
 
-        {
-            var i: usize = 0;
-            while (i < self.params.gearCount - 1) : (i += 1) {
-                basis.debug_draw.drawStringXY(
-                    shiftDownDesc[i],
-                    Margin + VizWidth + TextXOffset,
-                    Margin + rowAcc,
-                    DebugDrawColors[i + (self.params.gearCount - 1)],
-                    basis.debug_draw.TextPivot.CenterLeft,
-                );
-                rowAcc += TextRowHeight;
+                basis.implot.plotLine(label, xs[0..c.len], ys[0..c.len]);
             }
-        }
 
-        rowAcc += TextRowHeight;
+            // Current position.
 
-        var stringBuffer: [128]u8 = undefined;
+            const currentPosition = Vec2.init(speed * 3.6, throttle * 100.0);
 
-        {
-            const data = std.fmt.bufPrint(&stringBuffer, "Current gear: {s}", .{stateInfo.currentGear.asString()}) catch unreachable;
+            {
+                const x = [_]f32{ -1000.0, 1000.0 };
+                const y = [_]f32{ currentPosition.y, currentPosition.y };
 
-            basis.debug_draw.drawStringXY(
-                data,
-                Margin + VizWidth + TextXOffset,
-                Margin + rowAcc,
-                basis.Color.White,
-                basis.debug_draw.TextPivot.CenterLeft,
-            );
-        }
+                var spec = basis.implot.ImPlotSpec{};
+                spec.lineColor = .White;
+                basis.implot.plotLineEx("##currentShiftH", &x, &y, spec);
+            }
 
-        rowAcc += TextRowHeight;
+            {
+                const x = [_]f32{ currentPosition.x, currentPosition.x };
+                const y = [_]f32{ -1000.0, 1000.0 };
 
-        {
-            const data = std.fmt.bufPrint(&stringBuffer, "Current speed: {d:.2} km/h", .{speed * 3.6}) catch unreachable;
+                var spec = basis.implot.ImPlotSpec{};
+                spec.lineColor = .White;
+                basis.implot.plotLineEx("##currentShiftV", &x, &y, spec);
+            }
 
-            basis.debug_draw.drawStringXY(
-                data,
-                Margin + VizWidth + TextXOffset,
-                Margin + rowAcc,
-                basis.Color.White,
-                basis.debug_draw.TextPivot.CenterLeft,
-            );
+            {
+                const x = [_]f32{currentPosition.x};
+                const y = [_]f32{currentPosition.y};
+                var spec = basis.implot.ImPlotSpec{};
+                spec.markerFillColor = .White;
+                spec.markerLineColor = .White;
+                basis.implot.plotScatterEx("##currentShift", &x, &y, spec);
+            }
+
+            basis.implot.endPlot();
         }
     }
 
@@ -457,6 +432,10 @@ pub const AutoGearBox = struct {
     }
 
     fn shiftUp(self: *const Self, input: Vec2, gear: *i32) bool {
+        if (gear.* == self.params.gearCount - 1) {
+            return false;
+        }
+
         basis.assert(@src(), gear.* < self.params.gearCount - 1);
 
         const originalGear: i32 = gear.*;

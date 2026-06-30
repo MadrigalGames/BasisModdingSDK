@@ -1,5 +1,5 @@
 // ----------------------------------------------------
-// Copyright (c) 2018-2025 Madrigal Ltd.
+// Copyright (c) 2018-2026 Madrigal Ltd.
 // This file is part of the Basis modding SDK, and is subject to the
 // terms and conditions of the Basis modding SDK License Agreement.
 // https://www.madrigalgames.com
@@ -10,7 +10,7 @@ const basis = @import("../basis.zig");
 
 pub const Callback = basis.delegate.VoidDelegate0();
 
-pub var callback: ?Callback = null;
+var callback: ?Callback = null; // Meh. This isn't really hot-reload-proof...
 
 pub fn isActive() bool {
     return if (basis.bindings.api.ScreenFade_isActive() == 1) true else false;

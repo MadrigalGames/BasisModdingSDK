@@ -1,5 +1,5 @@
 // ----------------------------------------------------
-// Copyright (c) 2018-2025 Madrigal Ltd.
+// Copyright (c) 2018-2026 Madrigal Ltd.
 // This file is part of the Basis SDK, and is subject to the
 // terms and conditions of the Basis SDK License Agreement.
 // https://www.madrigalgames.com
@@ -20,6 +20,7 @@ export fn bindLocalization(
 	getLocalizedStringByNameWithParams3: trampoline.bindings.generated_types.basis_zig_Localization_getLocalizedStringByNameWithParams3_cb,
 	getLocalizedVec2ByName: trampoline.bindings.generated_types.basis_zig_Localization_getLocalizedVec2ByName_cb,
 	setUILanguage: trampoline.bindings.generated_types.basis_zig_Localization_setUILanguage_cb,
+	getUILanguage: trampoline.bindings.generated_types.basis_zig_Localization_getUILanguage_cb,
 ) void {
 	trampoline.bindings.generated_function_pointers._Localization_isValidLocalizationKey = isValidLocalizationKey;
 	trampoline.bindings.generated_function_pointers._Localization_getLocalizedStringByName = getLocalizedStringByName;
@@ -28,6 +29,7 @@ export fn bindLocalization(
 	trampoline.bindings.generated_function_pointers._Localization_getLocalizedStringByNameWithParams3 = getLocalizedStringByNameWithParams3;
 	trampoline.bindings.generated_function_pointers._Localization_getLocalizedVec2ByName = getLocalizedVec2ByName;
 	trampoline.bindings.generated_function_pointers._Localization_setUILanguage = setUILanguage;
+	trampoline.bindings.generated_function_pointers._Localization_getUILanguage = getUILanguage;
 }
 
 // ===============================

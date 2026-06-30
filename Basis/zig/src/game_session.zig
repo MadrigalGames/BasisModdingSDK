@@ -1,5 +1,5 @@
 // ----------------------------------------------------
-// Copyright (c) 2018-2025 Madrigal Ltd.
+// Copyright (c) 2018-2026 Madrigal Ltd.
 // This file is part of the Basis modding SDK, and is subject to the
 // terms and conditions of the Basis modding SDK License Agreement.
 // https://www.madrigalgames.com
@@ -17,6 +17,12 @@ pub const GameSessionType = enum(i32) {
     LevelEditor = 3,
     AssetBrowser = 4,
     Unknown = -1,
+};
+
+pub const TickLevel = enum(u32) {
+    None = 0,
+    Partial = 1,
+    Full = 2,
 };
 
 pub const ClientProxy = struct {
@@ -77,10 +83,34 @@ pub const GameSessionPtr = struct {
         return basis.bindings.api.GameSession_isPaused(self.cppPtr) == 1;
     }
 
-    // When called on a client, requests pausing/unpausing the game.
+    // Commented out to avoid mixing bool-pause semantics with the richer TickLevel
+    // semantics. Use `requestSetTickLevel` instead with an explicit level.
+    // pub fn requestPause(self: *Self, paused: bool) void {
+    //     return basis.bindings.api.GameSession_requestPause(self.cppPtr, if (paused) 1 else 0);
+    // }
+
+    pub fn getTickLevel(self: *const Self) TickLevel {
+        const i = basis.bindings.api.GameSession_getTickLevel(self.cppPtr);
+        return @as(TickLevel, @enumFromInt(i));
+    }
+
+    // Server-authoritative direct write. For client-initiated pause toggles use `requestPause`.
+    pub fn setTickLevel(self: *Self, level: TickLevel) void {
+        basis.bindings.api.GameSession_setTickLevel(self.cppPtr, @intFromEnum(level));
+    }
+
+    // When called on a client, requests the server to set the tick level.
     // Has no effect when called on the server.
-    pub fn requestPause(self: *Self, paused: bool) void {
-        return basis.bindings.api.GameSession_requestPause(self.cppPtr, if (paused) 1 else 0);
+    pub fn requestSetTickLevel(self: *Self, level: TickLevel) void {
+        basis.bindings.api.GameSession_requestSetTickLevel(self.cppPtr, @intFromEnum(level));
+    }
+
+    pub fn hasStarted(self: *const Self) bool {
+        return basis.bindings.api.GameSession_hasStarted(self.cppPtr) == 1;
+    }
+
+    pub fn hasEnded(self: *const Self) bool {
+        return basis.bindings.api.GameSession_hasEnded(self.cppPtr) == 1;
     }
 
     pub fn getLevelData(self: *const Self) basis.level_data.LevelDataPtr {

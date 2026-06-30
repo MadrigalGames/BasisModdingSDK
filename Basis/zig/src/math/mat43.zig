@@ -1,5 +1,5 @@
 // ----------------------------------------------------
-// Copyright (c) 2018-2025 Madrigal Ltd.
+// Copyright (c) 2018-2026 Madrigal Ltd.
 // This file is part of the Basis modding SDK, and is subject to the
 // terms and conditions of the Basis modding SDK License Agreement.
 // https://www.madrigalgames.com
@@ -121,15 +121,15 @@ pub const Mat43 = struct {
 
         return Mat43{
             ._11 = 1.0 - (yy * orientation.y + zz * orientation.z),
-            ._12 = yy * orientation.x - zz * orientation.w,
-            ._13 = zz * orientation.x + yy * orientation.w,
+            ._12 = yy * orientation.x + zz * orientation.w,
+            ._13 = zz * orientation.x - yy * orientation.w,
 
-            ._21 = yy * orientation.x + zz * orientation.w,
+            ._21 = yy * orientation.x - zz * orientation.w,
             ._22 = 1.0 - (xx * orientation.x + zz * orientation.z),
-            ._23 = zz * orientation.y - xx * orientation.w,
+            ._23 = zz * orientation.y + xx * orientation.w,
 
-            ._31 = zz * orientation.x - yy * orientation.w,
-            ._32 = zz * orientation.y + xx * orientation.w,
+            ._31 = zz * orientation.x + yy * orientation.w,
+            ._32 = zz * orientation.y - xx * orientation.w,
             ._33 = 1.0 - (xx * orientation.x + yy * orientation.y),
 
             ._41 = position.x,
@@ -449,3 +449,110 @@ pub const Mat43 = struct {
         };
     }
 };
+
+//----------------------------------------------------
+
+fn expectVec3ApproxEqual(expected: Vec3, actual: Vec3) !void {
+    const eps: f32 = 1e-5;
+    try std.testing.expectApproxEqAbs(expected.x, actual.x, eps);
+    try std.testing.expectApproxEqAbs(expected.y, actual.y, eps);
+    try std.testing.expectApproxEqAbs(expected.z, actual.z, eps);
+}
+
+test "Mat43.fromOrientationPosition matches Mat43.initRotationY" {
+    const theta = std.math.pi / 4.0;
+    const mq = Mat43.fromOrientationPosition(Quaternion.initRotationY(theta), Vec3.Zero);
+    const mm = Mat43.initRotationY(theta);
+    const v = Vec3.init(1.0, 2.0, 3.0);
+    try expectVec3ApproxEqual(mm.transformPoint(v), mq.transformPoint(v));
+}
+
+test "Mat43.fromOrientationPosition transformPoint matches quaternion applyRotationTo" {
+    const q = Quaternion.initFromAngleAxis(1.2, Vec3.init(0.3, 0.7, 0.5));
+    const m = Mat43.fromOrientationPosition(q, Vec3.Zero);
+    const v = Vec3.init(1.0, 2.0, 3.0);
+    try expectVec3ApproxEqual(q.applyRotationTo(v), m.transformPoint(v));
+}
+
+test "Mat43 rotation from quaternion agrees with direct rotation matrix" {
+    const angles = [_]f32{ 0.1, 0.5, 1.0, 1.5, -0.3, std.math.pi / 2.0, std.math.pi / 3.0 };
+    const test_vectors = [_]Vec3{
+        Vec3.init(1.0, 2.0, 3.0),
+        Vec3.init(-0.5, 0.7, 0.3),
+        Vec3.init(5.0, 0.0, -2.0),
+    };
+
+    const Axis = enum { X, Y, Z };
+    inline for ([_]Axis{ .X, .Y, .Z }) |axis| {
+        for (angles) |angle| {
+            const quat = switch (axis) {
+                .X => Quaternion.initRotationX(angle),
+                .Y => Quaternion.initRotationY(angle),
+                .Z => Quaternion.initRotationZ(angle),
+            };
+            const direct = switch (axis) {
+                .X => Mat43.initRotationX(angle),
+                .Y => Mat43.initRotationY(angle),
+                .Z => Mat43.initRotationZ(angle),
+            };
+            const via_quat = Mat43.fromOrientationPosition(quat, Vec3.Zero);
+
+            for (test_vectors) |v| {
+                try expectVec3ApproxEqual(direct.transformPoint(v), via_quat.transformPoint(v));
+            }
+        }
+    }
+}
+
+test "Mat43.fromOrientationPosition.transformDirection agrees with Quaternion.applyRotationTo" {
+    const quaternions = [_]Quaternion{
+        Quaternion.initRotationY(0.5),
+        Quaternion.initRotationX(-0.3),
+        Quaternion.initRotationZ(1.0),
+        Quaternion.initRotationY(0.7).concatenate(Quaternion.initRotationX(0.2)),
+    };
+    const directions = [_]Vec3{
+        Vec3.init(1.0, 0.0, 0.0),
+        Vec3.init(0.0, 1.0, 0.0),
+        Vec3.init(0.0, 0.0, 1.0),
+        Vec3.init(-0.5, 0.7, 0.3),
+    };
+
+    for (quaternions) |q| {
+        // transformDirection ignores translation, so Vec3.Zero suffices.
+        const m = Mat43.fromOrientationPosition(q, Vec3.Zero);
+        for (directions) |d| {
+            try expectVec3ApproxEqual(q.applyRotationTo(d), m.transformDirection(d));
+        }
+    }
+}
+
+test "Mat43.fromOrientationPosition.transformPoint applies rotation then translation" {
+    const quaternions = [_]Quaternion{
+        Quaternion.initRotationY(0.5),
+        Quaternion.initRotationX(-0.3),
+        Quaternion.initRotationZ(1.0),
+        Quaternion.initRotationY(0.7).concatenate(Quaternion.initRotationX(0.2)),
+    };
+    const translations = [_]Vec3{
+        Vec3.Zero,
+        Vec3.init(5.0, 0.0, 0.0),
+        Vec3.init(1.0, -2.0, 3.0),
+    };
+    const points = [_]Vec3{
+        Vec3.init(1.0, 0.0, 0.0),
+        Vec3.init(0.0, 1.0, 0.0),
+        Vec3.init(0.0, 0.0, 1.0),
+        Vec3.init(1.0, 2.0, 3.0),
+    };
+
+    for (quaternions) |q| {
+        for (translations) |t| {
+            const m = Mat43.fromOrientationPosition(q, t);
+            for (points) |p| {
+                // Rigid-transform a point: rotate, then translate.
+                try expectVec3ApproxEqual(m.transformDirection(p).add(t), m.transformPoint(p));
+            }
+        }
+    }
+}

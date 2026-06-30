@@ -1,5 +1,5 @@
 // ----------------------------------------------------
-// Copyright (c) 2018-2025 Madrigal Ltd.
+// Copyright (c) 2018-2026 Madrigal Ltd.
 // This file is part of the Basis SDK, and is subject to the
 // terms and conditions of the Basis SDK License Agreement.
 // https://www.madrigalgames.com
@@ -20,6 +20,10 @@ export fn bindTimbreSoundManager(
 	playAndForget3D: timbre.bindings.generated_types.basis_zig_TimbreSoundManager_playAndForget3D_cb,
 	playByPathAndForget2D: timbre.bindings.generated_types.basis_zig_TimbreSoundManager_playByPathAndForget2D_cb,
 	playByPathAndForget3D: timbre.bindings.generated_types.basis_zig_TimbreSoundManager_playByPathAndForget3D_cb,
+	getBulkAudioAssetDuration: timbre.bindings.generated_types.basis_zig_TimbreSoundManager_getBulkAudioAssetDuration_cb,
+	getBulkAudioAssetDurationByHash: timbre.bindings.generated_types.basis_zig_TimbreSoundManager_getBulkAudioAssetDurationByHash_cb,
+	getBulkAudioAssetID: timbre.bindings.generated_types.basis_zig_TimbreSoundManager_getBulkAudioAssetID_cb,
+	getBulkAudioAssetData: timbre.bindings.generated_types.basis_zig_TimbreSoundManager_getBulkAudioAssetData_cb,
 ) void {
 	timbre.bindings.generated_function_pointers._TimbreSoundManager_getMasterGroupBus = getMasterGroupBus;
 	timbre.bindings.generated_function_pointers._TimbreSoundManager_getGroupBus = getGroupBus;
@@ -28,6 +32,10 @@ export fn bindTimbreSoundManager(
 	timbre.bindings.generated_function_pointers._TimbreSoundManager_playAndForget3D = playAndForget3D;
 	timbre.bindings.generated_function_pointers._TimbreSoundManager_playByPathAndForget2D = playByPathAndForget2D;
 	timbre.bindings.generated_function_pointers._TimbreSoundManager_playByPathAndForget3D = playByPathAndForget3D;
+	timbre.bindings.generated_function_pointers._TimbreSoundManager_getBulkAudioAssetDuration = getBulkAudioAssetDuration;
+	timbre.bindings.generated_function_pointers._TimbreSoundManager_getBulkAudioAssetDurationByHash = getBulkAudioAssetDurationByHash;
+	timbre.bindings.generated_function_pointers._TimbreSoundManager_getBulkAudioAssetID = getBulkAudioAssetID;
+	timbre.bindings.generated_function_pointers._TimbreSoundManager_getBulkAudioAssetData = getBulkAudioAssetData;
 }
 
 // ===============================
@@ -48,10 +56,12 @@ export fn bindGroupBus(
 
 export fn bindEventDescription(
 	createInstance: timbre.bindings.generated_types.basis_zig_EventDescription_createInstance_cb,
+	createInstanceWithAutoPauseTickLevel: timbre.bindings.generated_types.basis_zig_EventDescription_createInstanceWithAutoPauseTickLevel_cb,
 	getParameterIndex: timbre.bindings.generated_types.basis_zig_EventDescription_getParameterIndex_cb,
 	getLength: timbre.bindings.generated_types.basis_zig_EventDescription_getLength_cb,
 ) void {
 	timbre.bindings.generated_function_pointers._EventDescription_createInstance = createInstance;
+	timbre.bindings.generated_function_pointers._EventDescription_createInstanceWithAutoPauseTickLevel = createInstanceWithAutoPauseTickLevel;
 	timbre.bindings.generated_function_pointers._EventDescription_getParameterIndex = getParameterIndex;
 	timbre.bindings.generated_function_pointers._EventDescription_getLength = getLength;
 }
@@ -67,12 +77,17 @@ export fn bindEventInstance(
 	getState: timbre.bindings.generated_types.basis_zig_EventInstance_getState_cb,
 	start: timbre.bindings.generated_types.basis_zig_EventInstance_start_cb,
 	pause: timbre.bindings.generated_types.basis_zig_EventInstance_pause_cb,
+	unpause: timbre.bindings.generated_types.basis_zig_EventInstance_unpause_cb,
 	stop: timbre.bindings.generated_types.basis_zig_EventInstance_stop_cb,
 	setParameterByName: timbre.bindings.generated_types.basis_zig_EventInstance_setParameterByName_cb,
 	setParameterByIndex: timbre.bindings.generated_types.basis_zig_EventInstance_setParameterByIndex_cb,
+	setWaveAssetRefParameterByName: timbre.bindings.generated_types.basis_zig_EventInstance_setWaveAssetRefParameterByName_cb,
+	setWaveAssetRefParameterByIndex: timbre.bindings.generated_types.basis_zig_EventInstance_setWaveAssetRefParameterByIndex_cb,
 	set3DParameters: timbre.bindings.generated_types.basis_zig_EventInstance_set3DParameters_cb,
 	sendSignal: timbre.bindings.generated_types.basis_zig_EventInstance_sendSignal_cb,
 	fadeIn: timbre.bindings.generated_types.basis_zig_EventInstance_fadeIn_cb,
+	getVolumeMultiplier: timbre.bindings.generated_types.basis_zig_EventInstance_getVolumeMultiplier_cb,
+	setVolumeMultiplier: timbre.bindings.generated_types.basis_zig_EventInstance_setVolumeMultiplier_cb,
 ) void {
 	timbre.bindings.generated_function_pointers._EventInstance_release = release;
 	timbre.bindings.generated_function_pointers._EventInstance_releaseWhenFinished = releaseWhenFinished;
@@ -80,12 +95,17 @@ export fn bindEventInstance(
 	timbre.bindings.generated_function_pointers._EventInstance_getState = getState;
 	timbre.bindings.generated_function_pointers._EventInstance_start = start;
 	timbre.bindings.generated_function_pointers._EventInstance_pause = pause;
+	timbre.bindings.generated_function_pointers._EventInstance_unpause = unpause;
 	timbre.bindings.generated_function_pointers._EventInstance_stop = stop;
 	timbre.bindings.generated_function_pointers._EventInstance_setParameterByName = setParameterByName;
 	timbre.bindings.generated_function_pointers._EventInstance_setParameterByIndex = setParameterByIndex;
+	timbre.bindings.generated_function_pointers._EventInstance_setWaveAssetRefParameterByName = setWaveAssetRefParameterByName;
+	timbre.bindings.generated_function_pointers._EventInstance_setWaveAssetRefParameterByIndex = setWaveAssetRefParameterByIndex;
 	timbre.bindings.generated_function_pointers._EventInstance_set3DParameters = set3DParameters;
 	timbre.bindings.generated_function_pointers._EventInstance_sendSignal = sendSignal;
 	timbre.bindings.generated_function_pointers._EventInstance_fadeIn = fadeIn;
+	timbre.bindings.generated_function_pointers._EventInstance_getVolumeMultiplier = getVolumeMultiplier;
+	timbre.bindings.generated_function_pointers._EventInstance_setVolumeMultiplier = setVolumeMultiplier;
 }
 
 // ===============================

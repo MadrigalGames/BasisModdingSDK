@@ -1,5 +1,5 @@
 // ----------------------------------------------------
-// Copyright (c) 2018-2025 Madrigal Ltd.
+// Copyright (c) 2018-2026 Madrigal Ltd.
 // This file is part of the Basis SDK, and is subject to the
 // terms and conditions of the Basis SDK License Agreement.
 // https://www.madrigalgames.com
@@ -46,7 +46,7 @@ pub fn TimbreSoundManager_playAndForget2D(eventDescCppPtr: basis.CppPtr, autoPau
     if (isWasm) {
         access.TimbreSoundManager_playAndForget2D_WASM(eventDescCppPtr, autoPause);
     } else {
-        timbre.bindings.fp._TimbreSoundManager_playAndForget2D(eventDescCppPtr, autoPause);
+        timbre.bindings.fp._TimbreSoundManager_playAndForget2D(eventDescCppPtr, if (autoPause) 1 else 0);
     }
 }
 
@@ -54,7 +54,7 @@ pub fn TimbreSoundManager_playAndForget3D(eventDescCppPtr: basis.CppPtr, positio
     if (isWasm) {
         access.TimbreSoundManager_playAndForget3D_WASM(eventDescCppPtr, position.*.x, position.*.y, position.*.z, autoPause);
     } else {
-        timbre.bindings.fp._TimbreSoundManager_playAndForget3D(eventDescCppPtr, position, autoPause);
+        timbre.bindings.fp._TimbreSoundManager_playAndForget3D(eventDescCppPtr, position, if (autoPause) 1 else 0);
     }
 }
 
@@ -62,7 +62,7 @@ pub fn TimbreSoundManager_playByPathAndForget2D(eventPath: [*c]const basis.bindi
     if (isWasm) {
         access.TimbreSoundManager_playByPathAndForget2D_WASM(eventPath.*.ptr, eventPath.*.len, autoPause);
     } else {
-        timbre.bindings.fp._TimbreSoundManager_playByPathAndForget2D(eventPath, autoPause);
+        timbre.bindings.fp._TimbreSoundManager_playByPathAndForget2D(eventPath, if (autoPause) 1 else 0);
     }
 }
 
@@ -70,7 +70,50 @@ pub fn TimbreSoundManager_playByPathAndForget3D(eventPath: [*c]const basis.bindi
     if (isWasm) {
         access.TimbreSoundManager_playByPathAndForget3D_WASM(eventPath.*.ptr, eventPath.*.len, position.*.x, position.*.y, position.*.z, autoPause);
     } else {
-        timbre.bindings.fp._TimbreSoundManager_playByPathAndForget3D(eventPath, position, autoPause);
+        timbre.bindings.fp._TimbreSoundManager_playByPathAndForget3D(eventPath, position, if (autoPause) 1 else 0);
+    }
+}
+
+pub fn TimbreSoundManager_getBulkAudioAssetDuration(path: [*c]const basis.bindings.InteropString) f32 {
+    if (isWasm) {
+        return access.TimbreSoundManager_getBulkAudioAssetDuration_WASM(path.*.ptr, path.*.len);
+    } else {
+        return timbre.bindings.fp._TimbreSoundManager_getBulkAudioAssetDuration(path);
+    }
+}
+
+pub fn TimbreSoundManager_getBulkAudioAssetDurationByHash(pathHash: u32) f32 {
+    if (isWasm) {
+        return access.TimbreSoundManager_getBulkAudioAssetDurationByHash_WASM(pathHash);
+    } else {
+        return timbre.bindings.fp._TimbreSoundManager_getBulkAudioAssetDurationByHash(pathHash);
+    }
+}
+
+pub fn TimbreSoundManager_getBulkAudioAssetID(path: [*c]const basis.bindings.InteropString) u32 {
+    if (isWasm) {
+        return access.TimbreSoundManager_getBulkAudioAssetID_WASM(path.*.ptr, path.*.len);
+    } else {
+        return timbre.bindings.fp._TimbreSoundManager_getBulkAudioAssetID(path);
+    }
+}
+
+pub fn TimbreSoundManager_getBulkAudioAssetData(
+    path: [*c]const basis.bindings.InteropString,
+    outDuration: [*c]f32,
+    outAssetID: [*c]u32,
+) c_int {
+    if (isWasm) {
+        const valueBufferLength: u32 = 8;
+        var valueBuffer: [valueBufferLength]u8 = undefined;
+        const result = access.TimbreSoundManager_getBulkAudioAssetData_WASM(path.*.ptr, path.*.len, &valueBuffer[0], valueBufferLength);
+        if (result == 0) return 0;
+        var stream = basis.BinaryReadStream.init(&valueBuffer, true);
+        outDuration.* = stream.getFloat();
+        outAssetID.* = stream.getInt(u32);
+        return 1;
+    } else {
+        return timbre.bindings.fp._TimbreSoundManager_getBulkAudioAssetData(path, outDuration, outAssetID);
     }
 }
 
@@ -103,6 +146,14 @@ pub fn EventDescription_createInstance(cppPtr: basis.CppPtr, autoPause: c_int) b
         return access.EventDescription_createInstance_WASM(cppPtr, (autoPause == 1));
     } else {
         return timbre.bindings.fp._EventDescription_createInstance(cppPtr, autoPause);
+    }
+}
+
+pub fn EventDescription_createInstanceWithAutoPauseTickLevel(cppPtr: basis.CppPtr, autoPauseTickLevel: u32) basis.CppPtr {
+    if (isWasm) {
+        return access.EventDescription_createInstanceWithAutoPauseTickLevel_WASM(cppPtr, autoPauseTickLevel);
+    } else {
+        return timbre.bindings.fp._EventDescription_createInstanceWithAutoPauseTickLevel(cppPtr, autoPauseTickLevel);
     }
 }
 
@@ -174,6 +225,14 @@ pub fn EventInstance_pause(cppPtr: basis.CppPtr) void {
     }
 }
 
+pub fn EventInstance_unpause(cppPtr: basis.CppPtr) void {
+    if (isWasm) {
+        access.EventInstance_unpause_WASM(cppPtr);
+    } else {
+        timbre.bindings.fp._EventInstance_unpause(cppPtr);
+    }
+}
+
 pub fn EventInstance_stop(cppPtr: basis.CppPtr) void {
     if (isWasm) {
         access.EventInstance_stop_WASM(cppPtr);
@@ -198,6 +257,22 @@ pub fn EventInstance_setParameterByIndex(cppPtr: basis.CppPtr, index: u32, value
     }
 }
 
+pub fn EventInstance_setWaveAssetRefParameterByName(cppPtr: basis.CppPtr, name: [*c]const basis.bindings.InteropString, waveAssetID: u32) void {
+    if (isWasm) {
+        access.EventInstance_setWaveAssetRefParameterByName_WASM(cppPtr, name.*.ptr, name.*.len, waveAssetID);
+    } else {
+        timbre.bindings.fp._EventInstance_setWaveAssetRefParameterByName(cppPtr, name, waveAssetID);
+    }
+}
+
+pub fn EventInstance_setWaveAssetRefParameterByIndex(cppPtr: basis.CppPtr, index: u32, waveAssetID: u32) void {
+    if (isWasm) {
+        access.EventInstance_setWaveAssetRefParameterByIndex_WASM(cppPtr, index, waveAssetID);
+    } else {
+        timbre.bindings.fp._EventInstance_setWaveAssetRefParameterByIndex(cppPtr, index, waveAssetID);
+    }
+}
+
 pub fn EventInstance_set3DParameters(cppPtr: basis.CppPtr, position: [*c]const basis.bindings.InteropVec3, linVel: [*c]const basis.bindings.InteropVec3) void {
     if (isWasm) {
         access.EventInstance_set3DParameters_WASM(cppPtr, position.*.x, position.*.y, position.*.z, linVel.*.x, linVel.*.y, linVel.*.z);
@@ -219,6 +294,22 @@ pub fn EventInstance_fadeIn(cppPtr: basis.CppPtr, fadeInDuration: f32) void {
         access.EventInstance_fadeIn_WASM(cppPtr, fadeInDuration);
     } else {
         timbre.bindings.fp._EventInstance_fadeIn(cppPtr, fadeInDuration);
+    }
+}
+
+pub fn EventInstance_getVolumeMultiplier(cppPtr: basis.CppPtr) f32 {
+    if (isWasm) {
+        @compileError("EventInstance_getVolumeMultiplier not implemented for WASM yet.");
+    } else {
+        return timbre.bindings.fp._EventInstance_getVolumeMultiplier(cppPtr);
+    }
+}
+
+pub fn EventInstance_setVolumeMultiplier(cppPtr: basis.CppPtr, volume: f32) void {
+    if (isWasm) {
+        @compileError("EventInstance_setVolumeMultiplier not implemented for WASM yet.");
+    } else {
+        timbre.bindings.fp._EventInstance_setVolumeMultiplier(cppPtr, volume);
     }
 }
 

@@ -1,5 +1,5 @@
 // ----------------------------------------------------
-// Copyright (c) 2018-2025 Madrigal Ltd.
+// Copyright (c) 2018-2026 Madrigal Ltd.
 // This file is part of the Basis modding SDK, and is subject to the
 // terms and conditions of the Basis modding SDK License Agreement.
 // https://www.madrigalgames.com
@@ -14,18 +14,32 @@ pub const ImGuiCallback = basis.delegate.VoidDelegate0();
 pub const ImGuiCallbackID = i32;
 
 //----------------------------------------------------
-// Public interface
+// State management
 //----------------------------------------------------
 
-pub fn init(allocator: Allocator) void {
-    state = State.init(allocator);
+pub const GlobalData = struct {
+    const Self = @This();
+
+    imGuiMenuBarCallbacks: std.AutoArrayHashMap(ImGuiCallbackID, ImGuiCallback) = undefined,
+    nextImGuiMenuBarCallbackID: ImGuiCallbackID = 0,
+
+    imGuiCallbacks: std.AutoArrayHashMap(ImGuiCallbackID, ImGuiCallback) = undefined,
+    nextImGuiCallbackID: ImGuiCallbackID = 0,
+};
+
+pub fn init() void {
+    basis.g.debug_overlay.imGuiMenuBarCallbacks = .init(basis.g.allocator);
+    basis.g.debug_overlay.imGuiCallbacks = .init(basis.g.allocator);
 }
 
 pub fn deinit() void {
-    if (state) |*s| {
-        s.deinit();
-    }
+    basis.g.debug_overlay.imGuiMenuBarCallbacks.deinit();
+    basis.g.debug_overlay.imGuiCallbacks.deinit();
 }
+
+//----------------------------------------------------
+// Public interface
+//----------------------------------------------------
 
 pub fn isVisible() bool {
     const visible = basis.bindings.api.DebugOverlay_isVisible();
@@ -33,83 +47,75 @@ pub fn isVisible() bool {
 }
 
 pub fn registerImGuiMenuBarCallback(cb: ImGuiCallback) ImGuiCallbackID {
-    if (state) |*s| {
-        if (s.imGuiMenuBarCallbacks.count() == 0) {
-            basis.bindings.api.DebugOverlay_setImGuiMenuBarCallbackEnabled(
-                basis.library_api.getZigLibCppPtr(),
-                1,
-            );
-        }
+    const g = &basis.g.debug_overlay;
 
-        const id = s.nextImGuiMenuBarCallbackID;
-        s.imGuiMenuBarCallbacks.put(id, cb) catch unreachable;
-        s.nextImGuiMenuBarCallbackID += 1;
-        return id;
+    if (g.imGuiMenuBarCallbacks.count() == 0) {
+        basis.bindings.api.DebugOverlay_setImGuiMenuBarCallbackEnabled(
+            basis.library_api.getZigLibCppPtr(),
+            1,
+        );
     }
 
-    return -1;
+    const id = g.nextImGuiMenuBarCallbackID;
+    g.imGuiMenuBarCallbacks.put(id, cb) catch unreachable;
+    g.nextImGuiMenuBarCallbackID += 1;
+    return id;
 }
 
 pub fn unregisterImGuiMenuBarCallback(id: ImGuiCallbackID) void {
-    if (state) |*s| {
-        _ = s.imGuiMenuBarCallbacks.swapRemove(id);
+    const g = &basis.g.debug_overlay;
 
-        if (s.imGuiMenuBarCallbacks.count() == 0) {
-            basis.bindings.api.DebugOverlay_setImGuiMenuBarCallbackEnabled(
-                basis.library_api.getZigLibCppPtr(),
-                0,
-            );
-        }
+    _ = g.imGuiMenuBarCallbacks.swapRemove(id);
+
+    if (g.imGuiMenuBarCallbacks.count() == 0) {
+        basis.bindings.api.DebugOverlay_setImGuiMenuBarCallbackEnabled(
+            basis.library_api.getZigLibCppPtr(),
+            0,
+        );
     }
 }
 
 pub fn registerImGuiCallback(cb: ImGuiCallback) ImGuiCallbackID {
-    if (state) |*s| {
-        if (s.imGuiCallbacks.count() == 0) {
-            basis.bindings.api.DebugOverlay_setImGuiCallbackEnabled(
-                basis.library_api.getZigLibCppPtr(),
-                1,
-            );
-        }
+    const g = &basis.g.debug_overlay;
 
-        const id = s.nextImGuiCallbackID;
-        s.imGuiCallbacks.put(id, cb) catch unreachable;
-        s.nextImGuiCallbackID += 1;
-        return id;
+    if (g.imGuiCallbacks.count() == 0) {
+        basis.bindings.api.DebugOverlay_setImGuiCallbackEnabled(
+            basis.library_api.getZigLibCppPtr(),
+            1,
+        );
     }
 
-    return -1;
+    const id = g.nextImGuiCallbackID;
+    g.imGuiCallbacks.put(id, cb) catch unreachable;
+    g.nextImGuiCallbackID += 1;
+    return id;
 }
 
 pub fn unregisterImGuiCallback(id: ImGuiCallbackID) void {
-    if (state) |*s| {
-        _ = s.imGuiCallbacks.swapRemove(id);
+    const g = &basis.g.debug_overlay;
 
-        if (s.imGuiCallbacks.count() == 0) {
-            basis.bindings.api.DebugOverlay_setImGuiCallbackEnabled(
-                basis.library_api.getZigLibCppPtr(),
-                0,
-            );
-        }
+    _ = g.imGuiCallbacks.swapRemove(id);
+
+    if (g.imGuiCallbacks.count() == 0) {
+        basis.bindings.api.DebugOverlay_setImGuiCallbackEnabled(
+            basis.library_api.getZigLibCppPtr(),
+            0,
+        );
     }
 }
 
 pub fn debugTrace(comptime fmt: []const u8, args: anytype) void {
-    if (state) |*s| {
-        const data = std.fmt.allocPrint(s.allocator, fmt, args) catch unreachable;
-        defer s.allocator.free(data);
+    const data = std.fmt.allocPrint(basis.g.allocator, fmt, args) catch unreachable;
+    defer basis.g.allocator.free(data);
 
-        basis.bindings.api.DebugOverlay_debugTrace(&data[0], @as(u32, @intCast(data.len)));
-    }
+    basis.bindings.api.DebugOverlay_debugTrace(&data[0], @as(u32, @intCast(data.len)));
 }
 
 pub fn debugWarning(comptime fmt: []const u8, args: anytype) void {
-    if (state) |*s| {
-        const data = std.fmt.allocPrint(s.allocator, fmt, args) catch unreachable;
-        defer s.allocator.free(data);
+    const data = std.fmt.allocPrint(basis.g.allocator, fmt, args) catch unreachable;
+    defer basis.g.allocator.free(data);
 
-        basis.bindings.api.DebugOverlay_debugWarning(&data[0], @as(u32, @intCast(data.len)));
-    }
+    basis.bindings.api.DebugOverlay_debugWarning(&data[0], @as(u32, @intCast(data.len)));
 }
 
 pub fn areDebugObjectWindowKeysPressed() bool {
@@ -132,54 +138,21 @@ pub fn addDebugSpawnableObjectType(objectType: []const u8, distanceFromSurface: 
 //----------------------------------------------------
 
 pub fn _runImGuiMenuBarCallbacks() void {
-    if (state) |*s| {
-        var it = s.imGuiMenuBarCallbacks.iterator();
+    const g = &basis.g.debug_overlay;
 
-        while (it.next()) |entry| {
-            entry.value_ptr.call();
-        }
+    var it = g.imGuiMenuBarCallbacks.iterator();
+
+    while (it.next()) |entry| {
+        entry.value_ptr.call();
     }
 }
 
 pub fn _runImGuiCallbacks() void {
-    if (state) |*s| {
-        var it = s.imGuiCallbacks.iterator();
+    const g = &basis.g.debug_overlay;
 
-        while (it.next()) |entry| {
-            entry.value_ptr.call();
-        }
+    var it = g.imGuiCallbacks.iterator();
+
+    while (it.next()) |entry| {
+        entry.value_ptr.call();
     }
 }
-
-//----------------------------------------------------
-// Implementation
-//----------------------------------------------------
-
-var state: ?State = null;
-
-const State = struct {
-    const Self = @This();
-
-    allocator: Allocator,
-
-    imGuiMenuBarCallbacks: std.AutoArrayHashMap(ImGuiCallbackID, ImGuiCallback),
-    nextImGuiMenuBarCallbackID: ImGuiCallbackID,
-
-    imGuiCallbacks: std.AutoArrayHashMap(ImGuiCallbackID, ImGuiCallback),
-    nextImGuiCallbackID: ImGuiCallbackID,
-
-    pub fn init(allocator: Allocator) Self {
-        return Self{
-            .allocator = allocator,
-            .imGuiMenuBarCallbacks = std.AutoArrayHashMap(ImGuiCallbackID, ImGuiCallback).init(allocator),
-            .nextImGuiMenuBarCallbackID = 0,
-            .imGuiCallbacks = std.AutoArrayHashMap(ImGuiCallbackID, ImGuiCallback).init(allocator),
-            .nextImGuiCallbackID = 0,
-        };
-    }
-
-    pub fn deinit(self: *Self) void {
-        self.imGuiMenuBarCallbacks.deinit();
-        self.imGuiCallbacks.deinit();
-    }
-};

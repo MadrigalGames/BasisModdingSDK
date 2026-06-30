@@ -1,5 +1,5 @@
 // ----------------------------------------------------
-// Copyright (c) 2018-2025 Madrigal Ltd.
+// Copyright (c) 2018-2026 Madrigal Ltd.
 // This file is part of the Basis SDK, and is subject to the
 // terms and conditions of the Basis SDK License Agreement.
 // https://www.madrigalgames.com
@@ -46,6 +46,7 @@ export fn bindEffectInstance(
 	setIntParameter: merlin.bindings.generated_types.basis_zig_EffectInstance_setIntParameter_cb,
 	setFloatParameter: merlin.bindings.generated_types.basis_zig_EffectInstance_setFloatParameter_cb,
 	setVectorParameter: merlin.bindings.generated_types.basis_zig_EffectInstance_setVectorParameter_cb,
+	setTickInPartialSimulation: merlin.bindings.generated_types.basis_zig_EffectInstance_setTickInPartialSimulation_cb,
 ) void {
 	merlin.bindings.generated_function_pointers._EffectInstance_release = release;
 	merlin.bindings.generated_function_pointers._EffectInstance_releaseWhenFinished = releaseWhenFinished;
@@ -58,6 +59,7 @@ export fn bindEffectInstance(
 	merlin.bindings.generated_function_pointers._EffectInstance_setIntParameter = setIntParameter;
 	merlin.bindings.generated_function_pointers._EffectInstance_setFloatParameter = setFloatParameter;
 	merlin.bindings.generated_function_pointers._EffectInstance_setVectorParameter = setVectorParameter;
+	merlin.bindings.generated_function_pointers._EffectInstance_setTickInPartialSimulation = setTickInPartialSimulation;
 }
 
 // ===============================

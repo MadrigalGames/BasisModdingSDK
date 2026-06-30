@@ -1,5 +1,5 @@
 // ----------------------------------------------------
-// Copyright (c) 2018-2025 Madrigal Ltd.
+// Copyright (c) 2018-2026 Madrigal Ltd.
 // This file is part of the Basis modding SDK, and is subject to the
 // terms and conditions of the Basis modding SDK License Agreement.
 // https://www.madrigalgames.com
@@ -7,8 +7,6 @@
 
 const std = @import("std");
 const basis = @import("../basis.zig");
-
-const Allocator = std.mem.Allocator;
 
 const FlowStateInterface = basis.program_flow.FlowStateInterface;
 
@@ -20,12 +18,14 @@ const ServerPtr = basis.host.ServerPtr;
 pub const FlowStateContext = struct {
     const Self = @This();
 
-    allocator: Allocator,
+    allocator: std.mem.Allocator,
+    io: std.Io,
     cppPtr: basis.bindings.InteropTypedPtr,
 
-    pub fn init(allocator: Allocator, cppPtr: basis.bindings.InteropTypedPtr) Self {
+    pub fn init(allocator: std.mem.Allocator, io: std.Io, cppPtr: basis.bindings.InteropTypedPtr) Self {
         return Self{
             .allocator = allocator,
+            .io = io,
             .cppPtr = cppPtr,
         };
     }
@@ -57,6 +57,7 @@ pub const FlowStateContext = struct {
         return ClientPtr{
             .cppPtr = basis.bindings.api.FlowState_getClient(self.cppPtr),
             .allocator = self.allocator,
+            .io = self.io,
         };
     }
 
@@ -64,6 +65,7 @@ pub const FlowStateContext = struct {
         return ServerPtr{
             .cppPtr = basis.bindings.api.FlowState_getServer(self.cppPtr),
             .allocator = self.allocator,
+            .io = self.io,
         };
     }
 };

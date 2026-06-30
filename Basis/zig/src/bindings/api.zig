@@ -1,5 +1,5 @@
 // ----------------------------------------------------
-// Copyright (c) 2018-2025 Madrigal Ltd.
+// Copyright (c) 2018-2026 Madrigal Ltd.
 // This file is part of the Basis modding SDK, and is subject to the
 // terms and conditions of the Basis modding SDK License Agreement.
 // https://www.madrigalgames.com
@@ -55,6 +55,10 @@ pub fn init(allocator: std.mem.Allocator) void {
             unreachable;
         };
     }
+
+    // Note! If we need to have any global data here which is used in the native
+    // (ie. non-WASM) version, that needs to go into the basis.g global data object
+    // so that it can be moved between libraries on hot-reload.
 }
 
 pub fn deinit() void {
@@ -483,7 +487,7 @@ pub fn Client_sendNetworkMessageToHostID(cppPtr: basis.CppPtr, data: [*c]const u
     if (isWasm) {
         access.Client_sendNetworkMessageToHostID_WASM(cppPtr, data, dataLength, reliable, hostID);
     } else {
-        basis.bindings.fp._Client_sendNetworkMessageToHostID(cppPtr, data, dataLength, reliable, hostID);
+        basis.bindings.fp._Client_sendNetworkMessageToHostID(cppPtr, data, dataLength, if (reliable) 1 else 0, hostID);
     }
 }
 
@@ -491,7 +495,7 @@ pub fn Client_sendNetworkMessageToPeer(cppPtr: basis.CppPtr, data: [*c]const u8,
     if (isWasm) {
         access.Client_sendNetworkMessageToPeer_WASM(cppPtr, data, dataLength, reliable, peerCppPtr);
     } else {
-        basis.bindings.fp._Client_sendNetworkMessageToPeer(cppPtr, data, dataLength, reliable, peerCppPtr);
+        basis.bindings.fp._Client_sendNetworkMessageToPeer(cppPtr, data, dataLength, if (reliable) 1 else 0, peerCppPtr);
     }
 }
 
@@ -574,7 +578,7 @@ pub fn Server_sendNetworkMessageToHostID(cppPtr: basis.CppPtr, data: [*c]const u
     if (isWasm) {
         access.Server_sendNetworkMessageToHostID_WASM(cppPtr, data, dataLength, reliable, hostID);
     } else {
-        basis.bindings.fp._Server_sendNetworkMessageToHostID(cppPtr, data, dataLength, reliable, hostID);
+        basis.bindings.fp._Server_sendNetworkMessageToHostID(cppPtr, data, dataLength, if (reliable) 1 else 0, hostID);
     }
 }
 
@@ -582,7 +586,7 @@ pub fn Server_sendNetworkMessageToPeer(cppPtr: basis.CppPtr, data: [*c]const u8,
     if (isWasm) {
         access.Server_sendNetworkMessageToPeer_WASM(cppPtr, data, dataLength, reliable, peerCppPtr);
     } else {
-        basis.bindings.fp._Server_sendNetworkMessageToPeer(cppPtr, data, dataLength, reliable, peerCppPtr);
+        basis.bindings.fp._Server_sendNetworkMessageToPeer(cppPtr, data, dataLength, if (reliable) 1 else 0, peerCppPtr);
     }
 }
 
@@ -806,7 +810,7 @@ pub fn ConfigOptions_addBool(cppPtr: basis.CppPtr, name: [*c]const basis.binding
     if (isWasm) {
         @compileError("ConfigOptions_addBool not implemented for WASM yet.");
     } else {
-        basis.bindings.fp._ConfigOptions_addBool(cppPtr, name, value);
+        basis.bindings.fp._ConfigOptions_addBool(cppPtr, name, if (value) 1 else 0);
     }
 }
 
@@ -838,7 +842,7 @@ pub fn ConfigOptions_getBool(cppPtr: basis.CppPtr, name: [*c]const basis.binding
     if (isWasm) {
         @compileError("ConfigOptions_getBool not implemented for WASM yet.");
     } else {
-        return basis.bindings.fp._ConfigOptions_getBool(cppPtr, name);
+        return basis.bindings.fp._ConfigOptions_getBool(cppPtr, name) == 1;
     }
 }
 
@@ -870,7 +874,7 @@ pub fn ConfigOptions_setBool(cppPtr: basis.CppPtr, name: [*c]const basis.binding
     if (isWasm) {
         @compileError("ConfigOptions_setBool not implemented for WASM yet.");
     } else {
-        basis.bindings.fp._ConfigOptions_setBool(cppPtr, name, value);
+        basis.bindings.fp._ConfigOptions_setBool(cppPtr, name, if (value) 1 else 0);
     }
 }
 
@@ -878,7 +882,7 @@ pub fn ConfigOptions_hasString(cppPtr: basis.CppPtr, name: [*c]const basis.bindi
     if (isWasm) {
         @compileError("ConfigOptions_hasString not implemented for WASM yet.");
     } else {
-        return basis.bindings.fp._ConfigOptions_hasString(cppPtr, name);
+        return basis.bindings.fp._ConfigOptions_hasString(cppPtr, name) == 1;
     }
 }
 
@@ -886,7 +890,7 @@ pub fn ConfigOptions_hasFloat(cppPtr: basis.CppPtr, name: [*c]const basis.bindin
     if (isWasm) {
         @compileError("ConfigOptions_hasFloat not implemented for WASM yet.");
     } else {
-        return basis.bindings.fp._ConfigOptions_hasFloat(cppPtr, name);
+        return basis.bindings.fp._ConfigOptions_hasFloat(cppPtr, name) == 1;
     }
 }
 
@@ -894,7 +898,7 @@ pub fn ConfigOptions_hasInteger(cppPtr: basis.CppPtr, name: [*c]const basis.bind
     if (isWasm) {
         @compileError("ConfigOptions_hasInteger not implemented for WASM yet.");
     } else {
-        return basis.bindings.fp._ConfigOptions_hasInteger(cppPtr, name);
+        return basis.bindings.fp._ConfigOptions_hasInteger(cppPtr, name) == 1;
     }
 }
 
@@ -902,7 +906,7 @@ pub fn ConfigOptions_hasBool(cppPtr: basis.CppPtr, name: [*c]const basis.binding
     if (isWasm) {
         @compileError("ConfigOptions_hasBool not implemented for WASM yet.");
     } else {
-        return basis.bindings.fp._ConfigOptions_hasBool(cppPtr, name);
+        return basis.bindings.fp._ConfigOptions_hasBool(cppPtr, name) == 1;
     }
 }
 
@@ -946,7 +950,7 @@ pub fn PlayerController_getInputState(thisPtr: basis.bindings.InteropTypedPtr, i
     if (isWasm) {
         @compileError("PlayerController_getInputState not implemented for WASM yet.");
     } else {
-        return basis.bindings.fp._PlayerController_getInputState(thisPtr, inputID);
+        return basis.bindings.fp._PlayerController_getInputState(thisPtr, inputID) == 1;
     }
 }
 
@@ -954,7 +958,7 @@ pub fn PlayerController_getInputAction(thisPtr: basis.bindings.InteropTypedPtr, 
     if (isWasm) {
         @compileError("PlayerController_getInputAction not implemented for WASM yet.");
     } else {
-        return basis.bindings.fp._PlayerController_getInputAction(thisPtr, inputID);
+        return basis.bindings.fp._PlayerController_getInputAction(thisPtr, inputID) == 1;
     }
 }
 
@@ -1206,7 +1210,7 @@ pub fn GameObject_setWorldTransform(cppPtr: basis.CppPtr, position: [*c]const ba
 
         return access.GameObject_setWorldTransform_WASM(cppPtr, &buffer, SIZE);
     } else {
-        return basis.bindings.fp._GameObject_setWorldTransform(cppPtr, position, orientation, teleport);
+        return basis.bindings.fp._GameObject_setWorldTransform(cppPtr, position, orientation, if (teleport) 1 else 0);
     }
 }
 
@@ -1281,6 +1285,14 @@ pub fn GameObject_getRenderSceneNode(cppPtr: basis.CppPtr) basis.CppPtr {
     }
 }
 
+pub fn GameObject_getNavMeshObstacleIDs(cppPtr: basis.CppPtr, navMeshID: u32, outIDs: [*c]u32, maxCount: u32) u32 {
+    if (isWasm) {
+        @compileError("GameObject_getNavMeshObstacleIDs not implemented for WASM yet.");
+    } else {
+        return basis.bindings.fp._GameObject_getNavMeshObstacleIDs(cppPtr, navMeshID, outIDs, maxCount);
+    }
+}
+
 // ===============================
 
 // class ComponentContext
@@ -1300,7 +1312,7 @@ pub fn ComponentContext_onClient(thisPtr: basis.bindings.InteropTypedPtr) bool {
     if (isWasm) {
         return access.ComponentContext_onClient_WASM(thisPtr.ptr, thisPtr.type);
     } else {
-        return basis.bindings.fp._ComponentContext_onClient(thisPtr);
+        return basis.bindings.fp._ComponentContext_onClient(thisPtr) == 1;
     }
 }
 
@@ -1308,7 +1320,7 @@ pub fn ComponentContext_inEditor(thisPtr: basis.bindings.InteropTypedPtr) bool {
     if (isWasm) {
         return access.ComponentContext_inEditor_WASM(thisPtr.ptr, thisPtr.type);
     } else {
-        return basis.bindings.fp._ComponentContext_inEditor(thisPtr);
+        return basis.bindings.fp._ComponentContext_inEditor(thisPtr) == 1;
     }
 }
 
@@ -1489,7 +1501,7 @@ pub fn ComponentContext_setTransform(
 
         access.ComponentContext_setTransform_WASM(thisPtr.ptr, thisPtr.type, &buffer, SIZE);
     } else {
-        basis.bindings.fp._ComponentContext_setTransform(thisPtr, position, orientation, teleport);
+        basis.bindings.fp._ComponentContext_setTransform(thisPtr, position, orientation, if (teleport) 1 else 0);
     }
 }
 
@@ -1514,7 +1526,7 @@ pub fn ComponentContext_setTransformWithVelocities(
 
         access.ComponentContext_setTransformWithVelocities_WASM(thisPtr.ptr, thisPtr.type, &buffer, SIZE);
     } else {
-        basis.bindings.fp._ComponentContext_setTransformWithVelocities(thisPtr, position, orientation, linVel, angVel, teleport);
+        basis.bindings.fp._ComponentContext_setTransformWithVelocities(thisPtr, position, orientation, linVel, angVel, if (teleport) 1 else 0);
     }
 }
 
@@ -1544,7 +1556,7 @@ pub fn ComponentContext_isClientLocalAvatar(thisPtr: basis.bindings.InteropTyped
     if (isWasm) {
         return access.ComponentContext_isClientLocalAvatar_WASM(thisPtr.ptr, thisPtr.type);
     } else {
-        return basis.bindings.fp._ComponentContext_isClientLocalAvatar(thisPtr);
+        return basis.bindings.fp._ComponentContext_isClientLocalAvatar(thisPtr) == 1;
     }
 }
 
@@ -1568,7 +1580,7 @@ pub fn ComponentContext_getInputState(thisPtr: basis.bindings.InteropTypedPtr, i
     if (isWasm) {
         return access.ComponentContext_getInputState_WASM(thisPtr.ptr, thisPtr.type, inputID);
     } else {
-        return basis.bindings.fp._ComponentContext_getInputState(thisPtr, inputID);
+        return basis.bindings.fp._ComponentContext_getInputState(thisPtr, inputID) == 1;
     }
 }
 
@@ -1576,7 +1588,7 @@ pub fn ComponentContext_getInputAction(thisPtr: basis.bindings.InteropTypedPtr, 
     if (isWasm) {
         return access.ComponentContext_getInputAction_WASM(thisPtr.ptr, thisPtr.type, inputID);
     } else {
-        return basis.bindings.fp._ComponentContext_getInputAction(thisPtr, inputID);
+        return basis.bindings.fp._ComponentContext_getInputAction(thisPtr, inputID) == 1;
     }
 }
 
@@ -1639,7 +1651,7 @@ pub fn ComponentContext_registerPipe(thisPtr: basis.bindings.InteropTypedPtr, pi
             reliable,
         );
     } else {
-        return basis.bindings.fp._ComponentContext_registerPipe(thisPtr, pipename, direction, reliable);
+        return basis.bindings.fp._ComponentContext_registerPipe(thisPtr, pipename, direction, if (reliable) 1 else 0);
     }
 }
 
@@ -1675,6 +1687,14 @@ pub fn ComponentContext_getScriptFunctionByASFuncPtr(thisPtr: basis.bindings.Int
     }
 }
 
+pub fn ComponentContext_setScriptGlobalHandle(thisPtr: basis.bindings.InteropTypedPtr, handleName: [*c]const basis.bindings.InteropString, value: basis.CppPtr) void {
+    if (isWasm) {
+        access.ComponentContext_setScriptGlobalHandle_WASM(thisPtr.ptr, thisPtr.type, handleName.*.ptr, handleName.*.len, value);
+    } else {
+        basis.bindings.fp._ComponentContext_setScriptGlobalHandle(thisPtr, handleName, value);
+    }
+}
+
 // ===============================
 
 // class AngelScriptFunction
@@ -1691,7 +1711,7 @@ pub fn AngelScriptFunction_setBoolParam(thisPtr: u64, i: u32, value: bool) void 
     if (isWasm) {
         @compileError("AngelScriptFunction_setBoolParam not implemented for WASM yet.");
     } else {
-        basis.bindings.fp._AngelScriptFunction_setBoolParam(thisPtr, i, value);
+        basis.bindings.fp._AngelScriptFunction_setBoolParam(thisPtr, i, if (value) 1 else 0);
     }
 }
 
@@ -1731,7 +1751,39 @@ pub fn AngelScriptFunction_setGameObjectRefParam(thisPtr: u64, i: u32, objectNam
     if (isWasm) {
         @compileError("AngelScriptFunction_setGameObjectRefParam not implemented for WASM yet.");
     } else {
-        basis.bindings.fp._AngelScriptFunction_setGameObjectRefParam(thisPtr, i, objectNameHash, hostCppPtr, hostIsClient);
+        basis.bindings.fp._AngelScriptFunction_setGameObjectRefParam(thisPtr, i, objectNameHash, hostCppPtr, if (hostIsClient) 1 else 0);
+    }
+}
+
+pub fn AngelScriptFunction_getReturnBool(thisPtr: u64) i32 {
+    if (isWasm) {
+        @compileError("AngelScriptFunction_getReturnBool not implemented for WASM yet.");
+    } else {
+        return basis.bindings.fp._AngelScriptFunction_getReturnBool(thisPtr);
+    }
+}
+
+pub fn AngelScriptFunction_getReturnInt(thisPtr: u64) i32 {
+    if (isWasm) {
+        @compileError("AngelScriptFunction_getReturnInt not implemented for WASM yet.");
+    } else {
+        return basis.bindings.fp._AngelScriptFunction_getReturnInt(thisPtr);
+    }
+}
+
+pub fn AngelScriptFunction_getReturnUint(thisPtr: u64) u32 {
+    if (isWasm) {
+        @compileError("AngelScriptFunction_getReturnUint not implemented for WASM yet.");
+    } else {
+        return basis.bindings.fp._AngelScriptFunction_getReturnUint(thisPtr);
+    }
+}
+
+pub fn AngelScriptFunction_getReturnFloat(thisPtr: u64) f32 {
+    if (isWasm) {
+        @compileError("AngelScriptFunction_getReturnFloat not implemented for WASM yet.");
+    } else {
+        return basis.bindings.fp._AngelScriptFunction_getReturnFloat(thisPtr);
     }
 }
 
@@ -1974,7 +2026,7 @@ pub fn InputManager_isGameInputContextEnabled(context: u8) bool {
     if (isWasm) {
         return access.InputManager_isGameInputContextEnabled_WASM(context);
     } else {
-        return basis.bindings.fp._InputManager_isGameInputContextEnabled(context);
+        return basis.bindings.fp._InputManager_isGameInputContextEnabled(context) == 1;
     }
 }
 
@@ -1998,7 +2050,7 @@ pub fn InputManager_isCursorLocked() bool {
     if (isWasm) {
         return access.InputManager_isCursorLocked_WASM();
     } else {
-        return basis.bindings.fp._InputManager_isCursorLocked();
+        return basis.bindings.fp._InputManager_isCursorLocked() == 1;
     }
 }
 
@@ -2030,7 +2082,7 @@ pub fn InputManager_isKeyPressed(keyCode: u32) bool {
     if (isWasm) {
         return access.InputManager_isKeyPressed_WASM(keyCode);
     } else {
-        return basis.bindings.fp._InputManager_isKeyPressed(keyCode);
+        return basis.bindings.fp._InputManager_isKeyPressed(keyCode) == 1;
     }
 }
 
@@ -2038,7 +2090,23 @@ pub fn InputManager_isMouseButtonPressed(id: u32) bool {
     if (isWasm) {
         return access.InputManager_isMouseButtonPressed_WASM(id);
     } else {
-        return basis.bindings.fp._InputManager_isMouseButtonPressed(id);
+        return basis.bindings.fp._InputManager_isMouseButtonPressed(id) == 1;
+    }
+}
+
+pub fn InputManager_isGamepadButtonDown(button: i32) bool {
+    if (isWasm) {
+        return access.InputManager_isGamepadButtonDown_WASM(button);
+    } else {
+        return basis.bindings.fp._InputManager_isGamepadButtonDown(button) == 1;
+    }
+}
+
+pub fn InputManager_setGamepadVibration(index: i32, lowFrequency: f32, highFrequency: f32) void {
+    if (isWasm) {
+        access.InputManager_setGamepadVibration_WASM(index, lowFrequency, highFrequency);
+    } else {
+        basis.bindings.fp._InputManager_setGamepadVibration(index, lowFrequency, highFrequency);
     }
 }
 
@@ -2053,7 +2121,7 @@ pub fn InputManager_getMappedKeyCode(inputID: u16, context: u8, flags: i32, keyC
         keyCode.* = val;
         return true;
     } else {
-        return basis.bindings.fp._InputManager_getMappedKeyCode(inputID, context, flags, keyCode);
+        return basis.bindings.fp._InputManager_getMappedKeyCode(inputID, context, flags, keyCode) == 1;
     }
 }
 
@@ -2068,7 +2136,7 @@ pub fn InputManager_getMappedMouseButton(inputID: u16, context: u8, flags: i32, 
         mouseButton.* = val;
         return true;
     } else {
-        return basis.bindings.fp._InputManager_getMappedMouseButton(inputID, context, flags, mouseButton);
+        return basis.bindings.fp._InputManager_getMappedMouseButton(inputID, context, flags, mouseButton) == 1;
     }
 }
 
@@ -2083,7 +2151,7 @@ pub fn InputManager_getMappedGamepadButton(inputID: u16, context: u8, flags: i32
         gamepadButton.* = val;
         return true;
     } else {
-        return basis.bindings.fp._InputManager_getMappedGamepadButton(inputID, context, flags, gamepadButton);
+        return basis.bindings.fp._InputManager_getMappedGamepadButton(inputID, context, flags, gamepadButton) == 1;
     }
 }
 
@@ -2091,7 +2159,31 @@ pub fn InputManager_getMappedInputSource(inputID: u16, context: u8, flags: i32, 
     if (isWasm) {
         @compileError("InputManager_getMappedInputSource not implemented for WASM yet.");
     } else {
-        return basis.bindings.fp._InputManager_getMappedInputSource(inputID, context, flags, gameInputMode, source);
+        return basis.bindings.fp._InputManager_getMappedInputSource(inputID, context, flags, gameInputMode, source) == 1;
+    }
+}
+
+pub fn InputManager_getFirstPressedKey() i32 {
+    if (isWasm) {
+        @compileError("InputManager_getFirstPressedKey not implemented for WASM yet.");
+    } else {
+        return basis.bindings.fp._InputManager_getFirstPressedKey();
+    }
+}
+
+pub fn InputManager_getFirstPressedMouseButton() i32 {
+    if (isWasm) {
+        @compileError("InputManager_getFirstPressedMouseButton not implemented for WASM yet.");
+    } else {
+        return basis.bindings.fp._InputManager_getFirstPressedMouseButton();
+    }
+}
+
+pub fn InputManager_getKeyName(keyCode: u32, buffer: [*c]u8, bufferLen: u32) u32 {
+    if (isWasm) {
+        @compileError("InputManager_getKeyName not implemented for WASM yet.");
+    } else {
+        return basis.bindings.fp._InputManager_getKeyName(keyCode, buffer, bufferLen);
     }
 }
 
@@ -2119,112 +2211,266 @@ fn packPVCreationData(buffer: []u8, reliablePropagation: bool, immediatePropagat
     return @intCast(stream.cursorPosition);
 }
 
-pub fn PropagatedValue_createFloat(thisPtr: basis.bindings.InteropTypedPtr, zigPVPtr: u64, name: [*c]const basis.bindings.InteropString, reliablePropagation: bool, immediatePropagation: bool, initialValue: f32) basis.CppPtr {
+pub fn PropagatedValue_createFloat(
+    thisPtr: basis.bindings.InteropTypedPtr,
+    zigPVPtr: u64,
+    name: [*c]const basis.bindings.InteropString,
+    reliablePropagation: bool,
+    immediatePropagation: bool,
+    initialValue: f32,
+) basis.CppPtr {
     if (isWasm) {
         var buffer: [64]u8 = undefined;
         const dataSize = packPVCreationData(&buffer, reliablePropagation, immediatePropagation, initialValue);
         return access.PropagatedValue_create_WASM(thisPtr.ptr, thisPtr.type, zigPVPtr, name.*.ptr, name.*.len, &buffer, dataSize);
     } else {
-        return basis.bindings.fp._PropagatedValue_createFloat(thisPtr, zigPVPtr, name, reliablePropagation, immediatePropagation, initialValue);
+        return basis.bindings.fp._PropagatedValue_createFloat(
+            thisPtr,
+            zigPVPtr,
+            name,
+            if (reliablePropagation) 1 else 0,
+            if (immediatePropagation) 1 else 0,
+            initialValue,
+        );
     }
 }
 
-pub fn PropagatedValue_createDouble(thisPtr: basis.bindings.InteropTypedPtr, zigPVPtr: u64, name: [*c]const basis.bindings.InteropString, reliablePropagation: bool, immediatePropagation: bool, initialValue: f64) basis.CppPtr {
+pub fn PropagatedValue_createDouble(
+    thisPtr: basis.bindings.InteropTypedPtr,
+    zigPVPtr: u64,
+    name: [*c]const basis.bindings.InteropString,
+    reliablePropagation: bool,
+    immediatePropagation: bool,
+    initialValue: f64,
+) basis.CppPtr {
     if (isWasm) {
         @compileError("PropagatedValue_createDouble not implemented for WASM yet.");
         // TODO: putDouble() missing from the stream.
     } else {
-        return basis.bindings.fp._PropagatedValue_createDouble(thisPtr, zigPVPtr, name, reliablePropagation, immediatePropagation, initialValue);
+        return basis.bindings.fp._PropagatedValue_createDouble(
+            thisPtr,
+            zigPVPtr,
+            name,
+            if (reliablePropagation) 1 else 0,
+            if (immediatePropagation) 1 else 0,
+            initialValue,
+        );
     }
 }
 
-pub fn PropagatedValue_createInt32(thisPtr: basis.bindings.InteropTypedPtr, zigPVPtr: u64, name: [*c]const basis.bindings.InteropString, reliablePropagation: bool, immediatePropagation: bool, initialValue: i32) basis.CppPtr {
+pub fn PropagatedValue_createInt32(
+    thisPtr: basis.bindings.InteropTypedPtr,
+    zigPVPtr: u64,
+    name: [*c]const basis.bindings.InteropString,
+    reliablePropagation: bool,
+    immediatePropagation: bool,
+    initialValue: i32,
+) basis.CppPtr {
     if (isWasm) {
         var buffer: [64]u8 = undefined;
         const dataSize = packPVCreationData(&buffer, reliablePropagation, immediatePropagation, initialValue);
         return access.PropagatedValue_create_WASM(thisPtr.ptr, thisPtr.type, zigPVPtr, name.*.ptr, name.*.len, &buffer, dataSize);
     } else {
-        return basis.bindings.fp._PropagatedValue_createInt32(thisPtr, zigPVPtr, name, reliablePropagation, immediatePropagation, initialValue);
+        return basis.bindings.fp._PropagatedValue_createInt32(
+            thisPtr,
+            zigPVPtr,
+            name,
+            if (reliablePropagation) 1 else 0,
+            if (immediatePropagation) 1 else 0,
+            initialValue,
+        );
     }
 }
 
-pub fn PropagatedValue_createUint32(thisPtr: basis.bindings.InteropTypedPtr, zigPVPtr: u64, name: [*c]const basis.bindings.InteropString, reliablePropagation: bool, immediatePropagation: bool, initialValue: u32) basis.CppPtr {
+pub fn PropagatedValue_createUint32(
+    thisPtr: basis.bindings.InteropTypedPtr,
+    zigPVPtr: u64,
+    name: [*c]const basis.bindings.InteropString,
+    reliablePropagation: bool,
+    immediatePropagation: bool,
+    initialValue: u32,
+) basis.CppPtr {
     if (isWasm) {
         var buffer: [64]u8 = undefined;
         const dataSize = packPVCreationData(&buffer, reliablePropagation, immediatePropagation, initialValue);
         return access.PropagatedValue_create_WASM(thisPtr.ptr, thisPtr.type, zigPVPtr, name.*.ptr, name.*.len, &buffer, dataSize);
     } else {
-        return basis.bindings.fp._PropagatedValue_createUint32(thisPtr, zigPVPtr, name, reliablePropagation, immediatePropagation, initialValue);
+        return basis.bindings.fp._PropagatedValue_createUint32(
+            thisPtr,
+            zigPVPtr,
+            name,
+            if (reliablePropagation) 1 else 0,
+            if (immediatePropagation) 1 else 0,
+            initialValue,
+        );
     }
 }
 
-pub fn PropagatedValue_createInt16(thisPtr: basis.bindings.InteropTypedPtr, zigPVPtr: u64, name: [*c]const basis.bindings.InteropString, reliablePropagation: bool, immediatePropagation: bool, initialValue: i16) basis.CppPtr {
+pub fn PropagatedValue_createInt16(
+    thisPtr: basis.bindings.InteropTypedPtr,
+    zigPVPtr: u64,
+    name: [*c]const basis.bindings.InteropString,
+    reliablePropagation: bool,
+    immediatePropagation: bool,
+    initialValue: i16,
+) basis.CppPtr {
     if (isWasm) {
         var buffer: [64]u8 = undefined;
         const dataSize = packPVCreationData(&buffer, reliablePropagation, immediatePropagation, initialValue);
         return access.PropagatedValue_create_WASM(thisPtr.ptr, thisPtr.type, zigPVPtr, name.*.ptr, name.*.len, &buffer, dataSize);
     } else {
-        return basis.bindings.fp._PropagatedValue_createInt16(thisPtr, zigPVPtr, name, reliablePropagation, immediatePropagation, initialValue);
+        return basis.bindings.fp._PropagatedValue_createInt16(
+            thisPtr,
+            zigPVPtr,
+            name,
+            if (reliablePropagation) 1 else 0,
+            if (immediatePropagation) 1 else 0,
+            initialValue,
+        );
     }
 }
 
-pub fn PropagatedValue_createUint16(thisPtr: basis.bindings.InteropTypedPtr, zigPVPtr: u64, name: [*c]const basis.bindings.InteropString, reliablePropagation: bool, immediatePropagation: bool, initialValue: u16) basis.CppPtr {
+pub fn PropagatedValue_createUint16(
+    thisPtr: basis.bindings.InteropTypedPtr,
+    zigPVPtr: u64,
+    name: [*c]const basis.bindings.InteropString,
+    reliablePropagation: bool,
+    immediatePropagation: bool,
+    initialValue: u16,
+) basis.CppPtr {
     if (isWasm) {
         var buffer: [64]u8 = undefined;
         const dataSize = packPVCreationData(&buffer, reliablePropagation, immediatePropagation, initialValue);
         return access.PropagatedValue_create_WASM(thisPtr.ptr, thisPtr.type, zigPVPtr, name.*.ptr, name.*.len, &buffer, dataSize);
     } else {
-        return basis.bindings.fp._PropagatedValue_createUint16(thisPtr, zigPVPtr, name, reliablePropagation, immediatePropagation, initialValue);
+        return basis.bindings.fp._PropagatedValue_createUint16(
+            thisPtr,
+            zigPVPtr,
+            name,
+            if (reliablePropagation) 1 else 0,
+            if (immediatePropagation) 1 else 0,
+            initialValue,
+        );
     }
 }
 
-pub fn PropagatedValue_createInt64(thisPtr: basis.bindings.InteropTypedPtr, zigPVPtr: u64, name: [*c]const basis.bindings.InteropString, reliablePropagation: bool, immediatePropagation: bool, initialValue: i64) basis.CppPtr {
+pub fn PropagatedValue_createInt64(
+    thisPtr: basis.bindings.InteropTypedPtr,
+    zigPVPtr: u64,
+    name: [*c]const basis.bindings.InteropString,
+    reliablePropagation: bool,
+    immediatePropagation: bool,
+    initialValue: i64,
+) basis.CppPtr {
     if (isWasm) {
         var buffer: [64]u8 = undefined;
         const dataSize = packPVCreationData(&buffer, reliablePropagation, immediatePropagation, initialValue);
         return access.PropagatedValue_create_WASM(thisPtr.ptr, thisPtr.type, zigPVPtr, name.*.ptr, name.*.len, &buffer, dataSize);
     } else {
-        return basis.bindings.fp._PropagatedValue_createInt64(thisPtr, zigPVPtr, name, reliablePropagation, immediatePropagation, initialValue);
+        return basis.bindings.fp._PropagatedValue_createInt64(
+            thisPtr,
+            zigPVPtr,
+            name,
+            if (reliablePropagation) 1 else 0,
+            if (immediatePropagation) 1 else 0,
+            initialValue,
+        );
     }
 }
 
-pub fn PropagatedValue_createUint64(thisPtr: basis.bindings.InteropTypedPtr, zigPVPtr: u64, name: [*c]const basis.bindings.InteropString, reliablePropagation: bool, immediatePropagation: bool, initialValue: u64) basis.CppPtr {
+pub fn PropagatedValue_createUint64(
+    thisPtr: basis.bindings.InteropTypedPtr,
+    zigPVPtr: u64,
+    name: [*c]const basis.bindings.InteropString,
+    reliablePropagation: bool,
+    immediatePropagation: bool,
+    initialValue: u64,
+) basis.CppPtr {
     if (isWasm) {
         var buffer: [64]u8 = undefined;
         const dataSize = packPVCreationData(&buffer, reliablePropagation, immediatePropagation, initialValue);
         return access.PropagatedValue_create_WASM(thisPtr.ptr, thisPtr.type, zigPVPtr, name.*.ptr, name.*.len, &buffer, dataSize);
     } else {
-        return basis.bindings.fp._PropagatedValue_createUint64(thisPtr, zigPVPtr, name, reliablePropagation, immediatePropagation, initialValue);
+        return basis.bindings.fp._PropagatedValue_createUint64(
+            thisPtr,
+            zigPVPtr,
+            name,
+            if (reliablePropagation) 1 else 0,
+            if (immediatePropagation) 1 else 0,
+            initialValue,
+        );
     }
 }
 
-pub fn PropagatedValue_createInt8(thisPtr: basis.bindings.InteropTypedPtr, zigPVPtr: u64, name: [*c]const basis.bindings.InteropString, reliablePropagation: bool, immediatePropagation: bool, initialValue: i8) basis.CppPtr {
+pub fn PropagatedValue_createInt8(
+    thisPtr: basis.bindings.InteropTypedPtr,
+    zigPVPtr: u64,
+    name: [*c]const basis.bindings.InteropString,
+    reliablePropagation: bool,
+    immediatePropagation: bool,
+    initialValue: i8,
+) basis.CppPtr {
     if (isWasm) {
         var buffer: [64]u8 = undefined;
         const dataSize = packPVCreationData(&buffer, reliablePropagation, immediatePropagation, initialValue);
         return access.PropagatedValue_create_WASM(thisPtr.ptr, thisPtr.type, zigPVPtr, name.*.ptr, name.*.len, &buffer, dataSize);
     } else {
-        return basis.bindings.fp._PropagatedValue_createInt8(thisPtr, zigPVPtr, name, reliablePropagation, immediatePropagation, initialValue);
+        return basis.bindings.fp._PropagatedValue_createInt8(
+            thisPtr,
+            zigPVPtr,
+            name,
+            if (reliablePropagation) 1 else 0,
+            if (immediatePropagation) 1 else 0,
+            initialValue,
+        );
     }
 }
 
-pub fn PropagatedValue_createUint8(thisPtr: basis.bindings.InteropTypedPtr, zigPVPtr: u64, name: [*c]const basis.bindings.InteropString, reliablePropagation: bool, immediatePropagation: bool, initialValue: u8) basis.CppPtr {
+pub fn PropagatedValue_createUint8(
+    thisPtr: basis.bindings.InteropTypedPtr,
+    zigPVPtr: u64,
+    name: [*c]const basis.bindings.InteropString,
+    reliablePropagation: bool,
+    immediatePropagation: bool,
+    initialValue: u8,
+) basis.CppPtr {
     if (isWasm) {
         var buffer: [64]u8 = undefined;
         const dataSize = packPVCreationData(&buffer, reliablePropagation, immediatePropagation, initialValue);
         return access.PropagatedValue_create_WASM(thisPtr.ptr, thisPtr.type, zigPVPtr, name.*.ptr, name.*.len, &buffer, dataSize);
     } else {
-        return basis.bindings.fp._PropagatedValue_createUint8(thisPtr, zigPVPtr, name, reliablePropagation, immediatePropagation, initialValue);
+        return basis.bindings.fp._PropagatedValue_createUint8(
+            thisPtr,
+            zigPVPtr,
+            name,
+            if (reliablePropagation) 1 else 0,
+            if (immediatePropagation) 1 else 0,
+            initialValue,
+        );
     }
 }
 
-pub fn PropagatedValue_createBool(thisPtr: basis.bindings.InteropTypedPtr, zigPVPtr: u64, name: [*c]const basis.bindings.InteropString, reliablePropagation: bool, immediatePropagation: bool, initialValue: bool) basis.CppPtr {
+pub fn PropagatedValue_createBool(
+    thisPtr: basis.bindings.InteropTypedPtr,
+    zigPVPtr: u64,
+    name: [*c]const basis.bindings.InteropString,
+    reliablePropagation: bool,
+    immediatePropagation: bool,
+    initialValue: bool,
+) basis.CppPtr {
     if (isWasm) {
         var buffer: [64]u8 = undefined;
         const dataSize = packPVCreationData(&buffer, reliablePropagation, immediatePropagation, initialValue);
         return access.PropagatedValue_create_WASM(thisPtr.ptr, thisPtr.type, zigPVPtr, name.*.ptr, name.*.len, &buffer, dataSize);
     } else {
-        return basis.bindings.fp._PropagatedValue_createBool(thisPtr, zigPVPtr, name, reliablePropagation, immediatePropagation, initialValue);
+        return basis.bindings.fp._PropagatedValue_createBool(
+            thisPtr,
+            zigPVPtr,
+            name,
+            if (reliablePropagation) 1 else 0,
+            if (immediatePropagation) 1 else 0,
+            if (initialValue) 1 else 0,
+        );
     }
 }
 
@@ -2241,7 +2487,14 @@ pub fn PropagatedValue_createVec2(
         const dataSize = packPVCreationData(&buffer, reliablePropagation, immediatePropagation, Vec2.fromInterop(initialValue.*));
         return access.PropagatedValue_create_WASM(thisPtr.ptr, thisPtr.type, zigPVPtr, name.*.ptr, name.*.len, &buffer, dataSize);
     } else {
-        return basis.bindings.fp._PropagatedValue_createVec2(thisPtr, zigPVPtr, name, reliablePropagation, immediatePropagation, initialValue);
+        return basis.bindings.fp._PropagatedValue_createVec2(
+            thisPtr,
+            zigPVPtr,
+            name,
+            if (reliablePropagation) 1 else 0,
+            if (immediatePropagation) 1 else 0,
+            initialValue,
+        );
     }
 }
 
@@ -2258,7 +2511,14 @@ pub fn PropagatedValue_createVec3(
         const dataSize = packPVCreationData(&buffer, reliablePropagation, immediatePropagation, Vec3.fromInterop(initialValue.*));
         return access.PropagatedValue_create_WASM(thisPtr.ptr, thisPtr.type, zigPVPtr, name.*.ptr, name.*.len, &buffer, dataSize);
     } else {
-        return basis.bindings.fp._PropagatedValue_createVec3(thisPtr, zigPVPtr, name, reliablePropagation, immediatePropagation, initialValue);
+        return basis.bindings.fp._PropagatedValue_createVec3(
+            thisPtr,
+            zigPVPtr,
+            name,
+            if (reliablePropagation) 1 else 0,
+            if (immediatePropagation) 1 else 0,
+            initialValue,
+        );
     }
 }
 
@@ -2275,7 +2535,14 @@ pub fn PropagatedValue_createVec4(
         const dataSize = packPVCreationData(&buffer, reliablePropagation, immediatePropagation, Vec4.fromInterop(initialValue.*));
         return access.PropagatedValue_create_WASM(thisPtr.ptr, thisPtr.type, zigPVPtr, name.*.ptr, name.*.len, &buffer, dataSize);
     } else {
-        return basis.bindings.fp._PropagatedValue_createVec4(thisPtr, zigPVPtr, name, reliablePropagation, immediatePropagation, initialValue);
+        return basis.bindings.fp._PropagatedValue_createVec4(
+            thisPtr,
+            zigPVPtr,
+            name,
+            if (reliablePropagation) 1 else 0,
+            if (immediatePropagation) 1 else 0,
+            initialValue,
+        );
     }
 }
 
@@ -2292,7 +2559,14 @@ pub fn PropagatedValue_createQuaternion(
         const dataSize = packPVCreationData(&buffer, reliablePropagation, immediatePropagation, Quaternion.fromInterop(initialValue.*));
         return access.PropagatedValue_create_WASM(thisPtr.ptr, thisPtr.type, zigPVPtr, name.*.ptr, name.*.len, &buffer, dataSize);
     } else {
-        return basis.bindings.fp._PropagatedValue_createQuaternion(thisPtr, zigPVPtr, name, reliablePropagation, immediatePropagation, initialValue);
+        return basis.bindings.fp._PropagatedValue_createQuaternion(
+            thisPtr,
+            zigPVPtr,
+            name,
+            if (reliablePropagation) 1 else 0,
+            if (immediatePropagation) 1 else 0,
+            initialValue,
+        );
     }
 }
 
@@ -2312,7 +2586,14 @@ pub fn PropagatedValue_createMat43(
         //const dataSize = packPVCreationData(&buffer, reliablePropagation, immediatePropagation, Mat43.fromInterop(initialValue.*));
         //return access.PropagatedValue_create_WASM(thisPtr.ptr, thisPtr.type, zigPVPtr, name.*.ptr, name.*.len, &buffer, dataSize);
     } else {
-        return basis.bindings.fp._PropagatedValue_createMat43(thisPtr, zigPVPtr, name, reliablePropagation, immediatePropagation, initialValue);
+        return basis.bindings.fp._PropagatedValue_createMat43(
+            thisPtr,
+            zigPVPtr,
+            name,
+            if (reliablePropagation) 1 else 0,
+            if (immediatePropagation) 1 else 0,
+            initialValue,
+        );
     }
 }
 
@@ -2437,7 +2718,7 @@ pub fn PropagatedValue_setBool(cppPVPtr: basis.CppPtr, value: bool) void {
         const dataSize = packPVData(&buffer, value);
         access.PropagatedValue_set_WASM(cppPVPtr, &buffer, dataSize);
     } else {
-        basis.bindings.fp._PropagatedValue_setBool(cppPVPtr, value);
+        basis.bindings.fp._PropagatedValue_setBool(cppPVPtr, if (value) 1 else 0);
     }
 }
 
@@ -2509,7 +2790,13 @@ pub fn PropagatedValue_createAction(
             immediatePropagation,
         );
     } else {
-        return basis.bindings.fp._PropagatedValue_createAction(thisPtr, zigPAPtr, name, reliablePropagation, immediatePropagation);
+        return basis.bindings.fp._PropagatedValue_createAction(
+            thisPtr,
+            zigPAPtr,
+            name,
+            if (reliablePropagation) 1 else 0,
+            if (immediatePropagation) 1 else 0,
+        );
     }
 }
 
@@ -2585,7 +2872,7 @@ pub fn SceneNode_setPosition(cppPtr: basis.CppPtr, position: [*c]const basis.bin
 
         access.SceneNode_setPosition_WASM(cppPtr, &buffer, SIZE);
     } else {
-        basis.bindings.fp._SceneNode_setPosition(cppPtr, position, space, immediateUpdate);
+        basis.bindings.fp._SceneNode_setPosition(cppPtr, position, space, if (immediateUpdate) 1 else 0);
     }
 }
 
@@ -2615,7 +2902,7 @@ pub fn SceneNode_setOrientation(cppPtr: basis.CppPtr, orientation: [*c]const bas
 
         access.SceneNode_setOrientation_WASM(cppPtr, &buffer, SIZE);
     } else {
-        basis.bindings.fp._SceneNode_setOrientation(cppPtr, orientation, space, immediateUpdate);
+        basis.bindings.fp._SceneNode_setOrientation(cppPtr, orientation, space, if (immediateUpdate) 1 else 0);
     }
 }
 
@@ -2644,7 +2931,7 @@ pub fn SceneNode_setScale(cppPtr: basis.CppPtr, scale: [*c]const basis.bindings.
 
         access.SceneNode_setScale_WASM(cppPtr, &buffer, SIZE);
     } else {
-        basis.bindings.fp._SceneNode_setScale(cppPtr, scale, immediateUpdate);
+        basis.bindings.fp._SceneNode_setScale(cppPtr, scale, if (immediateUpdate) 1 else 0);
     }
 }
 
@@ -2674,7 +2961,7 @@ pub fn SceneNode_translate(cppPtr: basis.CppPtr, translation: [*c]const basis.bi
 
         access.SceneNode_translate_WASM(cppPtr, &buffer, SIZE);
     } else {
-        basis.bindings.fp._SceneNode_translate(cppPtr, translation, space, immediateUpdate);
+        basis.bindings.fp._SceneNode_translate(cppPtr, translation, space, if (immediateUpdate) 1 else 0);
     }
 }
 
@@ -2682,7 +2969,7 @@ pub fn SceneNode_yaw(cppPtr: basis.CppPtr, angle: f32, space: c_int, immediateUp
     if (isWasm) {
         access.SceneNode_yaw_WASM(cppPtr, angle, space, immediateUpdate);
     } else {
-        basis.bindings.fp._SceneNode_yaw(cppPtr, angle, space, immediateUpdate);
+        basis.bindings.fp._SceneNode_yaw(cppPtr, angle, space, if (immediateUpdate) 1 else 0);
     }
 }
 
@@ -2690,7 +2977,7 @@ pub fn SceneNode_pitch(cppPtr: basis.CppPtr, angle: f32, space: c_int, immediate
     if (isWasm) {
         access.SceneNode_pitch_WASM(cppPtr, angle, space, immediateUpdate);
     } else {
-        basis.bindings.fp._SceneNode_pitch(cppPtr, angle, space, immediateUpdate);
+        basis.bindings.fp._SceneNode_pitch(cppPtr, angle, space, if (immediateUpdate) 1 else 0);
     }
 }
 
@@ -2698,7 +2985,7 @@ pub fn SceneNode_roll(cppPtr: basis.CppPtr, angle: f32, space: c_int, immediateU
     if (isWasm) {
         access.SceneNode_roll_WASM(cppPtr, angle, space, immediateUpdate);
     } else {
-        basis.bindings.fp._SceneNode_roll(cppPtr, angle, space, immediateUpdate);
+        basis.bindings.fp._SceneNode_roll(cppPtr, angle, space, if (immediateUpdate) 1 else 0);
     }
 }
 
@@ -2706,7 +2993,7 @@ pub fn SceneNode_lookAtSceneNode(cppPtr: basis.CppPtr, targetCppPtr: basis.CppPt
     if (isWasm) {
         access.SceneNode_lookAtSceneNode_WASM(cppPtr, targetCppPtr, immediateUpdate);
     } else {
-        basis.bindings.fp._SceneNode_lookAtSceneNode(cppPtr, targetCppPtr, immediateUpdate);
+        basis.bindings.fp._SceneNode_lookAtSceneNode(cppPtr, targetCppPtr, if (immediateUpdate) 1 else 0);
     }
 }
 
@@ -2866,7 +3153,7 @@ pub fn PhysicsScene_applyRadialForce(sceneCppPtr: basis.CppPtr, center: [*c]cons
 
         access.PhysicsScene_applyRadialForce_WASM(sceneCppPtr, &buffer, SIZE);
     } else {
-        basis.bindings.fp._PhysicsScene_applyRadialForce(sceneCppPtr, center, radius, strength, falloff, accelerationChange);
+        basis.bindings.fp._PhysicsScene_applyRadialForce(sceneCppPtr, center, radius, strength, falloff, if (accelerationChange) 1 else 0);
     }
 }
 
@@ -2884,7 +3171,7 @@ pub fn PhysicsScene_applyRadialImpulse(sceneCppPtr: basis.CppPtr, center: [*c]co
 
         access.PhysicsScene_applyRadialImpulse_WASM(sceneCppPtr, &buffer, SIZE);
     } else {
-        basis.bindings.fp._PhysicsScene_applyRadialImpulse(sceneCppPtr, center, radius, strength, falloff, velocityChange);
+        basis.bindings.fp._PhysicsScene_applyRadialImpulse(sceneCppPtr, center, radius, strength, falloff, if (velocityChange) 1 else 0);
     }
 }
 
@@ -3046,7 +3333,18 @@ pub fn PhysicsScene_castRayWithCallback(
     if (isWasm) {
         @compileError("PhysicsScene_castRayWithCallback not implemented for WASM yet.");
     } else {
-        return basis.bindings.fp._PhysicsScene_castRayWithCallback(sceneCppPtr, origin, direction, maxDistance, result, blockingActorTypes, callbackPtr, needsPostFilter, shouldReportHit, shouldReportHitPostFilter);
+        return basis.bindings.fp._PhysicsScene_castRayWithCallback(
+            sceneCppPtr,
+            origin,
+            direction,
+            maxDistance,
+            result,
+            blockingActorTypes,
+            callbackPtr,
+            if (needsPostFilter) 1 else 0,
+            shouldReportHit,
+            shouldReportHitPostFilter,
+        );
     }
 }
 
@@ -3078,7 +3376,15 @@ pub fn PhysicsMaterial_getBaseMaterial(physicsEngineCppPtr: basis.CppPtr, materi
     }
 }
 
-pub fn PhysicsMaterial_createMaterial(physicsEngineCppPtr: basis.CppPtr, materialType: c_int, staticFriction: f32, dynamicFriction: f32, restitution: f32, drivable: bool, walkable: bool) basis.CppPtr {
+pub fn PhysicsMaterial_createMaterial(
+    physicsEngineCppPtr: basis.CppPtr,
+    materialType: c_int,
+    staticFriction: f32,
+    dynamicFriction: f32,
+    restitution: f32,
+    drivable: bool,
+    walkable: bool,
+) basis.CppPtr {
     if (isWasm) {
         const SIZE = @sizeOf(i32) + @sizeOf(f32) + @sizeOf(f32) + @sizeOf(f32) + 1 + 1;
         var buffer: [SIZE]u8 = undefined;
@@ -3093,7 +3399,15 @@ pub fn PhysicsMaterial_createMaterial(physicsEngineCppPtr: basis.CppPtr, materia
 
         return access.PhysicsMaterial_createMaterial_WASM(physicsEngineCppPtr, &buffer, SIZE);
     } else {
-        return basis.bindings.fp._PhysicsMaterial_createMaterial(physicsEngineCppPtr, materialType, staticFriction, dynamicFriction, restitution, drivable, walkable);
+        return basis.bindings.fp._PhysicsMaterial_createMaterial(
+            physicsEngineCppPtr,
+            materialType,
+            staticFriction,
+            dynamicFriction,
+            restitution,
+            if (drivable) 1 else 0,
+            if (walkable) 1 else 0,
+        );
     }
 }
 
@@ -3150,7 +3464,7 @@ pub fn PhysicsShape_createBox(
 
         return access.PhysicsShape_createBox_WASM(physicsEngineCppPtr, &buffer, SIZE);
     } else {
-        return basis.bindings.fp._PhysicsShape_createBox(physicsEngineCppPtr, width, height, depth, material, localPosition, localOrientation, exclusive);
+        return basis.bindings.fp._PhysicsShape_createBox(physicsEngineCppPtr, width, height, depth, material, localPosition, localOrientation, if (exclusive) 1 else 0);
     }
 }
 
@@ -3175,7 +3489,7 @@ pub fn PhysicsShape_createSphere(
 
         return access.PhysicsShape_createSphere_WASM(physicsEngineCppPtr, &buffer, SIZE);
     } else {
-        return basis.bindings.fp._PhysicsShape_createSphere(physicsEngineCppPtr, radius, material, localPosition, localOrientation, exclusive);
+        return basis.bindings.fp._PhysicsShape_createSphere(physicsEngineCppPtr, radius, material, localPosition, localOrientation, if (exclusive) 1 else 0);
     }
 }
 
@@ -3202,7 +3516,7 @@ pub fn PhysicsShape_createCapsule(
 
         return access.PhysicsShape_createCapsule_WASM(physicsEngineCppPtr, &buffer, SIZE);
     } else {
-        return basis.bindings.fp._PhysicsShape_createCapsule(physicsEngineCppPtr, radius, height, material, localPosition, localOrientation, exclusive);
+        return basis.bindings.fp._PhysicsShape_createCapsule(physicsEngineCppPtr, radius, height, material, localPosition, localOrientation, if (exclusive) 1 else 0);
     }
 }
 
@@ -3229,7 +3543,7 @@ pub fn PhysicsShape_createCylinder(
 
         return access.PhysicsShape_createCylinder_WASM(physicsEngineCppPtr, &buffer, SIZE);
     } else {
-        return basis.bindings.fp._PhysicsShape_createCylinder(physicsEngineCppPtr, radius, height, material, localPosition, localOrientation, exclusive);
+        return basis.bindings.fp._PhysicsShape_createCylinder(physicsEngineCppPtr, radius, height, material, localPosition, localOrientation, if (exclusive) 1 else 0);
     }
 }
 
@@ -3256,7 +3570,7 @@ pub fn PhysicsShape_createCylinderX(
 
         return access.PhysicsShape_createCylinderX_WASM(physicsEngineCppPtr, &buffer, SIZE);
     } else {
-        return basis.bindings.fp._PhysicsShape_createCylinderX(physicsEngineCppPtr, radius, height, material, localPosition, localOrientation, exclusive);
+        return basis.bindings.fp._PhysicsShape_createCylinderX(physicsEngineCppPtr, radius, height, material, localPosition, localOrientation, if (exclusive) 1 else 0);
     }
 }
 
@@ -3283,7 +3597,7 @@ pub fn PhysicsShape_createCylinderZ(
 
         return access.PhysicsShape_createCylinderZ_WASM(physicsEngineCppPtr, &buffer, SIZE);
     } else {
-        return basis.bindings.fp._PhysicsShape_createCylinderZ(physicsEngineCppPtr, radius, height, material, localPosition, localOrientation, exclusive);
+        return basis.bindings.fp._PhysicsShape_createCylinderZ(physicsEngineCppPtr, radius, height, material, localPosition, localOrientation, if (exclusive) 1 else 0);
     }
 }
 
@@ -3336,7 +3650,17 @@ pub fn PhysicsActor_createRigidBodyDynamic(
 
         return access.PhysicsActor_createRigidBodyDynamic_WASM(physicsEngineCppPtr, &buffer, @intCast(stream.cursorPosition));
     } else {
-        return basis.bindings.fp._PhysicsActor_createRigidBodyDynamic(physicsEngineCppPtr, shapes, shapeCount, mass, CoM, initialPosition, initialOrientation, kinematic, useCCD);
+        return basis.bindings.fp._PhysicsActor_createRigidBodyDynamic(
+            physicsEngineCppPtr,
+            shapes,
+            shapeCount,
+            mass,
+            CoM,
+            initialPosition,
+            initialOrientation,
+            if (kinematic) 1 else 0,
+            if (useCCD) 1 else 0,
+        );
     }
 }
 
@@ -3377,27 +3701,40 @@ pub fn PhysicsActor_createBoxTrigger(
     ignoreRemovedObjects: bool,
 ) basis.CppPtr {
     if (isWasm) {
-        const SIZE = 128;
-        var buffer: [SIZE]u8 = undefined;
+        // The below code works, but the C++ side isn't finished yet.
+        @compileError("PhysicsActor_createBoxTrigger not implemented for WASM yet.");
 
-        var stream = basis.BinaryWriteStream.init(&buffer, true);
-        stream.putFloat(width);
-        stream.putFloat(height);
-        stream.putFloat(depth);
-        stream.put(Vec3, Vec3.fromInterop(initialPosition.*));
-        stream.put(Quaternion, Quaternion.fromInterop(initialOrientation.*));
-        stream.putBool(ignoreStaticObjects);
-        stream.putBool(ignoreRemovedObjects);
+        // const SIZE = 128;
+        // var buffer: [SIZE]u8 = undefined;
 
-        return access.PhysicsActor_createBoxTrigger_WASM(
-            zigLibCppPtr.ptr,
-            zigLibCppPtr.type,
-            physicsEngineCppPtr,
-            &buffer,
-            @intCast(stream.cursorPosition),
-        );
+        // var stream = basis.BinaryWriteStream.init(&buffer, true);
+        // stream.putFloat(width);
+        // stream.putFloat(height);
+        // stream.putFloat(depth);
+        // stream.put(Vec3, Vec3.fromInterop(initialPosition.*));
+        // stream.put(Quaternion, Quaternion.fromInterop(initialOrientation.*));
+        // stream.putBool(ignoreStaticObjects);
+        // stream.putBool(ignoreRemovedObjects);
+
+        // return access.PhysicsActor_createBoxTrigger_WASM(
+        //     zigLibCppPtr.ptr,
+        //     zigLibCppPtr.type,
+        //     physicsEngineCppPtr,
+        //     &buffer,
+        //     @intCast(stream.cursorPosition),
+        // );
     } else {
-        return basis.bindings.fp._PhysicsActor_createBoxTrigger(zigLibCppPtr, physicsEngineCppPtr, width, height, depth, initialPosition, initialOrientation, ignoreStaticObjects, ignoreRemovedObjects);
+        return basis.bindings.fp._PhysicsActor_createBoxTrigger(
+            zigLibCppPtr,
+            physicsEngineCppPtr,
+            width,
+            height,
+            depth,
+            initialPosition,
+            initialOrientation,
+            if (ignoreStaticObjects) 1 else 0,
+            if (ignoreRemovedObjects) 1 else 0,
+        );
     }
 }
 
@@ -3411,25 +3748,36 @@ pub fn PhysicsActor_createSphereTrigger(
     ignoreRemovedObjects: bool,
 ) basis.CppPtr {
     if (isWasm) {
-        const SIZE = 128;
-        var buffer: [SIZE]u8 = undefined;
+        // The below code works, but the C++ side isn't finished yet.
+        @compileError("PhysicsActor_createSphereTrigger not implemented for WASM yet.");
 
-        var stream = basis.BinaryWriteStream.init(&buffer, true);
-        stream.putFloat(radius);
-        stream.put(Vec3, Vec3.fromInterop(initialPosition.*));
-        stream.put(Quaternion, Quaternion.fromInterop(initialOrientation.*));
-        stream.putBool(ignoreStaticObjects);
-        stream.putBool(ignoreRemovedObjects);
+        // const SIZE = 128;
+        // var buffer: [SIZE]u8 = undefined;
 
-        return access.PhysicsActor_createSphereTrigger_WASM(
-            zigLibCppPtr.ptr,
-            zigLibCppPtr.type,
-            physicsEngineCppPtr,
-            &buffer,
-            @intCast(stream.cursorPosition),
-        );
+        // var stream = basis.BinaryWriteStream.init(&buffer, true);
+        // stream.putFloat(radius);
+        // stream.put(Vec3, Vec3.fromInterop(initialPosition.*));
+        // stream.put(Quaternion, Quaternion.fromInterop(initialOrientation.*));
+        // stream.putBool(ignoreStaticObjects);
+        // stream.putBool(ignoreRemovedObjects);
+
+        // return access.PhysicsActor_createSphereTrigger_WASM(
+        //     zigLibCppPtr.ptr,
+        //     zigLibCppPtr.type,
+        //     physicsEngineCppPtr,
+        //     &buffer,
+        //     @intCast(stream.cursorPosition),
+        // );
     } else {
-        return basis.bindings.fp._PhysicsActor_createSphereTrigger(zigLibCppPtr, physicsEngineCppPtr, radius, initialPosition, initialOrientation, ignoreStaticObjects, ignoreRemovedObjects);
+        return basis.bindings.fp._PhysicsActor_createSphereTrigger(
+            zigLibCppPtr,
+            physicsEngineCppPtr,
+            radius,
+            initialPosition,
+            initialOrientation,
+            if (ignoreStaticObjects) 1 else 0,
+            if (ignoreRemovedObjects) 1 else 0,
+        );
     }
 }
 
@@ -3484,6 +3832,38 @@ pub fn PhysicsActor_setMassData(cppPtr: basis.CppPtr, mass: f32, centerOfMass: [
         access.PhysicsActor_setMassData_WASM(cppPtr, mass, centerOfMass.*.x, centerOfMass.*.y, centerOfMass.*.z);
     } else {
         basis.bindings.fp._PhysicsActor_setMassData(cppPtr, mass, centerOfMass);
+    }
+}
+
+pub fn PhysicsActor_setContactReportThreshold(cppPtr: basis.CppPtr, threshold: f32) void {
+    if (isWasm) {
+        access.PhysicsActor_setContactReportThreshold_WASM(cppPtr, threshold);
+    } else {
+        basis.bindings.fp._PhysicsActor_setContactReportThreshold(cppPtr, threshold);
+    }
+}
+
+pub fn PhysicsActor_setSolverIterationCounts(cppPtr: basis.CppPtr, minPositionIters: u32, minVelocityIters: u32) void {
+    if (isWasm) {
+        access.PhysicsActor_setSolverIterationCounts_WASM(cppPtr, minPositionIters, minVelocityIters);
+    } else {
+        basis.bindings.fp._PhysicsActor_setSolverIterationCounts(cppPtr, minPositionIters, minVelocityIters);
+    }
+}
+
+pub fn PhysicsActor_setAngularDamping(cppPtr: basis.CppPtr, damping: f32) void {
+    if (isWasm) {
+        access.PhysicsActor_setAngularDamping_WASM(cppPtr, damping);
+    } else {
+        basis.bindings.fp._PhysicsActor_setAngularDamping(cppPtr, damping);
+    }
+}
+
+pub fn PhysicsActor_setMaxAngularVelocity(cppPtr: basis.CppPtr, maxAngVel: f32) void {
+    if (isWasm) {
+        access.PhysicsActor_setMaxAngularVelocity_WASM(cppPtr, maxAngVel);
+    } else {
+        basis.bindings.fp._PhysicsActor_setMaxAngularVelocity(cppPtr, maxAngVel);
     }
 }
 
@@ -3611,7 +3991,7 @@ pub fn PhysicsActor_addForce(cppPtr: basis.CppPtr, force: [*c]const basis.bindin
 
         access.PhysicsActor_addForce_WASM(cppPtr, &buffer, SIZE);
     } else {
-        basis.bindings.fp._PhysicsActor_addForce(cppPtr, force, position, wakeUp);
+        basis.bindings.fp._PhysicsActor_addForce(cppPtr, force, position, if (wakeUp) 1 else 0);
     }
 }
 
@@ -3627,7 +4007,7 @@ pub fn PhysicsActor_addImpulse(cppPtr: basis.CppPtr, impulse: [*c]const basis.bi
 
         access.PhysicsActor_addImpulse_WASM(cppPtr, &buffer, SIZE);
     } else {
-        basis.bindings.fp._PhysicsActor_addImpulse(cppPtr, impulse, position, wakeUp);
+        basis.bindings.fp._PhysicsActor_addImpulse(cppPtr, impulse, position, if (wakeUp) 1 else 0);
     }
 }
 
@@ -3695,7 +4075,7 @@ pub fn PhysicsJoint_enableProjection(cppPtr: basis.CppPtr, jointType: u32, proje
     if (isWasm) {
         @compileError("PhysicsJoint_enableProjection not implemented for WASM yet.");
     } else {
-        basis.bindings.fp._PhysicsJoint_enableProjection(cppPtr, jointType, projectToActor0, linearTolerance, angularTolerance);
+        basis.bindings.fp._PhysicsJoint_enableProjection(cppPtr, jointType, if (projectToActor0) 1 else 0, linearTolerance, angularTolerance);
     }
 }
 
@@ -3719,7 +4099,7 @@ pub fn PhysicsJoint_setDof6Drive(cppPtr: basis.CppPtr, drive: u32, driveStiffnes
     if (isWasm) {
         @compileError("PhysicsJoint_setDof6Drive not implemented for WASM yet.");
     } else {
-        basis.bindings.fp._PhysicsJoint_setDof6Drive(cppPtr, drive, driveStiffness, driveDamping, driveForceLimit, isAcceleration);
+        basis.bindings.fp._PhysicsJoint_setDof6Drive(cppPtr, drive, driveStiffness, driveDamping, driveForceLimit, if (isAcceleration) 1 else 0);
     }
 }
 
@@ -4015,6 +4395,14 @@ pub fn VehicleController_getStateInfo(cppPtr: basis.CppPtr, stateInfo: [*c]basis
     }
 }
 
+pub fn VehicleController_getFastestWheelRotationSpeed(cppPtr: basis.CppPtr) f32 {
+    if (isWasm) {
+        @compileError("VehicleController_getFastestWheelRotationSpeed not implemented for WASM yet.");
+    } else {
+        return basis.bindings.fp._VehicleController_getFastestWheelRotationSpeed(cppPtr);
+    }
+}
+
 pub fn VehicleController_addRef(cppPtr: basis.CppPtr) void {
     if (isWasm) {
         @compileError("VehicleController_addRef not implemented for WASM yet.");
@@ -4112,6 +4500,14 @@ pub fn ResourceManager_addLooseFileResourcePack(cppPtr: basis.CppPtr, resourcePa
         @compileError("ResourceManager_addLooseFileResourcePack not implemented for WASM yet.");
     } else {
         basis.bindings.fp._ResourceManager_addLooseFileResourcePack(cppPtr, resourcePackName, mappings, mappingCount);
+    }
+}
+
+pub fn ResourceManager_getSourceFilePathForResource(cppPtr: basis.CppPtr, resourcePath: [*c]const basis.bindings.InteropString, sourceFilePath: [*c]basis.bindings.InteropString) c_int {
+    if (isWasm) {
+        @compileError("ResourceManager_getSourceFilePathForResource not implemented for WASM yet.");
+    } else {
+        return basis.bindings.fp._ResourceManager_getSourceFilePathForResource(cppPtr, resourcePath, sourceFilePath);
     }
 }
 
@@ -4219,27 +4615,59 @@ pub fn Renderer_getMainCamera(cppPtr: basis.CppPtr) basis.CppPtr {
     }
 }
 
-pub fn Renderer_getScreenWidth(cppPtr: basis.CppPtr) u32 {
+pub fn Renderer_getWindowWidth(cppPtr: basis.CppPtr) u32 {
     if (isWasm) {
-        return access.Renderer_getScreenWidth_WASM(cppPtr);
+        return access.Renderer_getWindowWidth_WASM(cppPtr);
     } else {
-        return basis.bindings.fp._Renderer_getScreenWidth(cppPtr);
+        return basis.bindings.fp._Renderer_getWindowWidth(cppPtr);
     }
 }
 
-pub fn Renderer_getScreenHeight(cppPtr: basis.CppPtr) u32 {
+pub fn Renderer_getWindowHeight(cppPtr: basis.CppPtr) u32 {
     if (isWasm) {
-        return access.Renderer_getScreenHeight_WASM(cppPtr);
+        return access.Renderer_getWindowHeight_WASM(cppPtr);
     } else {
-        return basis.bindings.fp._Renderer_getScreenHeight(cppPtr);
+        return basis.bindings.fp._Renderer_getWindowHeight(cppPtr);
     }
 }
 
-pub fn Renderer_setVignetteEnabled(cppPtr: basis.CppPtr, enabled: c_int) void {
+pub fn Renderer_getRenderWidth(cppPtr: basis.CppPtr) u32 {
     if (isWasm) {
-        access.Renderer_setVignetteEnabled_WASM(cppPtr, enabled);
+        return access.Renderer_getRenderWidth_WASM(cppPtr);
     } else {
-        basis.bindings.fp._Renderer_setVignetteEnabled(cppPtr, enabled);
+        return basis.bindings.fp._Renderer_getRenderWidth(cppPtr);
+    }
+}
+
+pub fn Renderer_getRenderHeight(cppPtr: basis.CppPtr) u32 {
+    if (isWasm) {
+        return access.Renderer_getRenderHeight_WASM(cppPtr);
+    } else {
+        return basis.bindings.fp._Renderer_getRenderHeight(cppPtr);
+    }
+}
+
+pub fn Renderer_getRenderScale(cppPtr: basis.CppPtr) f32 {
+    if (isWasm) {
+        return access.Renderer_getRenderScale_WASM(cppPtr);
+    } else {
+        return basis.bindings.fp._Renderer_getRenderScale(cppPtr);
+    }
+}
+
+pub fn Renderer_setRenderScale(cppPtr: basis.CppPtr, scale: f32) void {
+    if (isWasm) {
+        access.Renderer_setRenderScale_WASM(cppPtr, scale);
+    } else {
+        basis.bindings.fp._Renderer_setRenderScale(cppPtr, scale);
+    }
+}
+
+pub fn Renderer_setGraphicsOption(cppPtr: basis.CppPtr, optionId: c_int, value: c_int) void {
+    if (isWasm) {
+        @compileError("Renderer_setGraphicsOption is not available in WASM.");
+    } else {
+        basis.bindings.fp._Renderer_setGraphicsOption(cppPtr, optionId, value);
     }
 }
 
@@ -4253,7 +4681,7 @@ pub fn Renderer_createMesh(cppPtr: basis.CppPtr, geomCppPtr: basis.CppPtr, creat
             debugName.*.len,
         );
     } else {
-        return basis.bindings.fp._Renderer_createMesh(cppPtr, geomCppPtr, createImmutableGPUBuffers, debugName);
+        return basis.bindings.fp._Renderer_createMesh(cppPtr, geomCppPtr, if (createImmutableGPUBuffers) 1 else 0, debugName);
     }
 }
 
@@ -4332,7 +4760,7 @@ pub fn Renderer_applyDisplayOptions(cppPtr: basis.CppPtr, renderWindowMode: i32,
     if (isWasm) {
         @compileError("Renderer_applyDisplayOptions not implemented for WASM yet.");
     } else {
-        basis.bindings.fp._Renderer_applyDisplayOptions(cppPtr, renderWindowMode, width, height, vsync, framerateLimit);
+        basis.bindings.fp._Renderer_applyDisplayOptions(cppPtr, renderWindowMode, width, height, if (vsync) 1 else 0, framerateLimit);
     }
 }
 
@@ -4340,7 +4768,15 @@ pub fn Renderer_applyVsyncAndFramerateLimit(cppPtr: basis.CppPtr, vsync: bool, f
     if (isWasm) {
         @compileError("Renderer_applyVsyncAndFramerateLimit not implemented for WASM yet.");
     } else {
-        basis.bindings.fp._Renderer_applyVsyncAndFramerateLimit(cppPtr, vsync, framerateLimit);
+        basis.bindings.fp._Renderer_applyVsyncAndFramerateLimit(cppPtr, if (vsync) 1 else 0, framerateLimit);
+    }
+}
+
+pub fn Renderer_getWindowMode(cppPtr: basis.CppPtr) i32 {
+    if (isWasm) {
+        @compileError("Renderer_getWindowMode not implemented for WASM yet.");
+    } else {
+        return basis.bindings.fp._Renderer_getWindowMode(cppPtr);
     }
 }
 
@@ -4416,7 +4852,7 @@ pub fn RenderScene_createStaticMeshInstance(cppPtr: basis.CppPtr, mesh: basis.Cp
         }
         return access.RenderScene_createStaticMeshInstance_WASM(cppPtr, &buffer, @intCast(stream.cursorPosition), addToBVH);
     } else {
-        return basis.bindings.fp._RenderScene_createStaticMeshInstance(cppPtr, mesh, materials, materialCount, addToBVH);
+        return basis.bindings.fp._RenderScene_createStaticMeshInstance(cppPtr, mesh, materials, materialCount, if (addToBVH) 1 else 0);
     }
 }
 
@@ -4489,7 +4925,7 @@ pub fn TireTrackRenderer_registerTire(cppPtr: basis.CppPtr, width: f32, isRightS
     if (isWasm) {
         @compileError("TireTrackRenderer_registerTire not implemented for WASM yet.");
     } else {
-        return basis.bindings.fp._TireTrackRenderer_registerTire(cppPtr, width, isRightSideTire, tireType);
+        return basis.bindings.fp._TireTrackRenderer_registerTire(cppPtr, width, if (isRightSideTire) 1 else 0, tireType);
     }
 }
 
@@ -4529,7 +4965,7 @@ pub fn TireTrackRenderer_beginStaticTireTrack(cppPtr: basis.CppPtr, width: f32, 
     if (isWasm) {
         @compileError("TireTrackRenderer_beginStaticTireTrack not implemented for WASM yet.");
     } else {
-        return basis.bindings.fp._TireTrackRenderer_beginStaticTireTrack(cppPtr, width, isRightSideTire, tireType);
+        return basis.bindings.fp._TireTrackRenderer_beginStaticTireTrack(cppPtr, width, if (isRightSideTire) 1 else 0, tireType);
     }
 }
 
@@ -4873,7 +5309,7 @@ pub fn MeshInstance_setVisible(cppPtr: basis.CppPtr, visible: bool) void {
     if (isWasm) {
         access.MeshInstance_setVisible_WASM(cppPtr, visible);
     } else {
-        basis.bindings.fp._MeshInstance_setVisible(cppPtr, visible);
+        basis.bindings.fp._MeshInstance_setVisible(cppPtr, if (visible) 1 else 0);
     }
 }
 
@@ -4881,7 +5317,7 @@ pub fn MeshInstance_isVisible(cppPtr: basis.CppPtr) bool {
     if (isWasm) {
         return access.MeshInstance_isVisible_WASM(cppPtr);
     } else {
-        return basis.bindings.fp._MeshInstance_isVisible(cppPtr);
+        return basis.bindings.fp._MeshInstance_isVisible(cppPtr) == 1;
     }
 }
 
@@ -4938,6 +5374,22 @@ pub fn MeshInstance_getParentSceneNode(cppPtr: basis.CppPtr) basis.CppPtr {
         return access.MeshInstance_getParentSceneNode_WASM(cppPtr);
     } else {
         return basis.bindings.fp._MeshInstance_getParentSceneNode(cppPtr);
+    }
+}
+
+pub fn MeshInstance_setCullDistanceMultiplier(cppPtr: basis.CppPtr, multiplier: f32) void {
+    if (isWasm) {
+        @compileError("MeshInstance_setCullDistanceMultiplier not implemented for WASM yet.");
+    } else {
+        basis.bindings.fp._MeshInstance_setCullDistanceMultiplier(cppPtr, multiplier);
+    }
+}
+
+pub fn MeshInstance_getCullDistanceMultiplier(cppPtr: basis.CppPtr) f32 {
+    if (isWasm) {
+        @compileError("MeshInstance_getCullDistanceMultiplier not implemented for WASM yet.");
+    } else {
+        return basis.bindings.fp._MeshInstance_getCullDistanceMultiplier(cppPtr);
     }
 }
 
@@ -5049,7 +5501,7 @@ pub fn Camera_worldToScreen(cppPtr: basis.CppPtr, worldPos: [*c]const basis.bind
         y.* = stream.getFloat();
         return true;
     } else {
-        return basis.bindings.fp._Camera_worldToScreen(cppPtr, worldPos, x, y);
+        return basis.bindings.fp._Camera_worldToScreen(cppPtr, worldPos, x, y) == 1;
     }
 }
 
@@ -5228,6 +5680,46 @@ pub fn GameSession_requestPause(cppPtr: basis.CppPtr, paused: i32) void {
     }
 }
 
+pub fn GameSession_getTickLevel(cppPtr: basis.CppPtr) u32 {
+    if (isWasm) {
+        return access.GameSession_getTickLevel_WASM(cppPtr);
+    } else {
+        return basis.bindings.fp._GameSession_getTickLevel(cppPtr);
+    }
+}
+
+pub fn GameSession_setTickLevel(cppPtr: basis.CppPtr, level: u32) void {
+    if (isWasm) {
+        access.GameSession_setTickLevel_WASM(cppPtr, level);
+    } else {
+        basis.bindings.fp._GameSession_setTickLevel(cppPtr, level);
+    }
+}
+
+pub fn GameSession_requestSetTickLevel(cppPtr: basis.CppPtr, level: u32) void {
+    if (isWasm) {
+        access.GameSession_requestSetTickLevel_WASM(cppPtr, level);
+    } else {
+        basis.bindings.fp._GameSession_requestSetTickLevel(cppPtr, level);
+    }
+}
+
+pub fn GameSession_hasStarted(cppPtr: basis.CppPtr) i32 {
+    if (isWasm) {
+        return access.GameSession_hasStarted_WASM(cppPtr);
+    } else {
+        return basis.bindings.fp._GameSession_hasStarted(cppPtr);
+    }
+}
+
+pub fn GameSession_hasEnded(cppPtr: basis.CppPtr) i32 {
+    if (isWasm) {
+        return access.GameSession_hasEnded_WASM(cppPtr);
+    } else {
+        return basis.bindings.fp._GameSession_hasEnded(cppPtr);
+    }
+}
+
 pub fn GameSession_getLevelData(cppPtr: basis.CppPtr) u64 {
     if (isWasm) {
         return access.GameSession_getLevelData_WASM(cppPtr);
@@ -5280,7 +5772,7 @@ pub fn GameState_createGameObject(
 
         access.GameState_createGameObject_WASM(cppPtr, tempMemory.ptr, @intCast(stream.cursorPosition));
     } else {
-        basis.bindings.fp._GameState_createGameObject(cppPtr, objectName, objectType, propagate);
+        basis.bindings.fp._GameState_createGameObject(cppPtr, objectName, objectType, if (propagate) 1 else 0);
     }
 }
 
@@ -5299,12 +5791,12 @@ pub fn GameState_createGameObjectWithStartTransform(
         stream.putString(objectName);
         stream.putString(objectType);
         stream.put(Vec3, Vec3.fromInterop(pos.*));
-        stream.put(Quaternion, Vec3.fromInterop(ori.*));
+        stream.put(Quaternion, Quaternion.fromInterop(ori.*));
         stream.putString(propagate);
 
         access.GameState_createGameObjectWithStartTransform_WASM(cppPtr, tempMemory.ptr, @intCast(stream.cursorPosition));
     } else {
-        basis.bindings.fp._GameState_createGameObjectWithStartTransform(cppPtr, objectName, objectType, pos, ori, propagate);
+        basis.bindings.fp._GameState_createGameObjectWithStartTransform(cppPtr, objectName, objectType, pos, ori, if (propagate) 1 else 0);
     }
 }
 
@@ -5326,7 +5818,7 @@ pub fn GameState_createGameObjectWithSpawnPointIndex(
 
         access.GameState_createGameObjectWithSpawnPointIndex_WASM(cppPtr, tempMemory.ptr, @intCast(stream.cursorPosition));
     } else {
-        basis.bindings.fp._GameState_createGameObjectWithSpawnPointIndex(cppPtr, objectName, objectType, spawnPointIndex, propagate);
+        basis.bindings.fp._GameState_createGameObjectWithSpawnPointIndex(cppPtr, objectName, objectType, spawnPointIndex, if (propagate) 1 else 0);
     }
 }
 
@@ -5348,7 +5840,7 @@ pub fn GameState_createGameObjectWithSpawnPointName(
 
         access.GameState_createGameObjectWithSpawnPointName_WASM(cppPtr, tempMemory.ptr, @intCast(stream.cursorPosition));
     } else {
-        basis.bindings.fp._GameState_createGameObjectWithSpawnPointName(cppPtr, objectName, objectType, spawnPointName, propagate);
+        basis.bindings.fp._GameState_createGameObjectWithSpawnPointName(cppPtr, objectName, objectType, spawnPointName, if (propagate) 1 else 0);
     }
 }
 
@@ -5356,7 +5848,7 @@ pub fn GameState_createGameObjectWithParameters(cppPtr: basis.CppPtr, paramsCppP
     if (isWasm) {
         access.GameState_createGameObjectWithParameters_WASM(cppPtr, paramsCppPtr, propagate);
     } else {
-        basis.bindings.fp._GameState_createGameObjectWithParameters(cppPtr, paramsCppPtr, propagate);
+        basis.bindings.fp._GameState_createGameObjectWithParameters(cppPtr, paramsCppPtr, if (propagate) 1 else 0);
     }
 }
 
@@ -5364,7 +5856,7 @@ pub fn GameState_destroyGameObject(cppPtr: basis.CppPtr, objectNameHash: u32, pr
     if (isWasm) {
         access.GameState_destroyGameObject_WASM(cppPtr, objectNameHash, propagate, destroyImmediately);
     } else {
-        basis.bindings.fp._GameState_destroyGameObject(cppPtr, objectNameHash, propagate, destroyImmediately);
+        basis.bindings.fp._GameState_destroyGameObject(cppPtr, objectNameHash, if (propagate) 1 else 0, if (destroyImmediately) 1 else 0);
     }
 }
 
@@ -5372,7 +5864,7 @@ pub fn GameState_hasGameObject(cppPtr: basis.CppPtr, objectNameHash: u32) bool {
     if (isWasm) {
         return access.GameState_hasGameObject_WASM(cppPtr, objectNameHash);
     } else {
-        return basis.bindings.fp._GameState_hasGameObject(cppPtr, objectNameHash);
+        return basis.bindings.fp._GameState_hasGameObject(cppPtr, objectNameHash) == 1;
     }
 }
 
@@ -5413,6 +5905,14 @@ pub fn GameState_broadcastScriptMessage(cppPtr: basis.CppPtr, senderCppPtr: basi
         access.GameState_broadcastScriptMessage_WASM(cppPtr, senderCppPtr, message.*.ptr, message.*.len);
     } else {
         basis.bindings.fp._GameState_broadcastScriptMessage(cppPtr, senderCppPtr, message);
+    }
+}
+
+pub fn GameState_sendScriptMessageToGameObject(cppPtr: basis.CppPtr, senderCppPtr: basis.CppPtr, receiverName: [*c]const basis.bindings.InteropString, message: [*c]const basis.bindings.InteropString) void {
+    if (isWasm) {
+        access.GameState_sendScriptMessageToGameObject_WASM(cppPtr, senderCppPtr, receiverName.*.ptr, receiverName.*.len, message.*.ptr, message.*.len);
+    } else {
+        basis.bindings.fp._GameState_sendScriptMessageToGameObject(cppPtr, senderCppPtr, receiverName, message);
     }
 }
 
@@ -5551,15 +6051,15 @@ pub fn NavMeshRuntime_hasNavMesh(navMeshID: u32) bool {
     if (isWasm) {
         @compileError("NavMeshRuntime_hasNavMesh not implemented for WASM yet.");
     } else {
-        return basis.bindings.fp._NavMeshRuntime_hasNavMesh(navMeshID);
+        return basis.bindings.fp._NavMeshRuntime_hasNavMesh(navMeshID) == 1;
     }
 }
 
-pub fn NavMeshRuntime_findPath(navMeshID: u32, startPoint: [*c]const basis.bindings.InteropVec3, endPoint: [*c]const basis.bindings.InteropVec3, filter: [*c]const basis.bindings.InteropNavMeshQueryFilter, pathArray: [*c]basis.bindings.InteropVec3, pathArraySize: u32, pathLength: [*c]u32, searchBoxSize: f32) i32 {
+pub fn NavMeshRuntime_findPath(navMeshID: u32, startPoint: [*c]const basis.bindings.InteropVec3, endPoint: [*c]const basis.bindings.InteropVec3, filter: [*c]const basis.bindings.InteropNavMeshQueryFilter, pathArray: [*c]basis.bindings.InteropVec3, pathArraySize: u32, pathLength: [*c]u32, searchBoxSize: f32, ignoredSoftObstacles: [*c]const u32, ignoredSoftObstacleCount: u32) i32 {
     if (isWasm) {
         @compileError("NavMeshRuntime_findPath not implemented for WASM yet.");
     } else {
-        return basis.bindings.fp._NavMeshRuntime_findPath(navMeshID, startPoint, endPoint, filter, pathArray, pathArraySize, pathLength, searchBoxSize);
+        return basis.bindings.fp._NavMeshRuntime_findPath(navMeshID, startPoint, endPoint, filter, pathArray, pathArraySize, pathLength, searchBoxSize, ignoredSoftObstacles, ignoredSoftObstacleCount);
     }
 }
 
@@ -6010,6 +6510,46 @@ pub fn ImGui_endPopup() void {
     }
 }
 
+pub fn ImGui_beginPopupModal(name: [*c]const basis.bindings.InteropString, flags: i32) c_int {
+    if (isWasm) {
+        @compileError("ImGui_beginPopupModal not implemented for WASM yet.");
+    } else {
+        return basis.bindings.fp._ImGui_beginPopupModal(name, flags);
+    }
+}
+
+pub fn ImGui_closeCurrentPopup() void {
+    if (isWasm) {
+        @compileError("ImGui_closeCurrentPopup not implemented for WASM yet.");
+    } else {
+        basis.bindings.fp._ImGui_closeCurrentPopup();
+    }
+}
+
+pub fn ImGui_setItemDefaultFocus() void {
+    if (isWasm) {
+        @compileError("ImGui_setItemDefaultFocus not implemented for WASM yet.");
+    } else {
+        basis.bindings.fp._ImGui_setItemDefaultFocus();
+    }
+}
+
+pub fn ImGui_dummy(size: [*c]const basis.bindings.InteropVec2) void {
+    if (isWasm) {
+        @compileError("ImGui_dummy not implemented for WASM yet.");
+    } else {
+        return basis.bindings.fp._ImGui_dummy(size);
+    }
+}
+
+pub fn ImGui_getMainViewportCenter(center: [*c]basis.bindings.InteropVec2) void {
+    if (isWasm) {
+        @compileError("ImGui_getMainViewportCenter not implemented for WASM yet.");
+    } else {
+        basis.bindings.fp._ImGui_getMainViewportCenter(center);
+    }
+}
+
 pub fn ImGui_pushStyleColor(idx: i32, col: [*c]const basis.bindings.InteropColor) void {
     if (isWasm) {
         const r = @as(f32, @floatFromInt(col.r)) / 255.0;
@@ -6269,6 +6809,130 @@ pub fn ImGui_sliderInt(label: [*c]const basis.bindings.InteropString, v: *i32, v
     }
 }
 
+pub fn ImGui_plotMultiLines(data: [*c]const u8, dataLength: u32, getter: basis.bindings.ImguiPlotMultiLinesGetter) void {
+    if (isWasm) {
+        @compileError("ImGui_plotMultiLines not implemented for WASM yet.");
+    } else {
+        basis.bindings.fp._ImGui_plotMultiLines(data, dataLength, getter);
+    }
+}
+
+pub fn ImGui_getContentRegionAvail(region: [*c]basis.bindings.InteropVec2) void {
+    if (isWasm) {
+        @compileError("ImGui_getContentRegionAvail not implemented for WASM yet.");
+    } else {
+        basis.bindings.fp._ImGui_getContentRegionAvail(region);
+    }
+}
+
+pub fn ImGui_pushID(int_id: i32) void {
+    if (isWasm) {
+        @compileError("ImGui_pushID not implemented for WASM yet.");
+    } else {
+        basis.bindings.fp._ImGui_pushID(int_id);
+    }
+}
+
+pub fn ImGui_pushIDPtr(ptr_id: basis.IntPtr64) void {
+    if (isWasm) {
+        @compileError("ImGui_pushIDPtr not implemented for WASM yet.");
+    } else {
+        basis.bindings.fp._ImGui_pushIDPtr(ptr_id);
+    }
+}
+
+pub fn ImGui_popID() void {
+    if (isWasm) {
+        @compileError("ImGui_popID not implemented for WASM yet.");
+    } else {
+        basis.bindings.fp._ImGui_popID();
+    }
+}
+
+// ===============================
+
+// class ImPlot
+
+pub fn ImPlot_beginPlot(title_id: [*c]const basis.bindings.InteropString, size: [*c]const basis.bindings.InteropVec2, flags: i32) c_int {
+    if (isWasm) {
+        @compileError("ImPlot_beginPlot not implemented for WASM yet.");
+    } else {
+        return basis.bindings.fp._ImPlot_beginPlot(title_id, size, flags);
+    }
+}
+
+pub fn ImPlot_endPlot() void {
+    if (isWasm) {
+        @compileError("ImPlot_endPlot not implemented for WASM yet.");
+    } else {
+        basis.bindings.fp._ImPlot_endPlot();
+    }
+}
+
+pub fn ImPlot_setupAxis(axis: i32, label: [*c]const basis.bindings.InteropString, flags: i32) void {
+    if (isWasm) {
+        @compileError("ImPlot_setupAxis not implemented for WASM yet.");
+    } else {
+        basis.bindings.fp._ImPlot_setupAxis(axis, label, flags);
+    }
+}
+
+pub fn ImPlot_setupAxisLimits(axis: i32, v_min: f32, v_max: f32, cond: i32) void {
+    if (isWasm) {
+        @compileError("ImPlot_setupAxisLimits not implemented for WASM yet.");
+    } else {
+        basis.bindings.fp._ImPlot_setupAxisLimits(axis, v_min, v_max, cond);
+    }
+}
+
+pub fn ImPlot_setupLegend(location: i32, flags: i32) void {
+    if (isWasm) {
+        @compileError("ImPlot_setupLegend not implemented for WASM yet.");
+    } else {
+        basis.bindings.fp._ImPlot_setupLegend(location, flags);
+    }
+}
+
+pub fn ImPlot_plotLine(label_id: [*c]const basis.bindings.InteropString, xs: [*c]const f32, ys: [*c]const f32, count: c_int) void {
+    if (isWasm) {
+        @compileError("ImPlot_plotLine not implemented for WASM yet.");
+    } else {
+        basis.bindings.fp._ImPlot_plotLine(label_id, xs, ys, count);
+    }
+}
+
+pub fn ImPlot_plotLineEx(label_id: [*c]const basis.bindings.InteropString, xs: [*c]const f32, ys: [*c]const f32, count: c_int, specData: [*c]const u8, specDataLength: u32) void {
+    if (isWasm) {
+        @compileError("ImPlot_plotLineEx not implemented for WASM yet.");
+    } else {
+        basis.bindings.fp._ImPlot_plotLineEx(label_id, xs, ys, count, specData, specDataLength);
+    }
+}
+
+pub fn ImPlot_plotScatter(label_id: [*c]const basis.bindings.InteropString, xs: [*c]const f32, ys: [*c]const f32, count: c_int) void {
+    if (isWasm) {
+        @compileError("ImPlot_plotScatter not implemented for WASM yet.");
+    } else {
+        basis.bindings.fp._ImPlot_plotScatter(label_id, xs, ys, count);
+    }
+}
+
+pub fn ImPlot_plotScatterEx(label_id: [*c]const basis.bindings.InteropString, xs: [*c]const f32, ys: [*c]const f32, count: c_int, specData: [*c]const u8, specDataLength: u32) void {
+    if (isWasm) {
+        @compileError("ImPlot_plotScatterEx not implemented for WASM yet.");
+    } else {
+        basis.bindings.fp._ImPlot_plotScatterEx(label_id, xs, ys, count, specData, specDataLength);
+    }
+}
+
+pub fn ImPlot_dragPoint(id: c_int, x: [*c]f64, y: [*c]f64, col: [*c]const basis.bindings.InteropColor, size: f32, flags: c_int, out_clicked: [*c]bool, out_hovered: [*c]bool, out_held: [*c]bool) c_int {
+    if (isWasm) {
+        @compileError("ImPlot_dragPoint not implemented for WASM yet.");
+    } else {
+        return basis.bindings.fp._ImPlot_dragPoint(id, x, y, col, size, flags, out_clicked, out_hovered, out_held);
+    }
+}
+
 // ===============================
 
 // class GameObjectCreationParameters
@@ -6329,6 +6993,14 @@ pub fn OSUtility_writeStringToClipboard(str: [*c]const basis.bindings.InteropStr
         @compileError("OSUtility_writeStringToClipboard not implemented for WASM yet.");
     } else {
         return basis.bindings.fp._OSUtility_writeStringToClipboard(str);
+    }
+}
+
+pub fn OSUtility_readStringFromClipboard(str: [*c]basis.bindings.InteropString) c_int {
+    if (isWasm) {
+        @compileError("OSUtility_readStringFromClipboard not implemented for WASM yet.");
+    } else {
+        return basis.bindings.fp._OSUtility_readStringFromClipboard(str);
     }
 }
 

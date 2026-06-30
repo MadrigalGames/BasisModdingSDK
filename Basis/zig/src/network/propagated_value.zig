@@ -1,5 +1,5 @@
 // ----------------------------------------------------
-// Copyright (c) 2018-2025 Madrigal Ltd.
+// Copyright (c) 2018-2026 Madrigal Ltd.
 // This file is part of the Basis modding SDK, and is subject to the
 // terms and conditions of the Basis modding SDK License Agreement.
 // https://www.madrigalgames.com
@@ -211,6 +211,10 @@ pub const PropagatedActionHandle = struct {
 
     pub fn setActionFiredCallback(self: *Self, cb: PropagatedAction.Callback) void {
         self.paPtr.onActionFired = cb;
+    }
+
+    pub fn clearActionFiredCallback(self: *Self) void {
+        self.paPtr.onActionFired = null;
     }
 };
 

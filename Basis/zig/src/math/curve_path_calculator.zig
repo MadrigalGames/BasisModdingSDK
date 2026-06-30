@@ -1,5 +1,5 @@
 // ----------------------------------------------------
-// Copyright (c) 2018-2025 Madrigal Ltd.
+// Copyright (c) 2018-2026 Madrigal Ltd.
 // This file is part of the Basis modding SDK, and is subject to the
 // terms and conditions of the Basis modding SDK License Agreement.
 // https://www.madrigalgames.com
@@ -48,7 +48,7 @@ pub fn CurvePathCalculator(comptime T: type) type {
         // Calculates the path so that it smoothly passes through the given points.
         // Returns the full length of the calculated path.
         pub fn calculateFromPoints(self: *Self, curvePath: *CurvePath, points: []const T) !f32 {
-            basis.assertd(@src(), points.len >= 2, "At least two posititions needed to construct a curve path.");
+            basis.assertd(@src(), points.len >= 2, "At least two positions needed to construct a curve path.");
             basis.assert(@src(), points.len <= self.maxPointCount);
 
             if (!self.hasAllocatedBuffers) {

@@ -1,5 +1,5 @@
 // ----------------------------------------------------
-// Copyright (c) 2018-2025 Madrigal Ltd.
+// Copyright (c) 2018-2026 Madrigal Ltd.
 // This file is part of the Basis modding SDK, and is subject to the
 // terms and conditions of the Basis modding SDK License Agreement.
 // https://www.madrigalgames.com
@@ -96,6 +96,11 @@ pub const PhysicsActorPtr = struct {
         basis.bindings.api.PhysicsActor_setMassData(self.cppPtr, mass, &interopCoM);
     }
 
+    pub fn setContactReportThreshold(self: *const Self, threshold: f32) void {
+        basis.assert(@src(), self.actorType == PhysicsActorType.RigidBodyDynamic);
+        basis.bindings.api.PhysicsActor_setContactReportThreshold(self.cppPtr, threshold);
+    }
+
     pub fn getWorldBounds(self: *const Self) AABB {
         var interopMin: basis.bindings.InteropVec3 = undefined;
         var interopMax: basis.bindings.InteropVec3 = undefined;
@@ -172,6 +177,21 @@ pub const PhysicsActorPtr = struct {
         const interopImpulse = impulse.toInterop();
         const interopPosition = position.toInterop();
         basis.bindings.api.PhysicsActor_addImpulse(self.cppPtr, &interopImpulse, &interopPosition, wakeUpActor);
+    }
+
+    pub fn setSolverIterationCounts(self: *const Self, minPositionIters: u32, minVelocityIters: u32) void {
+        basis.assert(@src(), self.actorType == PhysicsActorType.RigidBodyDynamic);
+        basis.bindings.api.PhysicsActor_setSolverIterationCounts(self.cppPtr, minPositionIters, minVelocityIters);
+    }
+
+    pub fn setAngularDamping(self: *const Self, damping: f32) void {
+        basis.assert(@src(), self.actorType == PhysicsActorType.RigidBodyDynamic);
+        basis.bindings.api.PhysicsActor_setAngularDamping(self.cppPtr, damping);
+    }
+
+    pub fn setMaxAngularVelocity(self: *const Self, maxAngVel: f32) void {
+        basis.assert(@src(), self.actorType == PhysicsActorType.RigidBodyDynamic);
+        basis.bindings.api.PhysicsActor_setMaxAngularVelocity(self.cppPtr, maxAngVel);
     }
 
     pub fn addRef(self: *const Self) void {

@@ -1,5 +1,5 @@
 // ----------------------------------------------------
-// Copyright (c) 2018-2025 Madrigal Ltd.
+// Copyright (c) 2018-2026 Madrigal Ltd.
 // This file is part of the Basis modding SDK, and is subject to the
 // terms and conditions of the Basis modding SDK License Agreement.
 // https://www.madrigalgames.com
@@ -8,7 +8,7 @@
 const std = @import("std");
 const builtin = @import("builtin");
 
-pub const APIVersionNumber = 1;
+pub const APIVersionNumber = 2;
 
 pub const build_options = @import("basis_build_options");
 
@@ -24,6 +24,7 @@ pub const engine_messages = @import("engine_messages.zig");
 
 pub const library_api = @import("bindings/library_api.zig");
 pub const memory = @import("base/memory.zig");
+pub const global_data = @import("global_data.zig");
 pub const profiling = @import("base/profiling.zig");
 pub const binary_stream = @import("binary_stream.zig");
 pub const bindings = @import("bindings.zig");
@@ -34,10 +35,12 @@ pub const container = @import("container.zig");
 pub const delegate = @import("delegate.zig");
 pub const debug_overlay = @import("debug_overlay.zig");
 pub const editor = @import("editor.zig");
+pub const hot_reload = @import("hot_reload.zig");
 pub const app = @import("app/app.zig");
 pub const app_interface = @import("app/app_interface.zig");
 pub const mod_controller = @import("mod/mod_controller.zig");
 pub const mod_controller_interface = @import("mod/mod_controller_interface.zig");
+pub const null_io = @import("null_io.zig");
 pub const state_machine = @import("game_flow/state_machine.zig");
 pub const flow_state = @import("game_flow/flow_state.zig");
 pub const flow_state_interface = @import("game_flow/flow_state_interface.zig");
@@ -50,6 +53,7 @@ pub const messaging = @import("messaging.zig");
 pub const meta = @import("meta.zig");
 pub const input = @import("input.zig");
 pub const imgui = @import("imgui.zig");
+pub const implot = @import("implot.zig");
 pub const typeinfo = @import("typeinfo.zig");
 pub const network = @import("network.zig");
 pub const physics = @import("physics.zig");
@@ -83,6 +87,7 @@ pub const BinaryReadStream = binary_stream.BinaryReadStream;
 pub const BinaryWriteStream = binary_stream.BinaryWriteStream;
 pub const Color = @import("color.zig").Color;
 pub const String = string.String;
+pub const InPlaceString = @import("in_place_string.zig").InPlaceString;
 pub const StringHash = string.StringHash;
 pub const SerializableBlob = serializable_blob.SerializableBlob;
 pub const RingBuffer = @import("ring_buffer.zig").RingBuffer;
@@ -91,6 +96,10 @@ pub const BoundedArray = @import("thirdparty/bounded_array.zig").BoundedArray;
 //pub const ArrayList = std.ArrayList;
 pub const ArrayList = std.array_list.Managed;
 pub const HashMap = std.AutoHashMap;
+
+// Global data ptr:
+
+pub var g: *global_data.LibraryGlobalData = undefined;
 
 // Misc:
 
@@ -155,8 +164,10 @@ pub fn forceAnalysis() void {
         meta,
         input,
         imgui,
+        implot,
         typeinfo,
         network,
+        null_io,
 
         // We have to do physics modules separately. See comment above.
         physics.physics_engine,
@@ -191,6 +202,6 @@ pub fn forceAnalysis() void {
     };
 
     inline for (modules) |module| {
-        std.testing.refAllDeclsRecursive(module);
+        std.testing.refAllDecls(module);
     }
 }

@@ -1,5 +1,5 @@
 // ----------------------------------------------------
-// Copyright (c) 2018-2025 Madrigal Ltd.
+// Copyright (c) 2018-2026 Madrigal Ltd.
 // This file is part of the Basis modding SDK, and is subject to the
 // terms and conditions of the Basis modding SDK License Agreement.
 // https://www.madrigalgames.com
@@ -21,7 +21,7 @@ pub const TimelineCallbackEvent = struct {
 
     allocator: Allocator,
     eventData: ghl.TimelineEventData,
-    callback: EventCallback,
+    callback: ?EventCallback,
 
     //----------------------------------------------------
 
@@ -29,7 +29,7 @@ pub const TimelineCallbackEvent = struct {
         allocator: Allocator,
         time: f32,
         onClient: bool,
-        callback: EventCallback,
+        callback: ?EventCallback,
     ) !ghl.TimelineEventInterface {
         const evt = try allocator.create(Self);
         evt.* = Self{
@@ -38,7 +38,9 @@ pub const TimelineCallbackEvent = struct {
             .callback = callback,
         };
 
-        return ghl.TimelineEventInterface.make(Self, evt);
+        const typeNameHash = comptime basis.typeinfo.getNameHashFromType(Self);
+
+        return ghl.TimelineEventInterface.make(Self, evt, typeNameHash);
     }
 
     pub fn destroy(self: *Self) void {
@@ -48,8 +50,10 @@ pub const TimelineCallbackEvent = struct {
     //----------------------------------------------------
 
     pub fn enter(self: *Self, skippingTimeline: bool) !void {
-        _ = skippingTimeline; // autofix
-        self.callback.call();
+        _ = skippingTimeline;
+        if (self.callback) |cb| {
+            cb.call();
+        }
     }
 
     // pub fn exit(self: *Self, skippingTimeline: bool) !void {
@@ -75,7 +79,7 @@ pub fn TimelineCallbackWithDataEvent(comptime Data: type) type {
 
         allocator: Allocator,
         eventData: ghl.TimelineEventData,
-        callback: EventCallback,
+        callback: ?EventCallback,
         data: Data,
 
         //----------------------------------------------------
@@ -84,7 +88,7 @@ pub fn TimelineCallbackWithDataEvent(comptime Data: type) type {
             allocator: Allocator,
             time: f32,
             onClient: bool,
-            callback: EventCallback,
+            callback: ?EventCallback,
             data: Data,
         ) !ghl.TimelineEventInterface {
             const evt = try allocator.create(Self);
@@ -95,7 +99,9 @@ pub fn TimelineCallbackWithDataEvent(comptime Data: type) type {
                 .data = data,
             };
 
-            return ghl.TimelineEventInterface.make(Self, evt);
+            const typeNameHash = comptime basis.typeinfo.getNameHashFromType(Self);
+
+            return ghl.TimelineEventInterface.make(Self, evt, typeNameHash);
         }
 
         pub fn destroy(self: *Self) void {
@@ -111,8 +117,10 @@ pub fn TimelineCallbackWithDataEvent(comptime Data: type) type {
         //----------------------------------------------------
 
         pub fn enter(self: *Self, skippingTimeline: bool) !void {
-            _ = skippingTimeline; // autofix
-            self.callback.call(&self.data);
+            _ = skippingTimeline;
+            if (self.callback) |cb| {
+                cb.call(&self.data);
+            }
         }
 
         // pub fn exit(self: *Self) !void {

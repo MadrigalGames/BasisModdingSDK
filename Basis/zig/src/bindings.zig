@@ -1,5 +1,5 @@
 // ----------------------------------------------------
-// Copyright (c) 2018-2025 Madrigal Ltd.
+// Copyright (c) 2018-2026 Madrigal Ltd.
 // This file is part of the Basis modding SDK, and is subject to the
 // terms and conditions of the Basis modding SDK License Agreement.
 // https://www.madrigalgames.com
@@ -67,10 +67,15 @@ pub const FP_i32 = *const fn () callconv(.c) i32;
 pub const FP_bool = *const fn () callconv(.c) bool;
 pub const FP_f32 = *const fn () callconv(.c) f32;
 
+pub const FP_f32_u32 = *const fn (u32) callconv(.c) f32;
+
 pub const FP_i32_IntPtr_IntPtr_u32 = *const fn (basis.IntPtr, basis.IntPtr, u32) callconv(.c) i32;
 pub const FP_i32_IntPtr_IntPtr_u32_Vec3_Vec3 = *const fn (basis.IntPtr, basis.IntPtr, u32, *const InteropVec3, *const InteropVec3) callconv(.c) i32;
 pub const FP_i32_IntPtr_IntPtr64_u32 = *const fn (basis.IntPtr, basis.IntPtr64, u32) callconv(.c) i32;
 pub const FP_i32_IntPtr_IntPtr64_u32_Vec3_Vec3 = *const fn (basis.IntPtr, basis.IntPtr64, u32, *const InteropVec3, *const InteropVec3) callconv(.c) i32;
+
+pub const ImguiPlotMultiLinesGetter = *const fn (basis.IntPtr64, i32) callconv(.c) f32;
+
 // Add more here...
 
 pub fn make_FP_void(func: anytype) FP_void {

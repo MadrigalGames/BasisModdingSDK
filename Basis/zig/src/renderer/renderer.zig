@@ -1,5 +1,5 @@
 // ----------------------------------------------------
-// Copyright (c) 2018-2025 Madrigal Ltd.
+// Copyright (c) 2018-2026 Madrigal Ltd.
 // This file is part of the Basis modding SDK, and is subject to the
 // terms and conditions of the Basis modding SDK License Agreement.
 // https://www.madrigalgames.com
@@ -16,6 +16,15 @@ const MeshGeometryPtr = basis.renderer.mesh_geometry.MeshGeometryPtr;
 
 const VertexFormatType = basis.renderer.vertex_formats.VertexFormatType;
 
+// Keep in sync with the enum in Renderer_setGraphicsOption() in C++.
+pub const GraphicsOption = enum(i32) {
+    SSAO = 0,
+    AntiAliasing = 1,
+    Shadows = 2,
+    ShellGrass = 3,
+    Vignette = 4,
+};
+
 pub const RendererPtr = struct {
     const Self = @This();
     pub const Null = initNull();
@@ -23,6 +32,10 @@ pub const RendererPtr = struct {
 
     pub fn initNull() Self {
         return Self{ .cppPtr = 0 };
+    }
+
+    pub fn isNull(self: *const Self) bool {
+        return (self.cppPtr == 0);
     }
 
     pub fn getPrimaryScene(self: *const Self) RenderScenePtr {
@@ -49,22 +62,42 @@ pub const RendererPtr = struct {
         };
     }
 
-    pub fn getScreenWidth(self: *const Self) u32 {
-        return basis.bindings.api.Renderer_getScreenWidth(self.cppPtr);
+    // Returns the render window width.
+    pub fn getWindowWidth(self: *const Self) u32 {
+        return basis.bindings.api.Renderer_getWindowWidth(self.cppPtr);
     }
 
-    pub fn getScreenHeight(self: *const Self) u32 {
-        return basis.bindings.api.Renderer_getScreenHeight(self.cppPtr);
+    // Returns the render window height.
+    pub fn getWindowHeight(self: *const Self) u32 {
+        return basis.bindings.api.Renderer_getWindowHeight(self.cppPtr);
+    }
+
+    // Returns the render viewport width, which can be smaller than the render window width.
+    pub fn getRenderWidth(self: *const Self) u32 {
+        return basis.bindings.api.Renderer_getRenderWidth(self.cppPtr);
+    }
+
+    // Returns the render viewport height, which can be smaller than the render window height.
+    pub fn getRenderHeight(self: *const Self) u32 {
+        return basis.bindings.api.Renderer_getRenderHeight(self.cppPtr);
     }
 
     pub fn getAspectRatio(self: *const Self) f32 {
-        const width = self.getScreenWidth();
-        const height = self.getScreenHeight();
+        const width = self.getWindowWidth();
+        const height = self.getWindowHeight();
         return (@as(f32, @floatFromInt(width)) / @as(f32, @floatFromInt(height)));
     }
 
-    pub fn setVignetteEnabled(self: *const Self, enabled: bool) void {
-        return basis.bindings.api.Renderer_setVignetteEnabled(self.cppPtr, if (enabled) 1 else 0);
+    pub fn getRenderScale(self: *const Self) f32 {
+        return basis.bindings.api.Renderer_getRenderScale(self.cppPtr);
+    }
+
+    pub fn setRenderScale(self: *const Self, scale: f32) void {
+        basis.bindings.api.Renderer_setRenderScale(self.cppPtr, scale);
+    }
+
+    pub fn setGraphicsOption(self: *const Self, option: GraphicsOption, value: i32) void {
+        return basis.bindings.api.Renderer_setGraphicsOption(self.cppPtr, @intFromEnum(option), value);
     }
 
     pub fn createMesh(self: *const Self, geom: MeshGeometryPtr, createImmutableGPUBuffers: bool, debugName: []const u8) MeshPtr {
@@ -141,6 +174,12 @@ pub const RendererPtr = struct {
 
     pub fn applyVsyncAndFramerateLimit(self: *const Self, vsync: bool, framerateLimit: i32) void {
         basis.bindings.api.Renderer_applyVsyncAndFramerateLimit(self.cppPtr, vsync, framerateLimit);
+    }
+
+    // Returns the engine's current window mode. Use this to detect runtime mode changes
+    // that bypass the game-side options system, eg. Alt+Enter.
+    pub fn getWindowMode(self: *const Self) basis.renderer.RenderWindowMode {
+        return @enumFromInt(basis.bindings.api.Renderer_getWindowMode(self.cppPtr));
     }
 
     pub fn getDisplacementEffectRenderer(self: *const Self) basis.renderer.DisplacementEffectRendererPtr {

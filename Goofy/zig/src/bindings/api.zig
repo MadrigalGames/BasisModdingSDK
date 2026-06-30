@@ -1,5 +1,5 @@
 // ----------------------------------------------------
-// Copyright (c) 2018-2025 Madrigal Ltd.
+// Copyright (c) 2018-2026 Madrigal Ltd.
 // This file is part of the Basis SDK, and is subject to the
 // terms and conditions of the Basis SDK License Agreement.
 // https://www.madrigalgames.com
@@ -864,7 +864,7 @@ pub fn GoofyUIWidget_setVisible(cppPtr: basis.CppPtr, widgetType: u32, visible: 
     if (isWasm) {
         access.GoofyUIWidget_setVisible_WASM(cppPtr, widgetType, visible);
     } else {
-        goofy.bindings.fp._GoofyUIWidget_setVisible(cppPtr, widgetType, visible);
+        goofy.bindings.fp._GoofyUIWidget_setVisible(cppPtr, widgetType, if (visible) 1 else 0);
     }
 }
 
@@ -880,7 +880,7 @@ pub fn GoofyUIWidget_setEnabled(cppPtr: basis.CppPtr, widgetType: u32, enabled: 
     if (isWasm) {
         access.GoofyUIWidget_setEnabled_WASM(cppPtr, widgetType, enabled);
     } else {
-        goofy.bindings.fp._GoofyUIWidget_setEnabled(cppPtr, widgetType, enabled);
+        goofy.bindings.fp._GoofyUIWidget_setEnabled(cppPtr, widgetType, if (enabled) 1 else 0);
     }
 }
 
@@ -1012,7 +1012,7 @@ pub fn GoofyUISpinBox_addItem(cppPtr: basis.CppPtr, value: i32, text: [*c]const 
     if (isWasm) {
         @compileError("GoofyUISpinBox_addItem not implemented for WASM yet.");
     } else {
-        goofy.bindings.fp._GoofyUISpinBox_addItem(cppPtr, value, text, isLocalized);
+        goofy.bindings.fp._GoofyUISpinBox_addItem(cppPtr, value, text, if (isLocalized) 1 else 0);
     }
 }
 
@@ -1215,7 +1215,7 @@ pub fn GoofySVGAnimationPlayer_setDeltaTimeLimitEnabled(cppPtr: basis.CppPtr, en
     if (isWasm) {
         access.GoofySVGAnimationPlayer_setDeltaTimeLimitEnabled_WASM(cppPtr, enabled);
     } else {
-        goofy.bindings.fp._GoofySVGAnimationPlayer_setDeltaTimeLimitEnabled(cppPtr, enabled);
+        goofy.bindings.fp._GoofySVGAnimationPlayer_setDeltaTimeLimitEnabled(cppPtr, if (enabled) 1 else 0);
     }
 }
 
@@ -1305,7 +1305,7 @@ pub fn GoofySVGAnimationPlayer_setLooping(cppPtr: basis.CppPtr, looping: bool) v
     if (isWasm) {
         access.GoofySVGAnimationPlayer_setLooping_WASM(cppPtr, looping);
     } else {
-        goofy.bindings.fp._GoofySVGAnimationPlayer_setLooping(cppPtr, looping);
+        goofy.bindings.fp._GoofySVGAnimationPlayer_setLooping(cppPtr, if (looping) 1 else 0);
     }
 }
 

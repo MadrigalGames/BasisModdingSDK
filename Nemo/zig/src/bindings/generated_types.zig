@@ -1,5 +1,5 @@
 // ----------------------------------------------------
-// Copyright (c) 2018-2025 Madrigal Ltd.
+// Copyright (c) 2018-2026 Madrigal Ltd.
 // This file is part of the Basis SDK, and is subject to the
 // terms and conditions of the Basis SDK License Agreement.
 // https://www.madrigalgames.com
@@ -17,7 +17,12 @@ pub const basis_zig_Database_deleteDatabase_cb = *const fn (u64) callconv(.c) vo
 pub const basis_zig_Database_loadOnClient_cb = *const fn (u64, u64, [*c]const basis.bindings.InteropString) callconv(.c) void;
 pub const basis_zig_Database_loadOnServer_cb = *const fn (u64, u64, [*c]const basis.bindings.InteropString) callconv(.c) void;
 pub const basis_zig_Database_unload_cb = *const fn (u64) callconv(.c) void;
-pub const basis_zig_Database_tick_cb = *const fn (u64, f32) callconv(.c) void;
+pub const basis_zig_Database_tick_cb = *const fn (u64, f32, u32) callconv(.c) void;
+pub const basis_zig_Database_setLanguageCode_cb = *const fn (u64, [*c]const basis.bindings.InteropString) callconv(.c) void;
+pub const basis_zig_Database_getLanguageCode_cb = *const fn (u64, [*c]basis.bindings.InteropString) callconv(.c) void;
+pub const basis_zig_Database_setVoiceLanguageCode_cb = *const fn (u64, [*c]const basis.bindings.InteropString) callconv(.c) void;
+pub const basis_zig_Database_getVoiceLanguageCode_cb = *const fn (u64, [*c]basis.bindings.InteropString) callconv(.c) void;
+pub const basis_zig_Database_setVoiceClipDurationCallback_cb = *const fn (u64, basis.bindings.FP_f32_u32) callconv(.c) void;
 pub const basis_zig_Database_serialize_cb = *const fn (u64, [*c]u8, u32) callconv(.c) u32;
 pub const basis_zig_Database_deserialize_cb = *const fn (u64, [*c]const u8, u32) callconv(.c) u32;
 pub const basis_zig_Database_getMissionByPath_cb = *const fn (u64, [*c]const basis.bindings.InteropString) callconv(.c) u64;
@@ -26,6 +31,11 @@ pub const basis_zig_Database_getGlobalVariableSetByPath_cb = *const fn (u64, [*c
 pub const basis_zig_Database_getGlobalVariableSetByPathHash_cb = *const fn (u64, u32) callconv(.c) u64;
 pub const basis_zig_Database_getCharacterDataByPath_cb = *const fn (u64, [*c]const basis.bindings.InteropString) callconv(.c) u64;
 pub const basis_zig_Database_getCharacterDataByPathHash_cb = *const fn (u64, u32) callconv(.c) u64;
+pub const basis_zig_Database_getConversationByPath_cb = *const fn (u64, [*c]const basis.bindings.InteropString) callconv(.c) u64;
+pub const basis_zig_Database_getConversationByPathHash_cb = *const fn (u64, u32) callconv(.c) u64;
+pub const basis_zig_Database_generateScriptApi_cb = *const fn (u64) callconv(.c) void;
+pub const basis_zig_Database_getScriptPreface_cb = *const fn (u64, [*c]basis.bindings.InteropBuffer) callconv(.c) void;
+pub const basis_zig_Database_appendAutoCompleteList_cb = *const fn (u64, u64) callconv(.c) void;
 
 // ===============================
 
@@ -35,6 +45,26 @@ pub const basis_zig_Mission_getPath_cb = *const fn (u64, [*c]basis.bindings.Inte
 pub const basis_zig_Mission_getState_cb = *const fn (u64) callconv(.c) u32;
 pub const basis_zig_Mission_start_cb = *const fn (u64) callconv(.c) void;
 pub const basis_zig_Mission_abort_cb = *const fn (u64) callconv(.c) void;
+pub const basis_zig_Mission_sendSignal_cb = *const fn (u64, [*c]const basis.bindings.InteropString) callconv(.c) void;
+
+// ===============================
+
+// class Conversation
+
+pub const basis_zig_Conversation_getPath_cb = *const fn (u64, [*c]basis.bindings.InteropString) callconv(.c) void;
+pub const basis_zig_Conversation_getState_cb = *const fn (u64) callconv(.c) u32;
+pub const basis_zig_Conversation_start_cb = *const fn (u64) callconv(.c) void;
+pub const basis_zig_Conversation_end_cb = *const fn (u64) callconv(.c) void;
+pub const basis_zig_Conversation_advance_cb = *const fn (u64, [*c]u8, u32) callconv(.c) i32;
+pub const basis_zig_Conversation_selectResponse_cb = *const fn (u64, u32) callconv(.c) void;
+pub const basis_zig_Conversation_getInkInt_cb = *const fn (u64, [*c]const basis.bindings.InteropString) callconv(.c) c_int;
+pub const basis_zig_Conversation_setInkInt_cb = *const fn (u64, [*c]const basis.bindings.InteropString, c_int) callconv(.c) void;
+pub const basis_zig_Conversation_getInkFloat_cb = *const fn (u64, [*c]const basis.bindings.InteropString) callconv(.c) f32;
+pub const basis_zig_Conversation_setInkFloat_cb = *const fn (u64, [*c]const basis.bindings.InteropString, f32) callconv(.c) void;
+pub const basis_zig_Conversation_getInkBool_cb = *const fn (u64, [*c]const basis.bindings.InteropString) callconv(.c) c_int;
+pub const basis_zig_Conversation_setInkBool_cb = *const fn (u64, [*c]const basis.bindings.InteropString, c_int) callconv(.c) void;
+pub const basis_zig_Conversation_getInkString_cb = *const fn (u64, [*c]const basis.bindings.InteropString, [*c]basis.bindings.InteropString) callconv(.c) void;
+pub const basis_zig_Conversation_setInkString_cb = *const fn (u64, [*c]const basis.bindings.InteropString, [*c]const basis.bindings.InteropString) callconv(.c) void;
 
 // ===============================
 
@@ -46,7 +76,7 @@ pub const basis_zig_GlobalVariableSet_writeFloat_cb = *const fn (u64, [*c]const 
 pub const basis_zig_GlobalVariableSet_readInt_cb = *const fn (u64, [*c]const basis.bindings.InteropString) callconv(.c) c_int;
 pub const basis_zig_GlobalVariableSet_writeInt_cb = *const fn (u64, [*c]const basis.bindings.InteropString, c_int) callconv(.c) void;
 pub const basis_zig_GlobalVariableSet_readBool_cb = *const fn (u64, [*c]const basis.bindings.InteropString) callconv(.c) c_int;
-pub const basis_zig_GlobalVariableSet_writeBool_cb = *const fn (u64, [*c]const basis.bindings.InteropString, bool) callconv(.c) void;
+pub const basis_zig_GlobalVariableSet_writeBool_cb = *const fn (u64, [*c]const basis.bindings.InteropString, c_int) callconv(.c) void;
 pub const basis_zig_GlobalVariableSet_readString_cb = *const fn (u64, [*c]const basis.bindings.InteropString, [*c]basis.bindings.InteropString) callconv(.c) void;
 pub const basis_zig_GlobalVariableSet_writeString_cb = *const fn (u64, [*c]const basis.bindings.InteropString, [*c]const basis.bindings.InteropString) callconv(.c) void;
 
@@ -57,7 +87,10 @@ pub const basis_zig_GlobalVariableSet_writeString_cb = *const fn (u64, [*c]const
 pub const basis_zig_CharacterData_getPath_cb = *const fn (u64, [*c]basis.bindings.InteropString) callconv(.c) void;
 pub const basis_zig_CharacterData_getFirstName_cb = *const fn (u64, [*c]basis.bindings.InteropString) callconv(.c) void;
 pub const basis_zig_CharacterData_getLastName_cb = *const fn (u64, [*c]basis.bindings.InteropString) callconv(.c) void;
+pub const basis_zig_CharacterData_getShortName_cb = *const fn (u64, [*c]basis.bindings.InteropString) callconv(.c) void;
 pub const basis_zig_CharacterData_getUIColor_cb = *const fn (u64, [*c]basis.bindings.InteropColor) callconv(.c) void;
+pub const basis_zig_CharacterData_getVoiceTemplateCount_cb = *const fn (u64) callconv(.c) u32;
+pub const basis_zig_CharacterData_getVoiceTemplate_cb = *const fn (u64, u32, [*c]basis.bindings.InteropString, [*c]f32) callconv(.c) c_int;
 
 // ===============================
 

@@ -1,5 +1,5 @@
 // ----------------------------------------------------
-// Copyright (c) 2018-2025 Madrigal Ltd.
+// Copyright (c) 2018-2026 Madrigal Ltd.
 // This file is part of the Basis SDK, and is subject to the
 // terms and conditions of the Basis SDK License Agreement.
 // https://www.madrigalgames.com
@@ -42,5 +42,10 @@ pub const MissionPtr = struct {
 
     pub fn abort(self: *const Self) void {
         nemo.bindings.api.Mission_abort(self.cppPtr);
+    }
+
+    pub fn sendSignal(self: *const Self, signalName: []const u8) void {
+        const interopSignalName = basis.string.toInteropString(signalName);
+        nemo.bindings.api.Mission_sendSignal(self.cppPtr, &interopSignalName);
     }
 };

@@ -1,5 +1,5 @@
 // ----------------------------------------------------
-// Copyright (c) 2018-2025 Madrigal Ltd.
+// Copyright (c) 2018-2026 Madrigal Ltd.
 // This file is part of the Basis SDK, and is subject to the
 // terms and conditions of the Basis SDK License Agreement.
 // https://www.madrigalgames.com
@@ -130,9 +130,9 @@ pub const basis_zig_GoofyUIWidget_setPosition_cb = *const fn (u64, u32, [*c]cons
 pub const basis_zig_GoofyUIWidget_getPosition_cb = *const fn (u64, u32, [*c]basis.bindings.InteropVec2) callconv(.c) void;
 pub const basis_zig_GoofyUIWidget_setSize_cb = *const fn (u64, u32, [*c]const basis.bindings.InteropVec2) callconv(.c) void;
 pub const basis_zig_GoofyUIWidget_getSize_cb = *const fn (u64, u32, [*c]basis.bindings.InteropVec2) callconv(.c) void;
-pub const basis_zig_GoofyUIWidget_setVisible_cb = *const fn (u64, u32, bool) callconv(.c) void;
+pub const basis_zig_GoofyUIWidget_setVisible_cb = *const fn (u64, u32, c_int) callconv(.c) void;
 pub const basis_zig_GoofyUIWidget_isVisible_cb = *const fn (u64, u32) callconv(.c) c_int;
-pub const basis_zig_GoofyUIWidget_setEnabled_cb = *const fn (u64, u32, bool) callconv(.c) void;
+pub const basis_zig_GoofyUIWidget_setEnabled_cb = *const fn (u64, u32, c_int) callconv(.c) void;
 pub const basis_zig_GoofyUIWidget_isEnabled_cb = *const fn (u64, u32) callconv(.c) c_int;
 
 // ===============================
@@ -171,7 +171,7 @@ pub const basis_zig_GoofyUIImageBox_jumpToEnd_cb = *const fn (u64) callconv(.c) 
 
 // class GoofyUISpinBox
 
-pub const basis_zig_GoofyUISpinBox_addItem_cb = *const fn (u64, c_int, [*c]const basis.bindings.InteropString, bool) callconv(.c) void;
+pub const basis_zig_GoofyUISpinBox_addItem_cb = *const fn (u64, c_int, [*c]const basis.bindings.InteropString, c_int) callconv(.c) void;
 pub const basis_zig_GoofyUISpinBox_clearItems_cb = *const fn (u64) callconv(.c) void;
 pub const basis_zig_GoofyUISpinBox_setSelectedValue_cb = *const fn (u64, c_int) callconv(.c) void;
 pub const basis_zig_GoofyUISpinBox_getSelectedValue_cb = *const fn (u64) callconv(.c) c_int;
@@ -205,7 +205,7 @@ pub const basis_zig_GoofySVGAnimationPlayer_newPlayer_cb = *const fn () callconv
 pub const basis_zig_GoofySVGAnimationPlayer_deletePlayer_cb = *const fn (u64) callconv(.c) void;
 pub const basis_zig_GoofySVGAnimationPlayer_getWidth_cb = *const fn (u64) callconv(.c) f32;
 pub const basis_zig_GoofySVGAnimationPlayer_getHeight_cb = *const fn (u64) callconv(.c) f32;
-pub const basis_zig_GoofySVGAnimationPlayer_setDeltaTimeLimitEnabled_cb = *const fn (u64, bool) callconv(.c) void;
+pub const basis_zig_GoofySVGAnimationPlayer_setDeltaTimeLimitEnabled_cb = *const fn (u64, c_int) callconv(.c) void;
 pub const basis_zig_GoofySVGAnimationPlayer_loadAnimation_cb = *const fn (u64, u64) callconv(.c) void;
 pub const basis_zig_GoofySVGAnimationPlayer_render_cb = *const fn (u64, [*c]const goofy.bindings.InteropUIRenderContext, [*c]const basis.bindings.InteropVec2, [*c]const basis.bindings.InteropVec2) callconv(.c) void;
 pub const basis_zig_GoofySVGAnimationPlayer_renderUnstretched_cb = *const fn (u64, [*c]const goofy.bindings.InteropUIRenderContext, [*c]const basis.bindings.InteropVec2, f32, u32) callconv(.c) void;
@@ -213,7 +213,7 @@ pub const basis_zig_GoofySVGAnimationPlayer_play_cb = *const fn (u64) callconv(.
 pub const basis_zig_GoofySVGAnimationPlayer_pause_cb = *const fn (u64) callconv(.c) void;
 pub const basis_zig_GoofySVGAnimationPlayer_stop_cb = *const fn (u64) callconv(.c) void;
 pub const basis_zig_GoofySVGAnimationPlayer_jumpToEnd_cb = *const fn (u64) callconv(.c) void;
-pub const basis_zig_GoofySVGAnimationPlayer_setLooping_cb = *const fn (u64, bool) callconv(.c) void;
+pub const basis_zig_GoofySVGAnimationPlayer_setLooping_cb = *const fn (u64, c_int) callconv(.c) void;
 pub const basis_zig_GoofySVGAnimationPlayer_update_cb = *const fn (u64, f32) callconv(.c) void;
 pub const basis_zig_GoofySVGAnimationPlayer_getState_cb = *const fn (u64) callconv(.c) u32;
 pub const basis_zig_GoofySVGAnimationPlayer_getCurrentTime_cb = *const fn (u64) callconv(.c) f32;

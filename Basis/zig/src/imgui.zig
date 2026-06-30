@@ -1,5 +1,5 @@
 // ----------------------------------------------------
-// Copyright (c) 2018-2025 Madrigal Ltd.
+// Copyright (c) 2018-2026 Madrigal Ltd.
 // This file is part of the Basis modding SDK, and is subject to the
 // terms and conditions of the Basis modding SDK License Agreement.
 // https://www.madrigalgames.com
@@ -259,6 +259,30 @@ pub fn endPopup() void {
     basis.bindings.api.ImGui_endPopup();
 }
 
+pub fn beginPopupModal(name: []const u8, flags: i32) bool {
+    const interopName = basis.string.toInteropString(name);
+    return basis.bindings.api.ImGui_beginPopupModal(&interopName, flags) == 1;
+}
+
+pub fn closeCurrentPopup() void {
+    basis.bindings.api.ImGui_closeCurrentPopup();
+}
+
+pub fn setItemDefaultFocus() void {
+    basis.bindings.api.ImGui_setItemDefaultFocus();
+}
+
+pub fn dummy(size: basis.math.Vec2) void {
+    const interopSize = size.toInterop();
+    basis.bindings.api.ImGui_dummy(&interopSize);
+}
+
+pub fn getMainViewportCenter() basis.math.Vec2 {
+    var interop: basis.bindings.InteropVec2 = undefined;
+    basis.bindings.api.ImGui_getMainViewportCenter(&interop);
+    return basis.math.Vec2.fromInterop(interop);
+}
+
 pub fn pushStyleColor(idx: ImGuiCol, col: basis.Color) void {
     const i = idx.asInt();
     const interopColor = col.toInterop();
@@ -276,6 +300,15 @@ pub fn separator() void {
 pub fn text(txt: []const u8) void {
     const interopText = basis.string.toInteropString(txt);
     basis.bindings.api.ImGui_text(&interopText);
+}
+
+pub fn bufPrintText(buf: []u8, comptime fmt: []const u8, args: anytype) void {
+    const t = std.fmt.bufPrint(
+        buf,
+        fmt,
+        args,
+    ) catch @panic("OOM in bufPrintText()");
+    text(t);
 }
 
 pub fn textColored(col: basis.Color, txt: []const u8) void {
@@ -411,4 +444,67 @@ pub fn sliderInt(label: []const u8, v: *i32, v_min: i32, v_max: i32, format: []c
     const interopLabel = basis.string.toInteropString(label);
     const interopFormat = basis.string.toInteropString(format);
     return if (basis.bindings.api.ImGui_sliderInt(&interopLabel, v, v_min, v_max, &interopFormat, flags.asInt()) == 1) true else false;
+}
+
+pub const PlotMultiLinesGetter = basis.bindings.ImguiPlotMultiLinesGetter;
+
+pub fn plotMultiLines(
+    tempBuffer: []u8,
+    label: []const u8,
+    names: []const []const u8,
+    colors: []const basis.Color,
+    getter: PlotMultiLinesGetter,
+    datas: []const basis.IntPtr64,
+    values_count: i32,
+    scale_min: f32,
+    scale_max: f32,
+    graph_size: basis.math.Vec2,
+) void {
+    const MaxDataCount = 16; // Keep in sync with C++.
+
+    basis.assert(@src(), names.len <= MaxDataCount);
+    basis.assert(@src(), names.len == colors.len);
+    basis.assert(@src(), names.len == datas.len);
+
+    var stream = basis.BinaryWriteStream.init(tempBuffer, true);
+
+    stream.putInt(u32, @intCast(names.len));
+    stream.putString(label);
+
+    for (names) |name| {
+        stream.putString(name);
+    }
+
+    for (colors) |color| {
+        stream.put(basis.Color, color);
+    }
+
+    for (datas) |data| {
+        stream.putInt(basis.IntPtr64, data);
+    }
+
+    stream.putInt(i32, values_count);
+    stream.putFloat(scale_min);
+    stream.putFloat(scale_max);
+    stream.put(basis.math.Vec2, graph_size);
+
+    basis.bindings.api.ImGui_plotMultiLines(tempBuffer.ptr, @intCast(stream.cursorPosition), getter);
+}
+
+pub fn getContentRegionAvail() basis.math.Vec2 {
+    var interop: basis.bindings.InteropVec2 = undefined;
+    basis.bindings.api.ImGui_getContentRegionAvail(&interop);
+    return basis.math.Vec2.fromInterop(interop);
+}
+
+pub fn pushID(int_id: i32) void {
+    basis.bindings.api.ImGui_pushID(int_id);
+}
+
+pub fn pushIDPtr(anyPointer: anytype) void {
+    basis.bindings.api.ImGui_pushIDPtr(@intFromPtr(anyPointer));
+}
+
+pub fn popID() void {
+    basis.bindings.api.ImGui_popID();
 }

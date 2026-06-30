@@ -1,5 +1,5 @@
 // ----------------------------------------------------
-// Copyright (c) 2018-2025 Madrigal Ltd.
+// Copyright (c) 2018-2026 Madrigal Ltd.
 // This file is part of the Basis modding SDK, and is subject to the
 // terms and conditions of the Basis modding SDK License Agreement.
 // https://www.madrigalgames.com
@@ -387,93 +387,153 @@ fn RayCast_shouldReportHitPostFilter_wrapper(callbackPtr: basis.IntPtr, actorCpp
 // Collision callbacks:
 
 pub const CollisionPoint = struct {
-    position: Vec3 = Vec3.Zero,
-    normal: Vec3 = Vec3.Zero,
-    impulse: Vec3 = Vec3.Zero,
+    position: Vec3 = .Zero,
+    normal: Vec3 = .Zero,
+    impulse: Vec3 = .Zero,
     force: f32 = 0.0,
-    material0: PhysicsMaterialPtr = PhysicsMaterialPtr.Null,
-    material1: PhysicsMaterialPtr = PhysicsMaterialPtr.Null,
+    material0: PhysicsMaterialPtr = .Null,
+    material1: PhysicsMaterialPtr = .Null,
 };
 
 pub const CollisionData = struct {
     pub const MaxCollisionPointCount = 8;
 
-    shape0: PhysicsShapePtr = PhysicsShapePtr.Null,
-    shape1: PhysicsShapePtr = PhysicsShapePtr.Null,
+    shape0: PhysicsShapePtr = .Null,
+    shape1: PhysicsShapePtr = .Null,
+
+    // The actors the two shapes belong to. Either may be .Null (e.g. a removed actor).
+    actor0: PhysicsActorPtr = .Null,
+    actor1: PhysicsActorPtr = .Null,
 
     collisionPoints: basis.BoundedArray(CollisionPoint, MaxCollisionPointCount) = .{},
 };
 
 pub const CollisionCallback = basis.delegate.VoidDelegate1(*const CollisionData);
 
+pub const CollisionCallbackID = u32;
+
 //----------------------------------------------------
 
 const CollisionCallbackState = struct {
+    id: CollisionCallbackID,
     sceneIntPtr: basis.CppPtr,
     cb: CollisionCallback,
 };
 
-const CollisionCallbackList = basis.ArrayList(CollisionCallbackState);
+pub const GlobalData = struct {
+    mutex: std.Io.Mutex = .init,
+    callbackStates: basis.ArrayList(CollisionCallbackState) = undefined,
+    sceneToCallbackCountMap: basis.HashMap(basis.CppPtr, u32) = undefined,
+    idAccumulator: CollisionCallbackID = 0,
+    initialized: bool = false,
+};
 
-var gCollisionCallbackStateMutex: std.Thread.Mutex = .{};
-var gCollisionCallbackStates: CollisionCallbackList = undefined;
-var gCollisionCallbackStatesInitialized: bool = false;
+inline fn getG() *GlobalData {
+    return &basis.g.physics_scene;
+}
 
 //----------------------------------------------------
 
-pub fn init(allocator: std.mem.Allocator) void {
-    gCollisionCallbackStates = CollisionCallbackList.init(allocator);
-    gCollisionCallbackStatesInitialized = true;
+pub fn init() void {
+    const g = getG();
+
+    g.callbackStates = .init(basis.g.allocator);
+    g.sceneToCallbackCountMap = .init(basis.g.allocator);
+    g.initialized = true;
 }
 
 pub fn deinit() void {
-    gCollisionCallbackStates.deinit();
-    gCollisionCallbackStatesInitialized = false;
+    const g = getG();
+
+    g.callbackStates.deinit();
+    g.sceneToCallbackCountMap.deinit();
+    g.initialized = false;
 }
 
-pub fn registerCollisionCallback(scene: PhysicsScenePtr, cb: CollisionCallback) !void {
-    gCollisionCallbackStateMutex.lock();
-    defer gCollisionCallbackStateMutex.unlock();
+pub fn registerCollisionCallback(scene: PhysicsScenePtr, cb: CollisionCallback) CollisionCallbackID {
+    const g = getG();
+
+    g.mutex.lock(basis.g.io) catch @panic("Mutex Canceled");
+    defer g.mutex.unlock(basis.g.io);
 
     basis.assertd(
         @src(),
-        gCollisionCallbackStatesInitialized,
+        g.initialized,
         "Collision callback states not initialized. Call physics_scene.init() first.",
     );
 
-    try gCollisionCallbackStates.append(CollisionCallbackState{
+    g.idAccumulator += 1;
+
+    g.callbackStates.append(CollisionCallbackState{
+        .id = g.idAccumulator,
         .sceneIntPtr = scene.cppPtr,
         .cb = cb,
-    });
+    }) catch @panic("OOM");
 
-    basis.bindings.api.PhysicsScene_setCollisionCallbacksEnabled(scene.cppPtr, 1);
+    var needsToEnableCallbacks = true;
+    var result = g.sceneToCallbackCountMap.getOrPut(scene.cppPtr) catch @panic("OOM");
+
+    if (result.found_existing) {
+        needsToEnableCallbacks = result.value_ptr.* == 0;
+        result.value_ptr.* += 1;
+    } else {
+        result.value_ptr.* = 1;
+    }
+
+    //basis.printf("registerCollisionCallback() - ID: {}, needsToEnableCallbacks: {}\n", .{ g.idAccumulator, needsToEnableCallbacks });
+
+    if (needsToEnableCallbacks) {
+        basis.bindings.api.PhysicsScene_setCollisionCallbacksEnabled(scene.cppPtr, 1);
+    }
+
+    return g.idAccumulator;
 }
 
-pub fn unregisterCollisionCallback(scene: PhysicsScenePtr) !void {
-    gCollisionCallbackStateMutex.lock();
-    defer gCollisionCallbackStateMutex.unlock();
+pub fn unregisterCollisionCallback(id: CollisionCallbackID) void {
+    const g = getG();
 
-    basis.bindings.api.PhysicsScene_setCollisionCallbacksEnabled(scene.cppPtr, 0);
+    g.mutex.lock(basis.g.io) catch @panic("Mutex Canceled");
+    defer g.mutex.unlock(basis.g.io);
 
     basis.assertd(
         @src(),
-        gCollisionCallbackStatesInitialized,
+        g.initialized,
         "Collision callback states not initialized. Call physics_scene.init() first.",
     );
 
-    for (gCollisionCallbackStates.items, 0..) |state, i| {
-        if (state.sceneIntPtr == scene.cppPtr) {
-            _ = gCollisionCallbackStates.orderedRemove(i);
-            return;
+    var sceneIntPtr: basis.CppPtr = 0;
+
+    for (g.callbackStates.items, 0..) |state, i| {
+        if (state.id == id) {
+            sceneIntPtr = state.sceneIntPtr;
+            _ = g.callbackStates.orderedRemove(i);
+            break;
+        }
+    }
+
+    if (sceneIntPtr != 0) {
+        if (g.sceneToCallbackCountMap.getPtr(sceneIntPtr)) |countPtr| {
+            basis.assert(@src(), countPtr.* > 0);
+            countPtr.* -= 1;
+
+            //basis.printf("unregisterCollisionCallback() - ID: {}, needsToDisableCallbacks: {}\n", .{ id, countPtr.* == 0 });
+
+            if (countPtr.* == 0) {
+                basis.bindings.api.PhysicsScene_setCollisionCallbacksEnabled(sceneIntPtr, 0);
+            }
         }
     }
 }
 
 pub fn _onCollisionCallback(sceneIntPtr: basis.CppPtr, collisionData: *const CollisionData) void {
-    for (gCollisionCallbackStates.items) |state| {
+    const g = getG();
+
+    g.mutex.lock(basis.g.io) catch @panic("Mutex Canceled");
+    defer g.mutex.unlock(basis.g.io);
+
+    for (g.callbackStates.items) |state| {
         if (state.sceneIntPtr == sceneIntPtr) {
             state.cb.call(collisionData);
-            return;
         }
     }
 }

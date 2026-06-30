@@ -1,5 +1,5 @@
 // ----------------------------------------------------
-// Copyright (c) 2018-2025 Madrigal Ltd.
+// Copyright (c) 2018-2026 Madrigal Ltd.
 // This file is part of the Basis SDK, and is subject to the
 // terms and conditions of the Basis SDK License Agreement.
 // https://www.madrigalgames.com
@@ -81,22 +81,18 @@ pub const TimbreEventScriptComponent = struct {
 
     //----------------------------------------------------
 
-    pub fn create(self: *Self) !void {
-        self.playAction.setActionFiredCallback(
-            .initMethod(self, Self, onPlayActionFired),
-        );
-
-        self.stopAction.setActionFiredCallback(
-            .initMethod(self, Self, onStopActionFired),
-        );
-    }
+    // pub fn create(self: *Self) !void { }
 
     pub fn onObjectCreated(self: *Self) !void {
         const go = self.context.getGameObject();
         self.eventComponent = go.getComponent(TimbreEventComponent); // This is null on the server.
+
+        self.setupCallbacks();
     }
 
     pub fn destroy(self: *Self) !void {
+        self.tearDownCallbacks();
+
         self.scriptCode.deinit();
         self.playAction.deinit();
         self.stopAction.deinit();
@@ -106,7 +102,30 @@ pub const TimbreEventScriptComponent = struct {
         self.context.callScriptOnTick(tickDeltaTime);
     }
 
+    pub fn beforeHotReload(self: *Self) !void {
+        self.tearDownCallbacks();
+    }
+
+    pub fn afterHotReload(self: *Self) !void {
+        self.setupCallbacks();
+    }
+
     //----------------------------------------------------
+
+    fn setupCallbacks(self: *Self) void {
+        self.playAction.setActionFiredCallback(
+            .initMethod(self, Self, onPlayActionFired),
+        );
+
+        self.stopAction.setActionFiredCallback(
+            .initMethod(self, Self, onStopActionFired),
+        );
+    }
+
+    fn tearDownCallbacks(self: *Self) void {
+        self.playAction.clearActionFiredCallback();
+        self.stopAction.clearActionFiredCallback();
+    }
 
     fn onPlayActionFired(self: *Self, localChange: bool, valueTime: f64) void {
         _ = valueTime;

@@ -1,5 +1,5 @@
 // ----------------------------------------------------
-// Copyright (c) 2018-2025 Madrigal Ltd.
+// Copyright (c) 2018-2026 Madrigal Ltd.
 // This file is part of the Basis modding SDK, and is subject to the
 // terms and conditions of the Basis modding SDK License Agreement.
 // https://www.madrigalgames.com
@@ -19,7 +19,7 @@ const ServerPtr = basis.host.ServerPtr;
 
 // Convenience functions for creating/destroying mod controllers:
 
-pub fn create(comptime T: type, allocator: Allocator) *T {
+pub fn create(comptime T: type, allocator: Allocator, io: std.Io) *T {
     basis.bindings.api.init(allocator);
 
     var controllerPtr: *T = allocator.create(T) catch |err| {
@@ -32,7 +32,7 @@ pub fn create(comptime T: type, allocator: Allocator) *T {
         @intFromPtr(&controllerPtr.interface),
     );
 
-    controllerPtr.* = T.init(ModControllerInterface.make(T, controllerPtr), allocator, cppPtr);
+    controllerPtr.* = T.init(ModControllerInterface.make(T, controllerPtr), allocator, io, cppPtr);
     controllerPtr.postInit() catch |err| {
         basis.fatalErrorWithFormat(@src(), "Error in mod controller postInit(): {s}", .{@errorName(err)});
     };
@@ -53,25 +53,19 @@ pub const ModControllerContext = struct {
     const Self = @This();
 
     allocator: Allocator,
+    io: std.Io,
     cppPtr: basis.CppPtr,
 
-    pub fn init(allocator: Allocator, cppPtr: basis.CppPtr) Self {
-        basis.resources.resource_manager.init(allocator);
-
-        basis.debug_overlay.init(allocator);
-
+    pub fn init(allocator: Allocator, io: std.Io, cppPtr: basis.CppPtr) Self {
         return Self{
             .allocator = allocator,
+            .io = io,
             .cppPtr = cppPtr,
         };
     }
 
     pub fn deinit(self: *Self) void {
         _ = self;
-
-        basis.debug_overlay.deinit();
-
-        basis.resources.resource_manager.deinit();
     }
 
     pub fn getAppMode(self: *const Self) basis.app.AppMode {
@@ -82,6 +76,7 @@ pub const ModControllerContext = struct {
         return ClientPtr{
             .cppPtr = basis.bindings.api.ModController_getClient(self.cppPtr),
             .allocator = self.allocator,
+            .io = self.io,
         };
     }
 
@@ -89,6 +84,7 @@ pub const ModControllerContext = struct {
         return ServerPtr{
             .cppPtr = basis.bindings.api.ModController_getServer(self.cppPtr),
             .allocator = self.allocator,
+            .io = self.io,
         };
     }
 

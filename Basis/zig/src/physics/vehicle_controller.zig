@@ -1,5 +1,5 @@
 // ----------------------------------------------------
-// Copyright (c) 2018-2025 Madrigal Ltd.
+// Copyright (c) 2018-2026 Madrigal Ltd.
 // This file is part of the Basis modding SDK, and is subject to the
 // terms and conditions of the Basis modding SDK License Agreement.
 // https://www.madrigalgames.com
@@ -174,6 +174,10 @@ pub const VehicleControllerPtr = struct {
 
     pub fn unfreezeInputData(self: *Self) void {
         basis.bindings.api.VehicleController_unfreezeInputData(self.cppPtr);
+    }
+
+    pub fn getFastestWheelRotationSpeed(self: *const Self) f32 {
+        return basis.bindings.api.VehicleController_getFastestWheelRotationSpeed(self.cppPtr);
     }
 
     pub fn addRef(self: *const Self) void {

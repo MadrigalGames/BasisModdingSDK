@@ -1,5 +1,5 @@
 // ----------------------------------------------------
-// Copyright (c) 2018-2025 Madrigal Ltd.
+// Copyright (c) 2018-2026 Madrigal Ltd.
 // This file is part of the Basis modding SDK, and is subject to the
 // terms and conditions of the Basis modding SDK License Agreement.
 // https://www.madrigalgames.com
@@ -172,6 +172,7 @@ pub var _GameObject_getPhysicsActor: basis.bindings.generated_types.basis_zig_Ga
 pub var _GameObject_setGameTag: basis.bindings.generated_types.basis_zig_GameObject_setGameTag_cb = undefined;
 pub var _GameObject_getGameTag: basis.bindings.generated_types.basis_zig_GameObject_getGameTag_cb = undefined;
 pub var _GameObject_getRenderSceneNode: basis.bindings.generated_types.basis_zig_GameObject_getRenderSceneNode_cb = undefined;
+pub var _GameObject_getNavMeshObstacleIDs: basis.bindings.generated_types.basis_zig_GameObject_getNavMeshObstacleIDs_cb = undefined;
 
 // ===============================
 
@@ -215,6 +216,7 @@ pub var _ComponentContext_writeToPipe: basis.bindings.generated_types.basis_zig_
 pub var _ComponentContext_callScriptOnTick: basis.bindings.generated_types.basis_zig_ComponentContext_callScriptOnTick_cb = undefined;
 pub var _ComponentContext_getScriptFunctionByDecl: basis.bindings.generated_types.basis_zig_ComponentContext_getScriptFunctionByDecl_cb = undefined;
 pub var _ComponentContext_getScriptFunctionByASFuncPtr: basis.bindings.generated_types.basis_zig_ComponentContext_getScriptFunctionByASFuncPtr_cb = undefined;
+pub var _ComponentContext_setScriptGlobalHandle: basis.bindings.generated_types.basis_zig_ComponentContext_setScriptGlobalHandle_cb = undefined;
 
 // ===============================
 
@@ -227,6 +229,10 @@ pub var _AngelScriptFunction_setUintParam: basis.bindings.generated_types.basis_
 pub var _AngelScriptFunction_setFloatParam: basis.bindings.generated_types.basis_zig_AngelScriptFunction_setFloatParam_cb = undefined;
 pub var _AngelScriptFunction_setStringParam: basis.bindings.generated_types.basis_zig_AngelScriptFunction_setStringParam_cb = undefined;
 pub var _AngelScriptFunction_setGameObjectRefParam: basis.bindings.generated_types.basis_zig_AngelScriptFunction_setGameObjectRefParam_cb = undefined;
+pub var _AngelScriptFunction_getReturnBool: basis.bindings.generated_types.basis_zig_AngelScriptFunction_getReturnBool_cb = undefined;
+pub var _AngelScriptFunction_getReturnInt: basis.bindings.generated_types.basis_zig_AngelScriptFunction_getReturnInt_cb = undefined;
+pub var _AngelScriptFunction_getReturnUint: basis.bindings.generated_types.basis_zig_AngelScriptFunction_getReturnUint_cb = undefined;
+pub var _AngelScriptFunction_getReturnFloat: basis.bindings.generated_types.basis_zig_AngelScriptFunction_getReturnFloat_cb = undefined;
 pub var _AngelScriptFunction_executeCall: basis.bindings.generated_types.basis_zig_AngelScriptFunction_executeCall_cb = undefined;
 
 // ===============================
@@ -274,10 +280,15 @@ pub var _InputManager_releaseCursor: basis.bindings.generated_types.basis_zig_In
 pub var _InputManager_getGameInputMode: basis.bindings.generated_types.basis_zig_InputManager_getGameInputMode_cb = undefined;
 pub var _InputManager_isKeyPressed: basis.bindings.generated_types.basis_zig_InputManager_isKeyPressed_cb = undefined;
 pub var _InputManager_isMouseButtonPressed: basis.bindings.generated_types.basis_zig_InputManager_isMouseButtonPressed_cb = undefined;
+pub var _InputManager_isGamepadButtonDown: basis.bindings.generated_types.basis_zig_InputManager_isGamepadButtonDown_cb = undefined;
+pub var _InputManager_setGamepadVibration: basis.bindings.generated_types.basis_zig_InputManager_setGamepadVibration_cb = undefined;
 pub var _InputManager_getMappedKeyCode: basis.bindings.generated_types.basis_zig_InputManager_getMappedKeyCode_cb = undefined;
 pub var _InputManager_getMappedMouseButton: basis.bindings.generated_types.basis_zig_InputManager_getMappedMouseButton_cb = undefined;
 pub var _InputManager_getMappedGamepadButton: basis.bindings.generated_types.basis_zig_InputManager_getMappedGamepadButton_cb = undefined;
 pub var _InputManager_getMappedInputSource: basis.bindings.generated_types.basis_zig_InputManager_getMappedInputSource_cb = undefined;
+pub var _InputManager_getFirstPressedKey: basis.bindings.generated_types.basis_zig_InputManager_getFirstPressedKey_cb = undefined;
+pub var _InputManager_getFirstPressedMouseButton: basis.bindings.generated_types.basis_zig_InputManager_getFirstPressedMouseButton_cb = undefined;
+pub var _InputManager_getKeyName: basis.bindings.generated_types.basis_zig_InputManager_getKeyName_cb = undefined;
 
 // ===============================
 
@@ -405,6 +416,10 @@ pub var _PhysicsActor_setWorldTransform: basis.bindings.generated_types.basis_zi
 pub var _PhysicsActor_getWorldTransform: basis.bindings.generated_types.basis_zig_PhysicsActor_getWorldTransform_cb = undefined;
 pub var _PhysicsActor_setKinematicTarget: basis.bindings.generated_types.basis_zig_PhysicsActor_setKinematicTarget_cb = undefined;
 pub var _PhysicsActor_setMassData: basis.bindings.generated_types.basis_zig_PhysicsActor_setMassData_cb = undefined;
+pub var _PhysicsActor_setContactReportThreshold: basis.bindings.generated_types.basis_zig_PhysicsActor_setContactReportThreshold_cb = undefined;
+pub var _PhysicsActor_setSolverIterationCounts: basis.bindings.generated_types.basis_zig_PhysicsActor_setSolverIterationCounts_cb = undefined;
+pub var _PhysicsActor_setAngularDamping: basis.bindings.generated_types.basis_zig_PhysicsActor_setAngularDamping_cb = undefined;
+pub var _PhysicsActor_setMaxAngularVelocity: basis.bindings.generated_types.basis_zig_PhysicsActor_setMaxAngularVelocity_cb = undefined;
 pub var _PhysicsActor_getWorldBounds: basis.bindings.generated_types.basis_zig_PhysicsActor_getWorldBounds_cb = undefined;
 pub var _PhysicsActor_associateWithGameObject: basis.bindings.generated_types.basis_zig_PhysicsActor_associateWithGameObject_cb = undefined;
 pub var _PhysicsActor_getAssociatedGameObject: basis.bindings.generated_types.basis_zig_PhysicsActor_getAssociatedGameObject_cb = undefined;
@@ -483,6 +498,7 @@ pub var _VehicleController_unfreezeInputData: basis.bindings.generated_types.bas
 pub var _VehicleController_getWheelCount: basis.bindings.generated_types.basis_zig_VehicleController_getWheelCount_cb = undefined;
 pub var _VehicleController_getWheelStateInfo: basis.bindings.generated_types.basis_zig_VehicleController_getWheelStateInfo_cb = undefined;
 pub var _VehicleController_getStateInfo: basis.bindings.generated_types.basis_zig_VehicleController_getStateInfo_cb = undefined;
+pub var _VehicleController_getFastestWheelRotationSpeed: basis.bindings.generated_types.basis_zig_VehicleController_getFastestWheelRotationSpeed_cb = undefined;
 pub var _VehicleController_addRef: basis.bindings.generated_types.basis_zig_VehicleController_addRef_cb = undefined;
 pub var _VehicleController_release: basis.bindings.generated_types.basis_zig_VehicleController_release_cb = undefined;
 
@@ -500,6 +516,7 @@ pub var _ResourceManager_unregisterResourceReloadedCallback: basis.bindings.gene
 pub var _ResourceManager_beginGetResourcesWithFileExtension: basis.bindings.generated_types.basis_zig_ResourceManager_beginGetResourcesWithFileExtension_cb = undefined;
 pub var _ResourceManager_endGetResourcesWithFileExtension: basis.bindings.generated_types.basis_zig_ResourceManager_endGetResourcesWithFileExtension_cb = undefined;
 pub var _ResourceManager_addLooseFileResourcePack: basis.bindings.generated_types.basis_zig_ResourceManager_addLooseFileResourcePack_cb = undefined;
+pub var _ResourceManager_getSourceFilePathForResource: basis.bindings.generated_types.basis_zig_ResourceManager_getSourceFilePathForResource_cb = undefined;
 
 // ===============================
 
@@ -522,9 +539,13 @@ pub var _Renderer_addCameraToBackOfQueue: basis.bindings.generated_types.basis_z
 pub var _Renderer_addCameraToFrontOfQueue: basis.bindings.generated_types.basis_zig_Renderer_addCameraToFrontOfQueue_cb = undefined;
 pub var _Renderer_removeCameraFromQueue: basis.bindings.generated_types.basis_zig_Renderer_removeCameraFromQueue_cb = undefined;
 pub var _Renderer_getMainCamera: basis.bindings.generated_types.basis_zig_Renderer_getMainCamera_cb = undefined;
-pub var _Renderer_getScreenWidth: basis.bindings.generated_types.basis_zig_Renderer_getScreenWidth_cb = undefined;
-pub var _Renderer_getScreenHeight: basis.bindings.generated_types.basis_zig_Renderer_getScreenHeight_cb = undefined;
-pub var _Renderer_setVignetteEnabled: basis.bindings.generated_types.basis_zig_Renderer_setVignetteEnabled_cb = undefined;
+pub var _Renderer_getWindowWidth: basis.bindings.generated_types.basis_zig_Renderer_getWindowWidth_cb = undefined;
+pub var _Renderer_getWindowHeight: basis.bindings.generated_types.basis_zig_Renderer_getWindowHeight_cb = undefined;
+pub var _Renderer_getRenderWidth: basis.bindings.generated_types.basis_zig_Renderer_getRenderWidth_cb = undefined;
+pub var _Renderer_getRenderHeight: basis.bindings.generated_types.basis_zig_Renderer_getRenderHeight_cb = undefined;
+pub var _Renderer_getRenderScale: basis.bindings.generated_types.basis_zig_Renderer_getRenderScale_cb = undefined;
+pub var _Renderer_setRenderScale: basis.bindings.generated_types.basis_zig_Renderer_setRenderScale_cb = undefined;
+pub var _Renderer_setGraphicsOption: basis.bindings.generated_types.basis_zig_Renderer_setGraphicsOption_cb = undefined;
 pub var _Renderer_createMesh: basis.bindings.generated_types.basis_zig_Renderer_createMesh_cb = undefined;
 pub var _Renderer_createMeshManual: basis.bindings.generated_types.basis_zig_Renderer_createMeshManual_cb = undefined;
 pub var _Renderer_captureSinglePre2DFrame: basis.bindings.generated_types.basis_zig_Renderer_captureSinglePre2DFrame_cb = undefined;
@@ -536,6 +557,7 @@ pub var _Renderer_startCapturingFullFrames: basis.bindings.generated_types.basis
 pub var _Renderer_stopCapturingFrames: basis.bindings.generated_types.basis_zig_Renderer_stopCapturingFrames_cb = undefined;
 pub var _Renderer_applyDisplayOptions: basis.bindings.generated_types.basis_zig_Renderer_applyDisplayOptions_cb = undefined;
 pub var _Renderer_applyVsyncAndFramerateLimit: basis.bindings.generated_types.basis_zig_Renderer_applyVsyncAndFramerateLimit_cb = undefined;
+pub var _Renderer_getWindowMode: basis.bindings.generated_types.basis_zig_Renderer_getWindowMode_cb = undefined;
 pub var _Renderer_getDisplacementEffectRenderer: basis.bindings.generated_types.basis_zig_Renderer_getDisplacementEffectRenderer_cb = undefined;
 
 // ===============================
@@ -650,6 +672,8 @@ pub var _MeshInstance_isFlagSet: basis.bindings.generated_types.basis_zig_MeshIn
 pub var _MeshInstance_setFlagValue: basis.bindings.generated_types.basis_zig_MeshInstance_setFlagValue_cb = undefined;
 pub var _MeshInstance_updateLightProbeData: basis.bindings.generated_types.basis_zig_MeshInstance_updateLightProbeData_cb = undefined;
 pub var _MeshInstance_getParentSceneNode: basis.bindings.generated_types.basis_zig_MeshInstance_getParentSceneNode_cb = undefined;
+pub var _MeshInstance_setCullDistanceMultiplier: basis.bindings.generated_types.basis_zig_MeshInstance_setCullDistanceMultiplier_cb = undefined;
+pub var _MeshInstance_getCullDistanceMultiplier: basis.bindings.generated_types.basis_zig_MeshInstance_getCullDistanceMultiplier_cb = undefined;
 
 // ===============================
 
@@ -693,6 +717,11 @@ pub var _GameSession_getClientCount: basis.bindings.generated_types.basis_zig_Ga
 pub var _GameSession_getClient: basis.bindings.generated_types.basis_zig_GameSession_getClient_cb = undefined;
 pub var _GameSession_isPaused: basis.bindings.generated_types.basis_zig_GameSession_isPaused_cb = undefined;
 pub var _GameSession_requestPause: basis.bindings.generated_types.basis_zig_GameSession_requestPause_cb = undefined;
+pub var _GameSession_getTickLevel: basis.bindings.generated_types.basis_zig_GameSession_getTickLevel_cb = undefined;
+pub var _GameSession_setTickLevel: basis.bindings.generated_types.basis_zig_GameSession_setTickLevel_cb = undefined;
+pub var _GameSession_requestSetTickLevel: basis.bindings.generated_types.basis_zig_GameSession_requestSetTickLevel_cb = undefined;
+pub var _GameSession_hasStarted: basis.bindings.generated_types.basis_zig_GameSession_hasStarted_cb = undefined;
+pub var _GameSession_hasEnded: basis.bindings.generated_types.basis_zig_GameSession_hasEnded_cb = undefined;
 pub var _GameSession_getLevelData: basis.bindings.generated_types.basis_zig_GameSession_getLevelData_cb = undefined;
 pub var _GameSession_isContinuousSession: basis.bindings.generated_types.basis_zig_GameSession_isContinuousSession_cb = undefined;
 
@@ -714,6 +743,7 @@ pub var _GameState_clearAvatarObject: basis.bindings.generated_types.basis_zig_G
 pub var _GameState_getAvatarObjectByHostID: basis.bindings.generated_types.basis_zig_GameState_getAvatarObjectByHostID_cb = undefined;
 pub var _GameState_getHostIDByAvatarObject: basis.bindings.generated_types.basis_zig_GameState_getHostIDByAvatarObject_cb = undefined;
 pub var _GameState_broadcastScriptMessage: basis.bindings.generated_types.basis_zig_GameState_broadcastScriptMessage_cb = undefined;
+pub var _GameState_sendScriptMessageToGameObject: basis.bindings.generated_types.basis_zig_GameState_sendScriptMessageToGameObject_cb = undefined;
 pub var _GameState_generateGameObjectName: basis.bindings.generated_types.basis_zig_GameState_generateGameObjectName_cb = undefined;
 
 // ===============================
@@ -830,6 +860,11 @@ pub var _ImGui_menuItem: basis.bindings.generated_types.basis_zig_ImGui_menuItem
 pub var _ImGui_openPopup: basis.bindings.generated_types.basis_zig_ImGui_openPopup_cb = undefined;
 pub var _ImGui_beginPopup: basis.bindings.generated_types.basis_zig_ImGui_beginPopup_cb = undefined;
 pub var _ImGui_endPopup: basis.bindings.generated_types.basis_zig_ImGui_endPopup_cb = undefined;
+pub var _ImGui_beginPopupModal: basis.bindings.generated_types.basis_zig_ImGui_beginPopupModal_cb = undefined;
+pub var _ImGui_closeCurrentPopup: basis.bindings.generated_types.basis_zig_ImGui_closeCurrentPopup_cb = undefined;
+pub var _ImGui_setItemDefaultFocus: basis.bindings.generated_types.basis_zig_ImGui_setItemDefaultFocus_cb = undefined;
+pub var _ImGui_dummy: basis.bindings.generated_types.basis_zig_ImGui_dummy_cb = undefined;
+pub var _ImGui_getMainViewportCenter: basis.bindings.generated_types.basis_zig_ImGui_getMainViewportCenter_cb = undefined;
 pub var _ImGui_pushStyleColor: basis.bindings.generated_types.basis_zig_ImGui_pushStyleColor_cb = undefined;
 pub var _ImGui_popStyleColor: basis.bindings.generated_types.basis_zig_ImGui_popStyleColor_cb = undefined;
 pub var _ImGui_separator: basis.bindings.generated_types.basis_zig_ImGui_separator_cb = undefined;
@@ -861,6 +896,26 @@ pub var _ImGui_dragFloat: basis.bindings.generated_types.basis_zig_ImGui_dragFlo
 pub var _ImGui_dragInt: basis.bindings.generated_types.basis_zig_ImGui_dragInt_cb = undefined;
 pub var _ImGui_sliderFloat: basis.bindings.generated_types.basis_zig_ImGui_sliderFloat_cb = undefined;
 pub var _ImGui_sliderInt: basis.bindings.generated_types.basis_zig_ImGui_sliderInt_cb = undefined;
+pub var _ImGui_plotMultiLines: basis.bindings.generated_types.basis_zig_ImGui_plotMultiLines_cb = undefined;
+pub var _ImGui_getContentRegionAvail: basis.bindings.generated_types.basis_zig_ImGui_getContentRegionAvail_cb = undefined;
+pub var _ImGui_pushID: basis.bindings.generated_types.basis_zig_ImGui_pushID_cb = undefined;
+pub var _ImGui_pushIDPtr: basis.bindings.generated_types.basis_zig_ImGui_pushIDPtr_cb = undefined;
+pub var _ImGui_popID: basis.bindings.generated_types.basis_zig_ImGui_popID_cb = undefined;
+
+// ===============================
+
+// class ImPlot
+
+pub var _ImPlot_beginPlot: basis.bindings.generated_types.basis_zig_ImPlot_beginPlot_cb = undefined;
+pub var _ImPlot_endPlot: basis.bindings.generated_types.basis_zig_ImPlot_endPlot_cb = undefined;
+pub var _ImPlot_setupAxis: basis.bindings.generated_types.basis_zig_ImPlot_setupAxis_cb = undefined;
+pub var _ImPlot_setupAxisLimits: basis.bindings.generated_types.basis_zig_ImPlot_setupAxisLimits_cb = undefined;
+pub var _ImPlot_setupLegend: basis.bindings.generated_types.basis_zig_ImPlot_setupLegend_cb = undefined;
+pub var _ImPlot_plotLine: basis.bindings.generated_types.basis_zig_ImPlot_plotLine_cb = undefined;
+pub var _ImPlot_plotLineEx: basis.bindings.generated_types.basis_zig_ImPlot_plotLineEx_cb = undefined;
+pub var _ImPlot_plotScatter: basis.bindings.generated_types.basis_zig_ImPlot_plotScatter_cb = undefined;
+pub var _ImPlot_plotScatterEx: basis.bindings.generated_types.basis_zig_ImPlot_plotScatterEx_cb = undefined;
+pub var _ImPlot_dragPoint: basis.bindings.generated_types.basis_zig_ImPlot_dragPoint_cb = undefined;
 
 // ===============================
 
@@ -877,6 +932,7 @@ pub var _GameObjectCreationParameters_setPropertyBundlePath: basis.bindings.gene
 // class OSUtility
 
 pub var _OSUtility_writeStringToClipboard: basis.bindings.generated_types.basis_zig_OSUtility_writeStringToClipboard_cb = undefined;
+pub var _OSUtility_readStringFromClipboard: basis.bindings.generated_types.basis_zig_OSUtility_readStringFromClipboard_cb = undefined;
 
 // ===============================
 
