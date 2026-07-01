@@ -8,7 +8,7 @@
 const std = @import("std");
 const builtin = @import("builtin");
 
-pub const APIVersionNumber = 2;
+pub const APIVersionNumber = 3;
 
 pub const build_options = @import("basis_build_options");
 

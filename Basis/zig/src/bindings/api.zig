@@ -2102,6 +2102,14 @@ pub fn InputManager_isGamepadButtonDown(button: i32) bool {
     }
 }
 
+pub fn InputManager_getGamepadThumbstick(thumbstick: i32, outValue: [*c]basis.bindings.InteropVec2) void {
+    if (isWasm) {
+        @compileError("InputManager_getGamepadThumbstick not implemented for WASM yet.");
+    } else {
+        basis.bindings.fp._InputManager_getGamepadThumbstick(thumbstick, outValue);
+    }
+}
+
 pub fn InputManager_setGamepadVibration(index: i32, lowFrequency: f32, highFrequency: f32) void {
     if (isWasm) {
         access.InputManager_setGamepadVibration_WASM(index, lowFrequency, highFrequency);

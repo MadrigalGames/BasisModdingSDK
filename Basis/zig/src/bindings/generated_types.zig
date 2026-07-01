@@ -281,6 +281,7 @@ pub const basis_zig_InputManager_getGameInputMode_cb = *const fn () callconv(.c)
 pub const basis_zig_InputManager_isKeyPressed_cb = *const fn (u32) callconv(.c) c_int;
 pub const basis_zig_InputManager_isMouseButtonPressed_cb = *const fn (u32) callconv(.c) c_int;
 pub const basis_zig_InputManager_isGamepadButtonDown_cb = *const fn (i32) callconv(.c) c_int;
+pub const basis_zig_InputManager_getGamepadThumbstick_cb = *const fn (i32, [*c]basis.bindings.InteropVec2) callconv(.c) void;
 pub const basis_zig_InputManager_setGamepadVibration_cb = *const fn (i32, f32, f32) callconv(.c) void;
 pub const basis_zig_InputManager_getMappedKeyCode_cb = *const fn (u16, u8, c_int, [*c]i32) callconv(.c) c_int;
 pub const basis_zig_InputManager_getMappedMouseButton_cb = *const fn (u16, u8, c_int, [*c]i32) callconv(.c) c_int;

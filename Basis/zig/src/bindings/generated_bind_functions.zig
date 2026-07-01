@@ -512,6 +512,7 @@ export fn bindInputManager(
 	isKeyPressed: basis.bindings.generated_types.basis_zig_InputManager_isKeyPressed_cb,
 	isMouseButtonPressed: basis.bindings.generated_types.basis_zig_InputManager_isMouseButtonPressed_cb,
 	isGamepadButtonDown: basis.bindings.generated_types.basis_zig_InputManager_isGamepadButtonDown_cb,
+	getGamepadThumbstick: basis.bindings.generated_types.basis_zig_InputManager_getGamepadThumbstick_cb,
 	setGamepadVibration: basis.bindings.generated_types.basis_zig_InputManager_setGamepadVibration_cb,
 	getMappedKeyCode: basis.bindings.generated_types.basis_zig_InputManager_getMappedKeyCode_cb,
 	getMappedMouseButton: basis.bindings.generated_types.basis_zig_InputManager_getMappedMouseButton_cb,
@@ -533,6 +534,7 @@ export fn bindInputManager(
 	basis.bindings.generated_function_pointers._InputManager_isKeyPressed = isKeyPressed;
 	basis.bindings.generated_function_pointers._InputManager_isMouseButtonPressed = isMouseButtonPressed;
 	basis.bindings.generated_function_pointers._InputManager_isGamepadButtonDown = isGamepadButtonDown;
+	basis.bindings.generated_function_pointers._InputManager_getGamepadThumbstick = getGamepadThumbstick;
 	basis.bindings.generated_function_pointers._InputManager_setGamepadVibration = setGamepadVibration;
 	basis.bindings.generated_function_pointers._InputManager_getMappedKeyCode = getMappedKeyCode;
 	basis.bindings.generated_function_pointers._InputManager_getMappedMouseButton = getMappedMouseButton;

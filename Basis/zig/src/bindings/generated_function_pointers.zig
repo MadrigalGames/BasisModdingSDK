@@ -281,6 +281,7 @@ pub var _InputManager_getGameInputMode: basis.bindings.generated_types.basis_zig
 pub var _InputManager_isKeyPressed: basis.bindings.generated_types.basis_zig_InputManager_isKeyPressed_cb = undefined;
 pub var _InputManager_isMouseButtonPressed: basis.bindings.generated_types.basis_zig_InputManager_isMouseButtonPressed_cb = undefined;
 pub var _InputManager_isGamepadButtonDown: basis.bindings.generated_types.basis_zig_InputManager_isGamepadButtonDown_cb = undefined;
+pub var _InputManager_getGamepadThumbstick: basis.bindings.generated_types.basis_zig_InputManager_getGamepadThumbstick_cb = undefined;
 pub var _InputManager_setGamepadVibration: basis.bindings.generated_types.basis_zig_InputManager_setGamepadVibration_cb = undefined;
 pub var _InputManager_getMappedKeyCode: basis.bindings.generated_types.basis_zig_InputManager_getMappedKeyCode_cb = undefined;
 pub var _InputManager_getMappedMouseButton: basis.bindings.generated_types.basis_zig_InputManager_getMappedMouseButton_cb = undefined;

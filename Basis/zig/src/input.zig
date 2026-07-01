@@ -12,6 +12,8 @@ const basis = @import("basis.zig");
 pub const FirstInputContextID: u8 = 32;
 pub const FirstGameInputID: u16 = 256;
 
+// Keep these enum values in sync with the C++ versions!
+
 pub const GameInputMode = enum(i32) {
     MouseKeyboard = 0,
     Gamepad,
@@ -61,6 +63,11 @@ pub const InputMappingFlags = enum(i32) {
     pub fn asInt(self: InputMappingFlags) i32 {
         return @intFromEnum(self);
     }
+};
+
+pub const Thumbstick = enum(i32) {
+    Left = 0,
+    Right = 1,
 };
 
 // Keyboard scan codes
@@ -309,6 +316,13 @@ pub fn isMouseButtonPressed(id: MouseButtonID) bool {
 // True if the given gamepad button is currently held on any connected gamepad. Useful for raw polling.
 pub fn isGamepadButtonDown(button: GamepadButton) bool {
     return basis.bindings.api.InputManager_isGamepadButtonDown(@intFromEnum(button));
+}
+
+// Only reads gamepad 0 for now.
+pub fn getGamepadThumbstick(thumbstick: Thumbstick) basis.math.Vec2 {
+    var interop: basis.bindings.InteropVec2 = undefined;
+    basis.bindings.api.InputManager_getGamepadThumbstick(@intFromEnum(thumbstick), &interop);
+    return basis.math.Vec2.fromInterop(interop);
 }
 
 // Drives the gamepad's two rumble motors. low = left motor (low frequency), high = right motor
